@@ -55,7 +55,7 @@ When running properly, you'll see logs like this:
 > probot run ./lib/index.js
 
 INFO (server): Running Probot v13.4.2 (Node.js: v18.20.5)
-INFO (server): Forwarding https://smee.io/utzpE1pH7Kh3KkM to http://localhost:3000/api/github/webhooks
+INFO (server): Forwarding https://smee.io/[...] to http://localhost:3000/api/github/webhooks
 INFO (server): Listening on http://localhost:3000
 INFO (server): Connected
 ```
