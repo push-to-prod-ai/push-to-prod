@@ -27,8 +27,8 @@ export default async (app: Probot) => {
         `File: ${file.filename}\n${file.patch || ""}`
       ).join('\n\n');
 
-      const summary = await anthropic.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
+      const summary = await anthropic.messages.stream({
+        model: 'claude-3-5-sonnet-latest',
         max_tokens: 1000,
         messages: [{
           role: 'user',
@@ -36,11 +36,7 @@ export default async (app: Probot) => {
         }]
       });
 
-      // Get the text content from the first message
-      const summaryText = summary.content
-        .filter(block => block.type === 'text')
-        .map(block => (block.type === 'text' ? block.text : ''))
-        .join('');
+      const summaryText = await summary.finalText();
 
       // Update Jira ticket
       const jiraTicketId = 'SCRUM-1';
