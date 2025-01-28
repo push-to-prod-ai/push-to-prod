@@ -65,7 +65,7 @@ After a push to main, the app will:
 2. Update the Jira ticket with a summary
 3. Add a success status to the commit
 
-![Example Jira output showing AI-generated summaries of code changes](https://raw.githubusercontent.com/push-to-prod-ai/push-to-prod/main/docs/jira-example.png)
+![Example Jira output showing AI-generated summaries of code changes](https://raw.githubusercontent.com/push-to-prod-ai/push-to-prod/483dbbbc5b9cbd8de7e98abd6f1b05eb43284b6a/jira-example.png)
 
 ## License
 
