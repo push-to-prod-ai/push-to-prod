@@ -11,52 +11,61 @@ A GitHub App that analyzes code changes on push to main and updates Jira tickets
 
 ## Setup
 
-1. Create a GitHub App and configure with:
-   - Webhook URL (using smee.io for development)
+1. Create a GitHub App:
    - Required permissions: contents (read), issues (write), metadata (read), statuses (write)
    - Subscribe to push events
+   - Get App ID and private key
 
-2. Install dependencies:
+2. Configure environment:
 ```bash
-npm install
+# Copy example config
+cp .env.example .env
+
+# Fill in required values
+- APP_ID
+- PRIVATE_KEY
+- ANTHROPIC_API_KEY
+- JIRA_EMAIL
+- JIRA_API_TOKEN
 ```
 
-3. Create `.env` file from `.env.example` and fill in:
-   - GitHub App credentials (APP_ID, PRIVATE_KEY)
-   - Anthropic API key
-   - Jira credentials
-   - Webhook configuration
-
-4. Run the app:
+3. Run with Docker:
 ```bash
-npm start
-```
-
-## Environment Variables
-
-- `APP_ID`: GitHub App ID
-- `PRIVATE_KEY`: GitHub App private key
-- `WEBHOOK_SECRET`: Secret for webhook verification
-- `ANTHROPIC_API_KEY`: Claude API key
-- `JIRA_EMAIL`: Jira account email
-- `JIRA_API_TOKEN`: Jira API token
-
-
-## Docker
-
-```sh
-# 1. Build container
 docker build -t push-to-prod .
-
-# 2. Start container
 docker run -e APP_ID=<app-id> -e PRIVATE_KEY=<pem-value> push-to-prod
 ```
 
-## Contributing
+Or run locally:
+```bash
+npm install
+npm start
+```
 
-If you have suggestions for how push-to-prod could be improved, or want to report a bug, open an issue! We'd love all and any contributions.
+## Example Output
 
-For more, check out the [Contributing Guide](CONTRIBUTING.md).
+When running properly, you'll see logs like this:
+
+```
+➜  push-to-prod git:(main) npm run build && npm start
+
+> push-to-prod@1.0.0 build
+> tsc
+
+> push-to-prod@1.0.0 start
+> probot run ./lib/index.js
+
+INFO (server): Running Probot v13.4.2 (Node.js: v18.20.5)
+INFO (server): Forwarding https://smee.io/utzpE1pH7Kh3KkM to http://localhost:3000/api/github/webhooks
+INFO (server): Listening on http://localhost:3000
+INFO (server): Connected
+```
+
+After a push to main, the app will:
+1. Analyze the changes using Claude
+2. Update the Jira ticket with a summary
+3. Add a success status to the commit
+
+![Example Jira output showing AI-generated summaries of code changes](https://raw.githubusercontent.com/tylermarcuscross/push-to-prod/main/docs/jira-example.png)
 
 ## License
 
