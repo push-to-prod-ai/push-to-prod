@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.36.3",
+    "dotenv": "^16.4.7",
     "probot": "^13.0.1"
   },
   "devDependencies": {
