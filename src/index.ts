@@ -28,6 +28,9 @@ export default async (app: Probot) => {
         `File: ${file.filename}\n${file.patch || ""}`
       ).join('\n\n');
 
+      // Entrypoint -> Send to AWS
+
+
       const summary = anthropic.messages.stream({
         model: 'claude-3-5-sonnet-latest',
         max_tokens: 1000,
