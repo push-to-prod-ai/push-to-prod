@@ -1,6 +1,11 @@
 import { Probot } from "probot";
 import Anthropic from "@anthropic-ai/sdk";
 import axios from 'axios';
+import { createLogger } from 'winston';
+
+const logger = createLogger({
+  // Configure logging to work with Cloud Logging
+});
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY || '',
@@ -8,6 +13,10 @@ const anthropic = new Anthropic({
 
 export default async (app: Probot) => {
   app.on(["push"], async (context) => {
+    logger.info('Processing push event', {
+      repo: context.repo(),
+      ref: context.payload.ref
+    });
     const push = context.payload;
     
     // Skip if not targeting main branch

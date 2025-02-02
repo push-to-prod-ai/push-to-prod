@@ -20,7 +20,8 @@
     "@anthropic-ai/sdk": "^0.36.3",
     "axios": "^1.7.9",
     "dotenv": "^16.4.7",
-    "probot": "^13.0.1"
+    "probot": "^13.0.1",
+    "winston": "^3.17.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
