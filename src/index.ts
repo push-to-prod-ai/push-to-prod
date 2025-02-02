@@ -29,7 +29,13 @@ export default async (app: Probot) => {
       ).join('\n\n');
 
       // Entrypoint -> Send to AWS
-// Set up a real service here in AWS
+      // // Set up a real service here in AWS
+      // const summary = await axios.post('https://push-to-prod.atlassian.net/rest/api/3/issue/SCRUM-1/comment', {
+      //   body: {
+      //     version: 1,
+      //     type: "doc",
+      //     content: [
+      
 
       const summary = anthropic.messages.stream({
         model: 'claude-3-5-sonnet-latest',
