@@ -2,42 +2,60 @@ import os
 import json
 import requests
 from requests.auth import HTTPBasicAuth
+from pydantic import BaseModel, model_validator
 
-from pydantic.dataclasses import dataclass
 
 class JiraIssues:
-    """
-    issue_id - issue id
-    key - the name of the issue key
-    fields.summary – Main title of the issue
-    fields.description – Detailed description
-    fields.comment.comments – Past discussions (if relevant)
-    fields.issuetype.name – Helps filter out irrelevant types (e.g., only Bugs & Stories)
-    """
 
-    JIRA_URL = "https://push-to-prod.atlassian.net"
-    JIRA_API_TOKEN = os.getenv('JIRA_API_TOKEN')
-    JIRA_EMAIL = os.getenv('JIRA_EMAIL')
+    class JiraIssue(BaseModel):
+        issue_id: int
+        key: str
+        summary: str
+        description: str
+        issue_type: str
+        URL: str
 
-    @dataclass
-    class JiraIssue:
+        @model_validator(mode='before')
+        @classmethod
+        def process_description(cls, data):
+            def traverse_content(content):
+                raw_text = ""
+                for item in content:
+                    if item['type'] == 'text':
+                        raw_text += item['text'] + ' '
+                    if 'content' in item:
+                        raw_text += traverse_content(item['content'])
+                return raw_text
 
-        def __init__(self,
-                     issue_id: int,
-                     key: str,
-                     summary: str,
-                     description: str,
-                     issue_type: str):
-        pass
+            raw_description = data['description']
+            if isinstance(raw_description, dict):
+                print(raw_description)
+                # Convert rich-text description to plain text
+                data['description'] = traverse_content(raw_description['content']).strip()
 
+            elif raw_description is None:
+                data['description'] = ''
 
-    def get_jira_issues(self):
+            return data
+
+        @property
+        def textual_representation(self):
+            return f'KEY: {self.summary} \nSUMMARY: {self.summary} \nDESCRIPTION: {self.description}'
+
+    def __init__(self):
+
+        self.JIRA_URL = "https://push-to-prod.atlassian.net"  # TODO: change to config
+        self.JIRA_API_TOKEN = os.getenv('JIRA_API_TOKEN')
+        self.JIRA_EMAIL = os.getenv('JIRA_EMAIL')
+        self.issues = []
+
+    def get_all(self):
         url = f"{self.JIRA_URL}/rest/api/3/search"
         headers = {
             "Authorization": f"Bearer {self.JIRA_API_TOKEN}",
             "Content-Type": "application/json"
         }
-        params = {"fields": "summary,description"}
+        params = {"fields": "summary,description,issuetype"}
 
         auth = HTTPBasicAuth(self.JIRA_EMAIL, self.JIRA_API_TOKEN)
 
@@ -48,19 +66,19 @@ class JiraIssues:
 
         # Extract relevant fields
         return [
-            {
-                "id": issue["id"],
-                "key": issue["key"],
-                "summary": issue["fields"]["summary"],
-                "description": issue["fields"].get("description", ""),
-                "url": f"{self.JIRA_URL}/browse/{issue['key']}"  # Construct Jira link
-            }
+            self.JiraIssue(issue_id=issue["id"],
+                           key=issue["key"],
+                           summary=issue["fields"]["summary"],
+                           description=issue["fields"].get("description", ""),
+                           issue_type=issue["fields"]["issuetype"]["name"],
+                           URL=f"{self.JIRA_URL}/browse/{issue['key']}"  # Construct Jira link
+                           )
             for issue in issues
         ]
 
 
-    # Fetch and display Jira issues with links
-    jira_issues = get_jira_issues()
+# Fetch and display Jira issues with links
+jira_issues = JiraIssues().get_all()
 
-    print(json.dumps(jira_issues, indent=4))
+print(json.dumps([j.textual_representation for j in jira_issues], indent=4))
 
