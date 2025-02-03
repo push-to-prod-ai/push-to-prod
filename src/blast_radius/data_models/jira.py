@@ -29,7 +29,6 @@ class JiraIssues:
 
             raw_description = data['description']
             if isinstance(raw_description, dict):
-                print(raw_description)
                 # Convert rich-text description to plain text
                 data['description'] = traverse_content(raw_description['content']).strip()
 
@@ -40,7 +39,7 @@ class JiraIssues:
 
         @property
         def textual_representation(self):
-            return f'KEY: {self.summary} \nSUMMARY: {self.summary} \nDESCRIPTION: {self.description}'
+            return f'KEY: {self.key} \n SUMMARY: {self.summary} \n DESCRIPTION: {self.description}'
 
     def __init__(self):
 
@@ -78,7 +77,7 @@ class JiraIssues:
 
 
 # Fetch and display Jira issues with links
-jira_issues = JiraIssues().get_all()
+# jira_issues = JiraIssues().get_all()
 
-print(json.dumps([j.textual_representation for j in jira_issues], indent=4))
+# print(json.dumps([j.textual_representation for j in jira_issues], indent=4))
 
