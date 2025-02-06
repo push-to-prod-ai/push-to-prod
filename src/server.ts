@@ -7,7 +7,6 @@ import http from "http";
 import app from "./index.js";
 
 const port = Number(process.env.PORT) || 8080;
-const host = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
 
 const probot = createProbot();
 probot.load(app);
@@ -15,7 +14,7 @@ probot.load(app);
 // Create the webhook middleware
 const webhookHandler = createNodeMiddleware(probot.webhooks);
 
-// Create an HTTP server that handles health checks on GET "/" 
+// Create an HTTP server that handles health checks on GET "/"
 const server = http.createServer((req, res) => {
   // Health check endpoint used by Cloud Run (or any load balancer)
   if (req.method === 'GET' && req.url === '/') {
@@ -27,6 +26,7 @@ const server = http.createServer((req, res) => {
   }
 });
 
-server.listen(port, host, () => {
-  console.log(`Server is listening on ${host}:${port}`);
+// Note: Omitting the host parameter defaults to 0.0.0.0, which is appropriate for Cloud Run.
+server.listen(port, () => {
+  console.log(`Server is listening on port ${port}`);
 }); 
