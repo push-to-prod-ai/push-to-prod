@@ -16,7 +16,6 @@ RUN npm cache clean --force
 
 # Set environment variables
 ENV NODE_ENV="production"
-ENV PORT=8080
 
 # Copy built files from builder stage
 COPY --from=builder /usr/src/app/lib/ ./lib/
@@ -24,4 +23,5 @@ COPY --from=builder /usr/src/app/lib/ ./lib/
 # Document the port
 EXPOSE 8080
 
-CMD [ "npm", "start" ]
+# Start the app with the correct port
+CMD [ "npm", "start", "--", "--port", "8080" ]
