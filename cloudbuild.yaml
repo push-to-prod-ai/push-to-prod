@@ -1,0 +1,13 @@
+   steps:
+   - name: 'gcr.io/cloud-builders/docker'
+     args: ['build', '-t', 'REGION-docker.pkg.dev/$PROJECT_ID/REPOSITORY-NAME/push-to-prod', '.']
+   - name: 'gcr.io/cloud-builders/docker'
+     args: ['push', 'REGION-docker.pkg.dev/$PROJECT_ID/REPOSITORY-NAME/push-to-prod']
+   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+     entrypoint: gcloud
+     args:
+     - 'run'
+     - 'deploy'
+     - 'push-to-prod'
+     - '--image'
+     - 'REGION-docker.pkg.dev/$PROJECT_ID/REPOSITORY-NAME/push-to-prod'
