@@ -1,3 +1,6 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import { createProbot } from "probot";
 import { createNodeMiddleware } from "@octokit/webhooks";
 import http from "http";
