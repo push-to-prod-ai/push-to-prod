@@ -19,6 +19,7 @@ export default async (app: Probot) => {
     });
     const push = context.payload;
     
+    
     // Skip if not targeting main branch
     if (push.ref !== 'refs/heads/main') {
       return;
