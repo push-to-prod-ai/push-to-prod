@@ -1,7 +1,11 @@
 FROM node:20-slim
 WORKDIR /usr/src/app
-COPY package.json package-lock.json ./
-RUN npm ci --production
+# Copy configuration files first
+COPY package.json package-lock.json tsconfig.json ./
+COPY src/ ./src/
+RUN npm ci
+RUN npm run build
+RUN npm prune --production
 RUN npm cache clean --force
 ENV NODE_ENV="production"
 ENV APP_ID="1130707"
