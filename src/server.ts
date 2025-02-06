@@ -9,11 +9,21 @@ const host = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
 const probot = createProbot();
 probot.load(app);
 
-// Create middleware and start server
-const middleware = createNodeMiddleware(probot.webhooks);
-const server = http.createServer(middleware);
+// Create the webhook middleware
+const webhookHandler = createNodeMiddleware(probot.webhooks);
 
-// Use the correct overload for listen
+// Create an HTTP server that handles health checks on GET "/" 
+const server = http.createServer((req, res) => {
+  // Health check endpoint used by Cloud Run (or any load balancer)
+  if (req.method === 'GET' && req.url === '/') {
+    res.writeHead(200, { "Content-Type": "text/plain" });
+    res.end('healthy');
+  } else {
+    // Otherwise, let the webhook middleware handle the request
+    webhookHandler(req, res);
+  }
+});
+
 server.listen(port, host, () => {
   console.log(`Server is listening on ${host}:${port}`);
 }); 
