@@ -17,6 +17,9 @@ steps:
       - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/push-to-prod:$COMMIT_SHA'
       - '--region'
       - '${_REGION}'
+      - '--set-secrets'
+      - '/usr/src/app/.env=push-to-prod-env:latest'
+
 
 images:
   - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/push-to-prod:$COMMIT_SHA'
