@@ -1,13 +1,28 @@
-   steps:
-   - name: 'gcr.io/cloud-builders/docker'
-     args: ['build', '-t', 'REGION-docker.pkg.dev/$PROJECT_ID/REPOSITORY-NAME/push-to-prod', '.']
-   - name: 'gcr.io/cloud-builders/docker'
-     args: ['push', 'REGION-docker.pkg.dev/$PROJECT_ID/REPOSITORY-NAME/push-to-prod']
-   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-     entrypoint: gcloud
-     args:
-     - 'run'
-     - 'deploy'
-     - 'push-to-prod'
-     - '--image'
-     - 'REGION-docker.pkg.dev/$PROJECT_ID/REPOSITORY-NAME/push-to-prod'
+steps:
+  # Build the Docker image for push-to-prod GitHub App
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/push-to-prod:$COMMIT_SHA', '.']
+
+  # Push the Docker image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/push-to-prod:$COMMIT_SHA']
+
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'push-to-prod'
+      - '--image'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/push-to-prod:$COMMIT_SHA'
+      - '--region'
+      - '${_REGION}'
+
+images:
+  - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/push-to-prod:$COMMIT_SHA'
+  
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+substitutions:
+  _REGION: 'us-central1'
