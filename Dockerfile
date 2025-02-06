@@ -1,28 +1,16 @@
-# Build stage
-FROM node:20-slim AS builder
+FROM node:20-slim
 WORKDIR /usr/src/app
 COPY package*.json ./
 COPY tsconfig.json ./
 COPY src/ ./src/
-COPY .env ./
-RUN npm ci
-RUN npm run build
+RUN npm ci && npm run build && npm ci --production && npm cache clean --force
 
-# Production stage
-FROM node:20-slim
-WORKDIR /usr/src/app
-COPY package*.json ./
-COPY .env ./
-RUN npm ci --production
-RUN npm cache clean --force
-
-# Set environment variables
+# Set build-time environment variables
 ENV NODE_ENV="production"
+ENV APP_ID="1130707"
+ENV LOG_LEVEL="trace"
+ENV PORT="8080"
 
-# Copy built files from builder stage
-COPY --from=builder /usr/src/app/lib/ ./lib/
-
-# Document the port
 EXPOSE 8080
 
 CMD [ "npm", "start" ]
