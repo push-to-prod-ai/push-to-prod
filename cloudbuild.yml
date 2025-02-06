@@ -11,8 +11,3 @@
      - 'push-to-prod'
      - '--image'
      - 'gcr.io/$PROJECT_ID/push-to-prod'
-     - '--region'
-     - 'us-central1'
-     - '--platform'
-     - 'managed'
-     - '--allow-unauthenticated'
