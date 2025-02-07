@@ -19,7 +19,6 @@ export default async (app: Probot) => {
     });
     const push = context.payload;
     
-    
     // Skip if not targeting main branch
     if (push.ref !== 'refs/heads/main') {
       return;
@@ -37,8 +36,6 @@ export default async (app: Probot) => {
       const diffs = compare.data.files?.map(file => 
         `File: ${file.filename}\n${file.patch || ""}`
       ).join('\n\n');
-
-      // Entrypoint -> Send to AWS
 
       const summary = anthropic.messages.stream({
         model: 'claude-3-5-sonnet-latest',
