@@ -22,6 +22,7 @@ steps:
       - 'APP_ID=1130707,LOG_LEVEL=trace'
       - '--set-secrets'
       - 'WEBHOOK_SECRET=push-to-prod-webhook-secret:latest,ANTHROPIC_API_KEY=push-to-prod-anthropic-key:latest,JIRA_EMAIL=push-to-prod-jira-email:latest,JIRA_API_TOKEN=push-to-prod-jira-token:latest,PRIVATE_KEY=push-to-prod-private-key:latest'
+      - '--allow-unauthenticated'
 
 images:
   - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/push-to-prod:$COMMIT_SHA'
