@@ -1,22 +1,49 @@
 import { Probot } from "probot";
 import Anthropic from "@anthropic-ai/sdk";
 import axios from 'axios';
-import { createLogger } from 'winston';
+import { createLogger, format, transports } from 'winston';
 
 const logger = createLogger({
-  // Configure logging to work with Cloud Logging
-  // Test commit
+  level: process.env.LOG_LEVEL || 'info',
+  format: format.combine(
+    format.timestamp(),
+    format.json()
+  ),
+  transports: [
+    new transports.Console({
+      format: format.combine(
+        format.colorize(),
+        format.simple()
+      )
+    })
+  ],
+  // This ensures logs are properly structured for Google Cloud Logging
+  defaultMeta: {
+    serviceContext: {
+      service: 'push-to-prod',
+      version: '1.0.0'
+    }
+  }
 });
 
+if (!process.env.ANTHROPIC_API_KEY) {
+  throw new Error('ANTHROPIC_API_KEY environment variable is required');
+}
+
 const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || '',
+  apiKey: String(process.env.ANTHROPIC_API_KEY),
 });
 
 export default async (app: Probot) => {
   app.on(["push"], async (context) => {
     logger.info('Processing push event', {
       repo: context.repo(),
-      ref: context.payload.ref
+      ref: context.payload.ref,
+      // Adding structured data helps with filtering in Cloud Logging
+      labels: {
+        repository: context.payload.repository?.full_name,
+        sender: context.payload.sender?.login
+      }
     });
     const push = context.payload;
     
@@ -94,7 +121,12 @@ export default async (app: Probot) => {
       });
 
     } catch (error) {
-      console.error('Error processing push:', error);
+      logger.error('Error processing push:', {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        repo: context.repo(),
+        sha: context.payload.after
+      });
       
       // Add failure status
       await context.octokit.repos.createCommitStatus({
