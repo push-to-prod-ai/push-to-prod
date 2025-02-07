@@ -5,6 +5,7 @@ import { createLogger } from 'winston';
 
 const logger = createLogger({
   // Configure logging to work with Cloud Logging
+  // Test commit
 });
 
 const anthropic = new Anthropic({
