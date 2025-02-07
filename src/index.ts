@@ -32,6 +32,8 @@ export default async (app: Probot) => {
         head: push.after,
       });
 
+      // Test commit to check deployment
+
       // Generate summary using Anthropic
       const diffs = compare.data.files?.map(file => 
         `File: ${file.filename}\n${file.patch || ""}`
