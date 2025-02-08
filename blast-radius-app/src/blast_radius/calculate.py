@@ -29,9 +29,21 @@ def calculate_blast_radius(request: CalculationRequestModel):
     indices = np.where(similarities >= threshold)[0]
     relevant_issues = [issues[i] for i in indices][:request.max_items]
 
+    # Below is logic for handling when there are 0 "relevant" issues.
+    # So instead of pushing directly to Jira, maybe these will be sent to the PR conversation?
+
     print('Code summary:', request.summary)
-    print('Relevant Issues:')
-    for r in relevant_issues:
-        print('   -', r.key, r.summary, r.URL)
+    if len(relevant_issues) > 0:
+        print('Relevant Issues:')
+        for r in relevant_issues:
+            print('   -', r.key, r.summary, r.URL)
+
+    else:
+        top_indices = np.argsort(similarities)[::-1][:request.max_items]  # in descending order
+        most_similar_issues = [issues[i] for i in top_indices]
+
+        print(f'No relevant issues found. Returning the top {request.max_items} most similar issues:')
+        for issue in most_similar_issues:
+            print(f'   - {issue.key} {issue.summary} {issue.URL}')
 
     return CalculationResponseModel(relevant_issues=relevant_issues)
