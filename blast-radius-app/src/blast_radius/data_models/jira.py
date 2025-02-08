@@ -1,5 +1,4 @@
 import os
-import json
 import requests
 from requests.auth import HTTPBasicAuth
 from pydantic import BaseModel, model_validator
@@ -74,10 +73,3 @@ class JiraIssues:
                            )
             for issue in issues
         ]
-
-
-# Fetch and display Jira issues with links
-# jira_issues = JiraIssues().get_all()
-
-# print(json.dumps([j.textual_representation for j in jira_issues], indent=4))
-
