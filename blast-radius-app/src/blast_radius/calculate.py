@@ -1,11 +1,30 @@
-from data_models.jira import JiraIssues
+from contextlib import asynccontextmanager
 
 import numpy as np
+from fastapi import FastAPI, Request
 from sentence_transformers import SentenceTransformer
 
+from data_models.jira import JiraIssues
 
-def calculate_blast_radius():
-    model = SentenceTransformer('all-MiniLM-L6-v2')
+
+model_callable = {}
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    app.state.model = SentenceTransformer('all-MiniLM-L6-v2')
+    yield
+    app.state.model = None
+
+
+blast_radius_calculation_sub_app = FastAPI(lifespan=lifespan)
+
+
+@blast_radius_calculation_sub_app.post("/calculation")
+def calculate_blast_radius(request: Request, input_data: TextInput):
+
+    model = request.app.state.model
+
     threshold = 0.5
 
     summary = 'This code connects the GitHub repo to Jira.'

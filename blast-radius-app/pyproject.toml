@@ -1,0 +1,14 @@
+[project]
+name = "blast-radius-app"
+version = "0.1.0"
+description = "Microservice for the Blast Radius application."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115.8",
+    "numpy>=2.2.2",
+    "requests>=2.32.3",
+    "sentence-transformers>=3.4.1",
+    "torch==2.2.2",
+    "uvicorn>=0.34.0",
+]
