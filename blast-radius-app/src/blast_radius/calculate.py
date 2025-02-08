@@ -2,8 +2,8 @@ import numpy as np
 from fastapi import FastAPI
 from sentence_transformers import SentenceTransformer
 
-from data_models.jira import JiraIssues
-from data_models.calculation import CalculationRequestModel, CalculationResponseModel
+from .data_models.jira import JiraIssues
+from .data_models.calculation import CalculationRequestModel, CalculationResponseModel
 
 
 blast_radius_calculation_sub_app = FastAPI()
