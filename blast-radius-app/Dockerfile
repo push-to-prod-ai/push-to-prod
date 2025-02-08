@@ -22,18 +22,17 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 
 # Then, use a final image without uv
-FROM python:3.11-slim-bookworm
+FROM python:3.11-slim-bookworm as runtime
 # It is important to use the image that matches the builder, as the path to the
 # Python executable must be the same, e.g., using `python:3.11-slim-bookworm`
 # will fail.
-
+WORKDIR /app
 # Copy the application from the builder
-COPY --from=builder --chown=app:app /app /app
+# COPY --from=builder --chown=app:app /app /app
+COPY --from=builder /app /app
 
 # Place executables in the environment at the front of the path
 ENV PATH="/app/.venv/bin:$PATH"
-
-WORKDIR /app
 
 EXPOSE 8000
 
