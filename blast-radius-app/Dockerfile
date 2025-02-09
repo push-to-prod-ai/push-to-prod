@@ -31,7 +31,7 @@ WORKDIR /app
 # COPY --from=builder --chown=app:app /app /app
 COPY --from=builder /app /app
 
-COPY src app/src
+COPY src src
 
 # Place executables in the environment at the front of the path
 ENV PATH="/app/.venv/bin:$PATH"
