@@ -2,23 +2,23 @@
 
 # First, build the application in the `/app` directory.
 # See `Dockerfile` for details.
-FROM ghcr.io/astral-sh/uv:0.5.29-python3.11-bookworm AS builder
-ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
+FROM python:3.11-slim-bookworm as builder
 
-# Disable Python downloads, because we want to use the system interpreter
-# across both images. If using a managed Python version, it needs to be
-# copied from the build image into the final image; see `standalone.Dockerfile`
-# for an example.
-ENV UV_PYTHON_DOWNLOADS=0
+RUN apt-get update \
+    && apt-get install -y \
+         curl \
+         build-essential \
+         libffi-dev \
+    && rm -rf /var/lib/apt/lists/* \
+    && curl -LsSf https://astral.sh/uv/install.sh | sh
 
 WORKDIR /app
-RUN --mount=type=cache,target=/root/.cache/uv \
-    --mount=type=bind,source=uv.lock,target=uv.lock \
-    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    uv sync --frozen --no-install-project --no-dev
-ADD . /app
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-dev
+
+COPY pyproject.toml uv.lock .python-version ./
+
+ENV PATH="/root/.local/bin:${PATH}"
+
+RUN uv venv && uv lock && uv sync
 
 
 # Then, use a final image without uv
@@ -30,6 +30,8 @@ WORKDIR /app
 # Copy the application from the builder
 # COPY --from=builder --chown=app:app /app /app
 COPY --from=builder /app /app
+
+COPY src app/src
 
 # Place executables in the environment at the front of the path
 ENV PATH="/app/.venv/bin:$PATH"

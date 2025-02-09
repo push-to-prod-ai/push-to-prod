@@ -34,9 +34,23 @@ dependencies = [
     "threadpoolctl==3.5.0",
     "tokenizers==0.21.0",
     "torch==2.2.2",
+    "torchvision==0.17.2",
     "tqdm==4.67.1",
     "transformers==4.48.2",
     "typing-extensions==4.12.2",
     "urllib3==2.3.0",
     "uvicorn==0.20.0",
 ]
+
+[tool.uv.sources]
+torch = [
+    { index = "pytorch-cpu" },
+]
+torchvision = [
+    { index = "pytorch-cpu" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
