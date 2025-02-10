@@ -44,7 +44,7 @@ steps:
       - '--region'
       - '${_REGION}'
       - '--memory'
-      - '1024Mi'
+      - '2048Mi'
       - '--set-secrets'
       - 'JIRA_EMAIL=push-to-prod-jira-email:latest,JIRA_API_TOKEN=push-to-prod-jira-token:latest'
 
