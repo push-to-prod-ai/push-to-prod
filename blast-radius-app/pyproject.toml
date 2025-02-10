@@ -1,9 +1,10 @@
 [tool.poetry]
-name = "blast_radius"
+name = "blast-radius"
 version = "0.1.0"
 description = "Microservice for the Blast Radius application."
 authors = ["Rodrigo Cochrane <rodrigo.cochrane@berkeley.edu>"]
 readme = "README.md"
+packages = [{include = "src"}]
 
 [tool.poetry.dependencies]
 python = ">=3.12"

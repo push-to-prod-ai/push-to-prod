@@ -44,7 +44,7 @@ steps:
       - '--region'
       - '${_REGION}'
       - '--set-secrets'
-      - 'JIRA_EMAIL=push-to-prod-jira-email:latest,JIRA_API_TOKEN=push-to-prod-jira-token:latest,PRIVATE_KEY=push-to-prod-private-key:latest'
+      - 'JIRA_EMAIL=push-to-prod-jira-email:latest,JIRA_API_TOKEN=push-to-prod-jira-token:latest'
       - '--allow-unauthenticated'
 
 images:

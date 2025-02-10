@@ -14,10 +14,10 @@ RUN curl -sSL https://install.python-poetry.org | python -
 ENV PATH=/root/.local/bin:$PATH
 
 WORKDIR ${APP_DIR}
-COPY pyproject.toml poetry.lock ./
+COPY . .
 
 RUN python -m venv --copies ${APP_DIR}/venv
-RUN . ${APP_DIR}/venv/bin/activate && poetry install --no-root --only main
+RUN . ${APP_DIR}/venv/bin/activate && poetry install --only main
 
 # Deployment image
 FROM python:3.12-slim AS prod
