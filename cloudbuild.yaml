@@ -3,11 +3,19 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/push-to-prod:$COMMIT_SHA', '.']
 
-  # Push the Docker image to Artifact Registry
+  # Push the push-to-prod Docker image to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/push-to-prod:$COMMIT_SHA']
 
-  # Deploy to Cloud Run with environment variables and secrets
+  # Build the Docker image for blast-radius app
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', '${_REGION}-docker.pkg.dev/$PROJECT_ID/blast-radius-builds/blast-radius:$COMMIT_SHA', './blast-radius-app']
+
+  # Push the blast-radius Docker image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', '${_REGION}-docker.pkg.dev/$PROJECT_ID/blast-radius-builds/blast-radius:$COMMIT_SHA']
+
+  # Deploy push-to-prod to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
@@ -24,8 +32,22 @@ steps:
       - 'WEBHOOK_SECRET=push-to-prod-webhook-secret:latest,ANTHROPIC_API_KEY=push-to-prod-anthropic-key:latest,JIRA_EMAIL=push-to-prod-jira-email:latest,JIRA_API_TOKEN=push-to-prod-jira-token:latest,PRIVATE_KEY=push-to-prod-private-key:latest'
       - '--allow-unauthenticated'
 
+  # Deploy blast-radius to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'blast-radius'
+      - '--image'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/blast-radius-builds/blast-radius:$COMMIT_SHA'
+      - '--region'
+      - '${_REGION}'
+      - '--allow-unauthenticated'
+
 images:
   - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/push-to-prod:$COMMIT_SHA'
+  - '${_REGION}-docker.pkg.dev/$PROJECT_ID/blast-radius-builds/blast-radius:$COMMIT_SHA'
   
 options:
   logging: CLOUD_LOGGING_ONLY
