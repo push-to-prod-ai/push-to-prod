@@ -27,9 +27,9 @@ steps:
       - '--region'
       - '${_REGION}'
       - '--update-env-vars'
-      - 'APP_ID=1130707,LOG_LEVEL=trace'
+      - 'LOG_LEVEL=trace'
       - '--set-secrets'
-      - 'WEBHOOK_SECRET=push-to-prod-webhook-secret:latest,ANTHROPIC_API_KEY=push-to-prod-anthropic-key:latest,JIRA_EMAIL=push-to-prod-jira-email:latest,JIRA_API_TOKEN=push-to-prod-jira-token:latest,PRIVATE_KEY=push-to-prod-private-key:latest'
+      - 'WEBHOOK_SECRET=push-to-prod-webhook-secret:latest,ANTHROPIC_API_KEY=push-to-prod-anthropic-key:latest,JIRA_EMAIL=push-to-prod-jira-email:latest,JIRA_API_TOKEN=push-to-prod-jira-token:latest,PRIVATE_KEY=push-to-prod-private-key:latest,APP_ID=push-to-prod-app-id:latest'
       - '--allow-unauthenticated'
 
   # Deploy blast-radius to Cloud Run
@@ -50,7 +50,7 @@ steps:
       - '--allow-unauthenticated'
 
 images:
-  - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/push-to-prod:$COMMIT_SHA'
+  - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/github-app:$COMMIT_SHA'
   - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/blast-radius:$COMMIT_SHA'
   
 options:
