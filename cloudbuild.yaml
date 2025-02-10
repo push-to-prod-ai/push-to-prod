@@ -42,9 +42,9 @@ steps:
       - '--image'
       - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/blast-radius:$COMMIT_SHA'
       - '--region'
+      - '${_REGION}'
       - '--set-secrets'
       - 'JIRA_EMAIL=push-to-prod-jira-email:latest,JIRA_API_TOKEN=push-to-prod-jira-token:latest,PRIVATE_KEY=push-to-prod-private-key:latest'
-      - '${_REGION}'
       - '--allow-unauthenticated'
 
 images:
