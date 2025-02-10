@@ -1,11 +1,11 @@
 steps:
-  # Build the Docker image for push-to-prod GitHub App
+  # Build the Docker image for github-app
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/push-to-prod:$COMMIT_SHA', '.']
+    args: ['build', '-t', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/github-app:$COMMIT_SHA', './github-app']
 
-  # Push the push-to-prod Docker image to Artifact Registry
+  # Push the github-app Docker image to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/push-to-prod:$COMMIT_SHA']
+    args: ['push', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/github-app:$COMMIT_SHA']
 
   # Build the Docker image for blast-radius app
   - name: 'gcr.io/cloud-builders/docker'
@@ -15,15 +15,15 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/blast-radius:$COMMIT_SHA']
 
-  # Deploy push-to-prod to Cloud Run
+  # Deploy github-app to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
       - 'run'
       - 'deploy'
-      - 'push-to-prod'
+      - 'github-app'
       - '--image'
-      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/push-to-prod:$COMMIT_SHA'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/github-app:$COMMIT_SHA'
       - '--region'
       - '${_REGION}'
       - '--update-env-vars'
