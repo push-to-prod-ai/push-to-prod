@@ -2,6 +2,7 @@ import { Probot } from "probot";
 import Anthropic from "@anthropic-ai/sdk";
 import axios from 'axios';
 import { createLogger, format, transports } from 'winston';
+import { GoogleAuth } from 'google-auth-library';
 
 const logger = createLogger({
   level: process.env.LOG_LEVEL || 'info',
@@ -33,6 +34,22 @@ if (!process.env.ANTHROPIC_API_KEY) {
 const anthropic = new Anthropic({
   apiKey: String(process.env.ANTHROPIC_API_KEY),
 });
+
+const auth = new GoogleAuth();
+const BLAST_RADIUS_URL = 'https://blast-radius-620323149335.us-central1.run.app';
+
+// Create authenticated client
+const getAuthenticatedClient = async () => {
+  const client = await auth.getIdTokenClient(BLAST_RADIUS_URL);
+  const { Authorization } = await client.getRequestHeaders();
+  
+  return axios.create({
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': Authorization
+    }
+  });
+};
 
 export default async (app: Probot) => {
   app.on(["push"], async (context) => {
@@ -78,12 +95,15 @@ export default async (app: Probot) => {
 
       const summaryText = await summary.finalText();
 
-      // Call blast radius service to find the most relevant ticket
-      const blastRadiusResponse = await axios.post(
-        'https://blast-radius-620323149335.us-central1.run.app/blast-radius/calculation',
+      // Get authenticated client
+      const authenticatedClient = await getAuthenticatedClient();
+
+      // Call blast radius service with authenticated client
+      const blastRadiusResponse = await authenticatedClient.post(
+        `${BLAST_RADIUS_URL}/blast-radius/calculation`,
         {
           summary: summaryText,
-          max_items: 1  
+          max_items: 1
         }
       );
 

@@ -21,6 +21,7 @@
     "@anthropic-ai/sdk": "^0.36.3",
     "axios": "^1.7.9",
     "dotenv": "^16.4.7",
+    "google-auth-library": "^9.15.1",
     "probot": "^13.0.1",
     "winston": "^3.17.0"
   },
