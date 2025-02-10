@@ -78,6 +78,23 @@ export default async (app: Probot) => {
 
       const summaryText = await summary.finalText();
 
+      // Call blast radius service to find the most relevant ticket
+      const blastRadiusResponse = await axios.post(
+        'https://blast-radius-620323149335.us-central1.run.app/blast-radius/calculation',
+        {
+          summary: summaryText,
+          max_items: 1  
+        }
+      );
+
+      // Skip Jira update if no relevant issues found
+      if (!blastRadiusResponse.data.relevant_issues.length) {
+        logger.info('No relevant Jira tickets found for this change');
+        return;
+      }
+
+      const relevantIssue = blastRadiusResponse.data.relevant_issues[0];
+      
       // Update Jira ticket
       const jiraPayload = {
         body: {
@@ -98,7 +115,7 @@ export default async (app: Probot) => {
       };
 
       await axios.post(
-        'https://push-to-prod.atlassian.net/rest/api/3/issue/SCRUM-1/comment',
+        `https://push-to-prod.atlassian.net/rest/api/3/issue/${relevantIssue.key}/comment`,
         jiraPayload,
         {
           headers: {
@@ -111,12 +128,13 @@ export default async (app: Probot) => {
         }
       );
 
-      // Add status check
+      // Add status check with Jira link
       await context.octokit.repos.createCommitStatus({
         ...context.repo(),
         sha: push.after,
         state: 'success',
-        description: 'Code analysis complete',
+        description: `Analysis linked to ${relevantIssue.key}`,
+        target_url: relevantIssue.URL,
         context: 'PushToProd/analysis'
       });
 
