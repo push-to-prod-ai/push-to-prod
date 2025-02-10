@@ -9,11 +9,11 @@ steps:
 
   # Build the Docker image for blast-radius app
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', '${_REGION}-docker.pkg.dev/$PROJECT_ID/blast-radius-builds/blast-radius:$COMMIT_SHA', './blast-radius-app']
+    args: ['build', '-t', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/blast-radius:$COMMIT_SHA', './blast-radius-app']
 
   # Push the blast-radius Docker image to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', '${_REGION}-docker.pkg.dev/$PROJECT_ID/blast-radius-builds/blast-radius:$COMMIT_SHA']
+    args: ['push', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/blast-radius:$COMMIT_SHA']
 
   # Deploy push-to-prod to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'

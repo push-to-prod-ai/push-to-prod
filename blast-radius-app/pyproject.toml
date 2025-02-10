@@ -6,7 +6,7 @@ authors = ["Rodrigo Cochrane <rodrigo.cochrane@berkeley.edu>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.11"
+python = ">=3.12"
 fastapi = {extras = ["standard"], version = ">=0.115.6,<0.116.0"}
 numpy = ">=1.26.0"
 scikit-learn = "1.6.1"
