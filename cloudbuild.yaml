@@ -40,14 +40,16 @@ steps:
       - 'deploy'
       - 'blast-radius'
       - '--image'
-      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/blast-radius-builds/blast-radius:$COMMIT_SHA'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/blast-radius:$COMMIT_SHA'
       - '--region'
+      - '--set-secrets'
+      - 'JIRA_EMAIL=push-to-prod-jira-email:latest,JIRA_API_TOKEN=push-to-prod-jira-token:latest,PRIVATE_KEY=push-to-prod-private-key:latest'
       - '${_REGION}'
       - '--allow-unauthenticated'
 
 images:
   - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/push-to-prod:$COMMIT_SHA'
-  - '${_REGION}-docker.pkg.dev/$PROJECT_ID/blast-radius-builds/blast-radius:$COMMIT_SHA'
+  - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/blast-radius:$COMMIT_SHA'
   
 options:
   logging: CLOUD_LOGGING_ONLY
