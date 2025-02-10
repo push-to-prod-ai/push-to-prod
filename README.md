@@ -4,8 +4,6 @@ A GitHub App that analyzes code changes on push to main and updates Jira tickets
 
 ## Features
 
-# Test commit trigger new deployment
-
 - Monitors pushes to the main branch
 - Analyzes code changes using Claude AI
 - Updates specified Jira ticket with change summaries
