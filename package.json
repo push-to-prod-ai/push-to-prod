@@ -14,6 +14,7 @@
   "scripts": {
     "build": "tsc",
     "start": "probot run ./lib/index.js",
+    "server": "node lib/server.js",
     "test": "vitest"
   },
   "dependencies": {
