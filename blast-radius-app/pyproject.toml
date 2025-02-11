@@ -10,7 +10,6 @@ packages = [{include = "src"}]
 python = ">=3.12"
 fastapi = {extras = ["standard"], version = ">=0.115.6,<0.116.0"}
 numpy = ">=1.26.0"
-scikit-learn = "1.6.1"
 torch = ">=2.1.0"
 sentence-transformers = "3.4.1"
 uvicorn = "0.20.0"
