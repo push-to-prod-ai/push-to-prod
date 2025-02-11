@@ -1,5 +1,5 @@
 # Build stage: Install dependencies and build the application
-FROM node:20-slim as builder
+FROM node:20-slim AS builder
 WORKDIR /usr/src/app
 
 # Copy configuration files and install all dependencies (including dev dependencies)
