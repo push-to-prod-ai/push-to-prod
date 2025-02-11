@@ -2,7 +2,7 @@
   "name": "push-to-prod",
   "version": "1.0.0",
   "private": true,
-  "description": "An app that automatically maintains tickets in line with code changes. ",
+  "description": "Your own personal project manager.",
   "author": "Tyler Cross",
   "license": "ISC",
   "homepage": "https://github.com/push-to-prod-ai/push-to-prod",
@@ -18,12 +18,11 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.36.3",
+    "@google/generative-ai": "^0.21.0",
     "axios": "^1.7.9",
     "dotenv": "^16.4.7",
     "google-auth-library": "^9.15.1",
-    "probot": "^13.4.3",
-    "winston": "^3.17.0"
+    "probot": "^13.4.3"
   },
   "devDependencies": {
     "@types/node": "^20.17.17",
