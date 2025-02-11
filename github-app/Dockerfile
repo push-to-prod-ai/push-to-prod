@@ -1,5 +1,5 @@
 # Build stage: Install dependencies and build the application
-FROM node:20-slim AS builder
+FROM node:22-slim AS builder
 WORKDIR /usr/src/app
 
 # Copy configuration files and install all dependencies (including dev dependencies)
@@ -11,7 +11,7 @@ COPY src/ ./src/
 RUN npm run build
 
 # Production stage: Install only production dependencies and copy over built files
-FROM node:20-slim
+FROM node:22-slim
 WORKDIR /usr/src/app
 
 # Copy only the files needed for production
