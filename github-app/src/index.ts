@@ -2,6 +2,7 @@ import { Probot } from "probot";
 import { AIService } from "./services/ai.js";
 import { BlastRadiusService } from "./services/blast-radius.js";
 import { TicketService } from "./services/ticket.js";
+import { defaultPRTemplate, prAnalysisPrompt } from "./templates/index.js";
 
 export const createApp = (app: Probot) => {
   const aiService = new AIService();
@@ -42,16 +43,21 @@ export const createApp = (app: Probot) => {
       }
     } catch (error) {
       app.log.info("No PR template found, using default format");
-      template = "## Summary\n\n## Changes\n\n## Impact\n\n";
+      template = defaultPRTemplate;
     }
 
     // Create a diff string for the prompt
-    const diffs = compare.data.files
-      ?.map(file => `File: ${file.filename}\n${file.patch || ""}`)
-      .join("\n\n");
+    const diffs = compare.data.files?.map(file => `File: ${file.filename}\n${file.patch || ""}`)
+      .join("\n\n") || "";
 
-    // Build prompt and generate PR description
-    const prompt = `Here is a pull request template:\n\n${template}\n\nBased on these code changes, please fill out the template appropriately:\n\n${diffs}`;
+    // Build prompt using template
+    const prompt = prAnalysisPrompt
+      .replace("{{template}}", template)
+      .replace("{{baseBranch}}", pr.base.ref)
+      .replace("{{fileCount}}", String(compare.data.files?.length || 0))
+      .replace("{{commitCount}}", String(compare.data.commits?.length || 0))
+      .replace("{{diffs}}", diffs);
+      
     const prDescription = await aiService.generateContent(prompt);
 
     // Update the PR description
@@ -61,7 +67,14 @@ export const createApp = (app: Probot) => {
       body: prDescription,
     });
 
-    app.log.info("Updated PR description", { pr: pr.number });
+    // Add a notification comment
+    await context.octokit.issues.createComment({
+      ...context.repo(),
+      issue_number: pr.number,
+      body: "🤖 I've analyzed the changes and updated the PR description based on the diff. Please review and adjust if needed!"
+    });
+
+    app.log.info("Updated PR description and added comment", { pr: pr.number });
   });
 
   // Disabling this feature for now. We will flesh out later.
