@@ -53,6 +53,8 @@ export const createApp = (app: Probot) => {
     // Build prompt using template
     const prompt = prAnalysisPrompt
       .replace("{{template}}", template)
+      .replace("{{title}}", pr.title || "No title created with the PR")
+      .replace("{{existingDescription}}", pr.body || "No description created with the PR")
       .replace("{{baseBranch}}", pr.base.ref)
       .replace("{{fileCount}}", String(compare.data.files?.length || 0))
       .replace("{{commitCount}}", String(compare.data.commits?.length || 0))
