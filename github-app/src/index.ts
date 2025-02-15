@@ -93,7 +93,6 @@ export const createApp = (app: Probot) => {
       .replace(/^```\w*\n/, '')
       // Remove any closing code block indicators at the end
       .replace(/\n```$/, '')
-      // Remove any "Here's the PR description:" type prefixes
       // Trim any extra whitespace
       .trim();
 
