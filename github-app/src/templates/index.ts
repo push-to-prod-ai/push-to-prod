@@ -36,5 +36,5 @@ Instructions:
 6. Make specific, concise explanations always citing code changes
 7. Use the provided permalinks (Base: and Head: URLs) when referencing specific code changes
 8. Use GitHub-flavored markdown tables to show before/after comparisons if relevant
-9. Do not add any information that is not directly related to the code changes. Sections should be a single sentence or bullet point, followed by a link to the code change.
+9. Do not add any information that is not directly related to the code changes. Introduction and impact sections, if they exist, should be a single sentence or bullet point, followed by a link to the code change.
 10. Do not wrap the entire response in a code block.`;
