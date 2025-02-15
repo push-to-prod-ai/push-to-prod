@@ -23,12 +23,41 @@ export const createApp = (app: Probot) => {
       },
     });
 
-    // Get the PR diff
-    const compare = await context.octokit.repos.compareCommits({
+    // Get the PR diff with more context using the non-deprecated endpoint
+    const compare = await context.octokit.repos.compareCommitsWithBasehead({
       ...context.repo(),
-      base: pr.base.sha,
-      head: pr.head.sha,
+      basehead: `${pr.base.sha}...${pr.head.sha}`,
+      mediaType: {
+        format: 'diff'
+      }
     });
+
+    // Create rich diff information without downloading files
+    const detailedFiles = compare.data.files?.map(file => ({
+      filename: file.filename,
+      patch: file.patch || "",
+      status: file.status,
+      additions: file.additions,
+      deletions: file.deletions,
+      basePermalink: `https://github.com/${pr.base.repo.full_name}/blob/${pr.base.sha}/${file.filename}`,
+      headPermalink: `https://github.com/${pr.base.repo.full_name}/blob/${pr.head.sha}/${file.filename}`,
+      rawUrl: file.raw_url,
+      blobUrl: file.blob_url,
+    }));
+
+    // Create a rich diff string
+    const diffs = detailedFiles?.map(file => `
+    File: ${file.filename}
+    Status: ${file.status}
+    Changes: +${file.additions} -${file.deletions}
+    Base: ${file.basePermalink}
+    Head: ${file.headPermalink}
+    Raw: ${file.rawUrl}
+    Blob: ${file.blobUrl}
+
+    Diff:
+    ${file.patch}
+    `).join("\n\n") || "";
 
     // Try to get PR template
     let template = "";
@@ -46,18 +75,15 @@ export const createApp = (app: Probot) => {
       template = defaultPRTemplate;
     }
 
-    // Create a diff string for the prompt
-    const diffs = compare.data.files?.map(file => `File: ${file.filename}\n${file.patch || ""}`)
-      .join("\n\n") || "";
-
     // Build prompt using template
     const prompt = prAnalysisPrompt
       .replace("{{template}}", template)
-      .replace("{{title}}", pr.title || "No title created with the PR")
-      .replace("{{existingDescription}}", pr.body || "No description created with the PR")
+      .replace("{{title}}", pr.title || "")
+      .replace("{{existingDescription}}", pr.body || "")
       .replace("{{baseBranch}}", pr.base.ref)
       .replace("{{fileCount}}", String(compare.data.files?.length || 0))
       .replace("{{commitCount}}", String(compare.data.commits?.length || 0))
+      .replace("{{repository}}", pr.base.repo.full_name)
       .replace("{{diffs}}", diffs);
       
     const prDescription = await aiService.generateContent(prompt);

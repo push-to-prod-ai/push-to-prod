@@ -39,4 +39,4 @@ Instructions:
 10. Do not include any preamble or explanation
 11. Do not wrap the entire response in a code block
 12. Be as concise as possible. The response should be easily skimmable. Use abbreviations, links, technical language, etc.
-13. Minimize the amount of text in the response. Avoid writing in complete sentences.`;
+13. Minimize the amount of text in the response. Prioritize brevity and clarity.`;
