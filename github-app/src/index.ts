@@ -11,6 +11,18 @@ export const createApp = (app: Probot) => {
 
   const ticketFeatureFlag = false;
 
+  app.on(['marketplace_purchase'], async (context) => {
+    // Handle marketplace events (purchase, cancellation, etc)
+    const event = context.name; // 'marketplace_purchase'
+    const action = context.payload.action; // 'purchased', 'cancelled', etc
+    
+    app.log.info("Processing marketplace event", {
+      event,
+      action,
+      sender: context.payload.sender.login,
+    });
+  });
+  
   // Add PR handler
   app.on(["pull_request.opened", "pull_request.reopened"], async (context) => {
     const { pull_request: pr } = context.payload;
