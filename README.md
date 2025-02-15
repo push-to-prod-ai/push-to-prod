@@ -1,21 +1,19 @@
 A GitHub App that provides intelligent PR descriptions by analyzing your code changes.
 
-### 🤖 AI-Powered PR Descriptions
+#### 🤖 AI-Powered PR Descriptions
 - Automatically generates detailed pull request descriptions when PRs are opened or reopened
 - Analyzes code changes and provides context-aware summaries
 - Creates GitHub-formatted markdown with proper code references and permalinks
 - Respects and incorporates existing PR descriptions and titles
 - Uses your repository's PR template (from `.github/PULL_REQUEST_TEMPLATE.md`) or falls back to a default template
 
-### 🚧 Coming Soon
+#### 🚧 Coming Soon
 - Smart ticket finder to link related issues
 - Integration with project management tools (Jira, ClickUp)
 - Change impact analysis
 - Per-file documentation tracking
 
-### Usage
-
-You can either:
+#### Usage, you can either:
 1. Use our hosted version (please provide feedback!)
    - [Install the GitHub App](https://github.com/apps/push-to-prod-app)
    - Open a pull request
@@ -28,7 +26,7 @@ You can either:
    - Deploy to your preferred Cloud provider
    - Configure your [GitHub App Manually](https://docs.github.com/en/apps/creating-github-apps/about-creating-github-apps/about-creating-github-apps)
 
-### Feedback
+#### Feedback
 
 We're actively developing this tool and would love to hear from you! If you're using our hosted version, please:
 - Open issues for bugs or feature requests
