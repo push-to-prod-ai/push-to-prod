@@ -38,5 +38,5 @@ Instructions:
 9. Leave unchanged any section that you cannot fill with specific, concrete information
 10. Do not include any preamble or explanation
 11. Do not wrap the entire response in a code block
-12. Be as concise as possible. The response should be easily skimmable. Use abbreviations, links, technical language, etc.
+12. The response should be easily skimmable. Use links, abbreviations, technical language, etc. Fill out sections with 1 or 2 sentences / bullet points wherever possible.
 13. The length of the response should be proportional to the amount of code changes. The length of the review should never exceed the number of lines of code changed.`;
