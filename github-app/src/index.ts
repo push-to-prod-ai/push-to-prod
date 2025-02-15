@@ -87,12 +87,21 @@ export const createApp = (app: Probot) => {
       .replace("{{diffs}}", diffs);
       
     const prDescription = await aiService.generateContent(prompt);
+    // Clean up the response
+    const cleanDescription = prDescription
+      // Remove any markdown or code block indicators at the start
+      .replace(/^```\w*\n/, '')
+      // Remove any closing code block indicators at the end
+      .replace(/\n```$/, '')
+      // Remove any "Here's the PR description:" type prefixes
+      // Trim any extra whitespace
+      .trim();
 
     // Update the PR description
     await context.octokit.pulls.update({
       ...context.repo(),
       pull_number: pr.number,
-      body: prDescription,
+      body: cleanDescription,
     });
 
     // Add a notification comment
