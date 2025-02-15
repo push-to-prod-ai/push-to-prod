@@ -1,8 +1,4 @@
-# push-to-prod
-
 A GitHub App that provides intelligent PR descriptions by analyzing your code changes.
-
-## Features
 
 ### 🤖 AI-Powered PR Descriptions
 - Automatically generates detailed pull request descriptions when PRs are opened or reopened
@@ -17,7 +13,7 @@ A GitHub App that provides intelligent PR descriptions by analyzing your code ch
 - Change impact analysis
 - Per-file documentation tracking
 
-## Usage
+### Usage
 
 You can either:
 1. Use our hosted version (please provide feedback!)
@@ -32,7 +28,7 @@ You can either:
    - Deploy to your preferred Cloud provider
    - Configure your [GitHub App Manually](https://docs.github.com/en/apps/creating-github-apps/about-creating-github-apps/about-creating-github-apps)
 
-## Feedback
+### Feedback
 
 We're actively developing this tool and would love to hear from you! If you're using our hosted version, please:
 - Open issues for bugs or feature requests
