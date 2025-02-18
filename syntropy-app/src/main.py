@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from components.code_summarizer import code_summarization_app
+from src.components.code_summarizer import code_summarization_app
 
 app = FastAPI()
 

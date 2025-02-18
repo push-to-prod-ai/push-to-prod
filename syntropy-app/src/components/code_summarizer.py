@@ -54,8 +54,12 @@ class StructuredSummary(BaseModel):
         ...,
         description="Evaluation of adherence to coding standards and best practices, with respect to the product.")
 
+
+class PRModel(BaseModel):
+    diffs: str
+
 @code_summarization_app.post(path='/summarize', response_model=StructuredSummary)
-async def generate_summary(diffs: str) -> StructuredSummary:
+async def generate_summary(diffs: PRModel) -> StructuredSummary:
 
     prompt = f"""
         Analyze the following code and provide a structured JSON output with detailed classifications. 
