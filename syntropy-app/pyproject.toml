@@ -1,0 +1,24 @@
+[project]
+name = "syntropy-app"
+version = "0.1.0"
+description = "The central unit for all code-requirement analysis."
+authors = [
+    {name = "Rodrigo Cochran",email = "rodrigocochran@berkeley.edu"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[standard] (>=0.115.6,<0.116.0)",
+    "google-generativeai (>=0.8.4,<0.9.0)",
+    "google-genai (>=1.2.0,<2.0.0)"
+]
+
+[tool.poetry]
+package-mode = false
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.9.6"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
