@@ -146,3 +146,68 @@ If you followed the above instructions you should have a local FastAPI instance 
   -H 'Content-Type: application/json' \
   -d @- | jq
   ```
+  -The response will yield the following variables in a json-structured output similar to this example:
+  ```json
+  {
+    "core_business_functionality": {
+      "did_right": "Handles user authentication and session management aligns with user authentication requirement.",
+      "did_wrong": "Role-based access control is not explicitly mentioned in the code implementation.",
+      "ambiguous": "It is unclear if session management sufficiently covers all aspects of role-based access control."
+    },
+    "structural_and_modular_requirements": {
+      "did_right": "MVC architecture with reusable components supports modular design.",
+      "did_wrong": "Explicit plugin-based extension support is not mentioned.",
+      "ambiguous": "Whether the MVC structure facilitates easy plugin extensions is unclear without more details."
+    },
+    "performance_and_scalability_criteria": {
+      "did_right": "Optimized query execution and horizontal scaling support the scalability requirement.",
+      "did_wrong": "API response times of under 200ms and handling 10k concurrent users are not explicitly addressed.",
+      "ambiguous": "It's ambiguous if query optimization and horizontal scaling are sufficient to meet the specific performance metrics."
+    },
+    "data_handling_and_integrity": {
+      "did_right": "Strict type enforcement and validation align with data integrity.",
+      "did_wrong": "ACID compliance for database transactions is not explicitly mentioned.",
+      "ambiguous": "It is unclear if strict type enforcement inherently guarantees ACID compliance."
+    },
+    "error_handling_and_user_experience": {
+      "did_right": "Graceful error messages address user-friendly error messages.",
+      "did_wrong": "Retry mechanisms are not explicitly mentioned.",
+      "ambiguous": "It is unclear if the error handling includes retry mechanisms."
+    },
+    "efficiency_requirements_for_product_use_cases": {
+      "did_right": "Caching reduces redundant computations, improving performance.",
+      "did_wrong": "No specific mention of optimization for high-volume transactions.",
+      "ambiguous": "It is unclear if caching strategies are optimized for high-volume transactions."
+    },
+    "readability_maintainability_and_team_adoption": {
+      "did_right": "Well-documented functions and clear naming conventions support readability and maintainability.",
+      "did_wrong": "Team adoption aspects are not addressed.",
+      "ambiguous": "It is unclear whether the documentation and naming conventions are sufficient for easy team adoption."
+    },
+    "testing_and_validation_criteria": {
+      "did_right": "Unit and integration tests contribute to testing and validation.",
+      "did_wrong": "80% test coverage is below the required 90%+",
+      "ambiguous": "The type of tests performed are unclear."
+    },
+    "external_dependencies_and_integrations": {
+      "did_right": "PostgreSQL and Redis are external dependencies.",
+      "did_wrong": "Third-party payment gateway integration is not explicitly addressed.",
+      "ambiguous": "It is unclear if there is support for the specific external dependency of third-party payment gateways."
+    },
+    "security_standards_and_threat_mitigation": {
+      "did_right": "OAuth2 for authentication and authorization enhances security.",
+      "did_wrong": "OWASP best practices are not explicitly mentioned.",
+      "ambiguous": "It is unclear if OAuth2 implementation fully adheres to OWASP best practices."
+    },
+    "compliance_and_regulatory_considerations": {
+      "did_right": "GDPR compliance is ensured via user data encryption.",
+      "did_wrong": "HIPAA compliance is not explicitly addressed.",
+      "ambiguous": "It is unclear how fully GDPR is achieved via encryption."
+    },
+    "adherence_to_standards_and_best_practices": {
+      "did_right": "PEP 8 and internal coding guidelines are followed.",
+      "did_wrong": "ISO 27001 security best practices are not explicitly mentioned.",
+      "ambiguous": "It is unclear if following PEP 8 and internal guidelines implies ISO 27001 adherence."
+    }
+  }
+  ```
