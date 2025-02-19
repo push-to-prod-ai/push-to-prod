@@ -146,7 +146,7 @@ If you followed the above instructions you should have a local FastAPI instance 
   -H 'Content-Type: application/json' \
   -d @- | jq
   ```
-  -The response will yield the following variables in a json-structured output similar to this example:
+  - The response will yield the following variables in a json-structured output similar to this example:
   ```json
   {
     "core_business_functionality": {
