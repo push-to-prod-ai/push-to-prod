@@ -3,6 +3,7 @@ from fastapi.routing import APIRouter
 
 from .components.code_summarizer import code_summarization_app
 from .components.requirements_summarizer import product_requirements_app
+from .components.synthesizer import comparison_app
 
 app = FastAPI()
 
@@ -11,7 +12,8 @@ syntropy_router = APIRouter()
 
 # Include the routes from both applications
 syntropy_router.include_router(code_summarization_app, prefix="/code", tags=["Code Summarization"])
-syntropy_router.include_router(product_requirements_app, prefix="/requirements", tags=["Product Requirements"])
+syntropy_router.include_router(product_requirements_app, prefix="/requirements", tags=["Product Requirements Summarization"])
+syntropy_router.include_router(comparison_app, prefix="/comparison", tags=["Code-Requirement Alignment Summarization"])
 
 
 # Mount the combined router under `/syntropy`

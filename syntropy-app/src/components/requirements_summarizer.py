@@ -1,6 +1,5 @@
 import os
 from pydantic import BaseModel, Field
-from fastapi import FastAPI
 from fastapi.routing import APIRouter
 from google import genai
 

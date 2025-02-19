@@ -11,7 +11,7 @@ TODO:
 
 import os
 from pydantic import BaseModel, Field
-from fastapi import FastAPI, HTTPException
+from fastapi import HTTPException
 from fastapi.routing import APIRouter
 from google import genai
 
@@ -60,11 +60,7 @@ class PRModel(BaseModel):
 
 
 @code_summarization_app.post("/summarize", response_model=StructuredSummary)
-async def generate_code_summary(pr_data: PRModel):
-    api_key = os.getenv("GEMINI_API_KEY")
-    if not api_key:
-        raise HTTPException(status_code=500, detail="Missing Gemini API key")
-
+async def generate_code_summary(pr_data: PRModel) -> StructuredSummary:
     prompt = f"""
     Analyze the provided code diff and return a structured JSON summary focusing on:
 
@@ -84,14 +80,10 @@ async def generate_code_summary(pr_data: PRModel):
     Here is the code diff:
     {pr_data.diffs}
     """
-
-    try:
-        client = genai.Client(api_key=api_key)
-        response = client.models.generate_content(
-            model="gemini-1.5-pro-latest",
-            contents=prompt,
-            config={"response_mime_type": "application/json", "response_schema": StructuredSummary},
-        )
-        return response.parsed
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Gemini API error: {str(e)}")
+    client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+    response = client.models.generate_content(
+        model="gemini-1.5-pro-latest",
+        contents=prompt,
+        config={"response_mime_type": "application/json", "response_schema": StructuredSummary},
+    )
+    return response.parsed
