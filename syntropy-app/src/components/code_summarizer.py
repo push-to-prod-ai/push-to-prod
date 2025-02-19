@@ -1,20 +1,21 @@
 """
 TODO:
     1. Create prompt for code analysis based on diffs and other information available in probot.
-        - diffs
+        - diffs -> DONE
         - README?
         - Other linked code (package-level imports etc.)?
-    2. Create Pydantic model for structured output.
-    3. Create a structured output model invocation.
+    2. Create Pydantic model for structured output. -> DONE
+    3. Create a structured output model invocation. -> DONE
         - Gemini: https://ai.google.dev/gemini-api/docs/structured-output?lang=python
 """
 
 import os
 from pydantic import BaseModel, Field
 from fastapi import FastAPI, HTTPException
+from fastapi.routing import APIRouter
 from google import genai
 
-code_summarization_app = FastAPI()
+code_summarization_app = APIRouter()
 
 
 class StructuredSummary(BaseModel):
@@ -59,7 +60,7 @@ class PRModel(BaseModel):
 
 
 @code_summarization_app.post("/summarize", response_model=StructuredSummary)
-async def generate_summary(pr_data: PRModel):
+async def generate_code_summary(pr_data: PRModel):
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
         raise HTTPException(status_code=500, detail="Missing Gemini API key")
