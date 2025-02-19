@@ -1,0 +1,148 @@
+# The Syntropy Application
+
+## Prologue
+
+### Background
+The word *syntropy* comes from the Greek roots:
+
+- syn- (συν-) meaning "together" or "with"
+- -tropy (τροπή) meaning "turning" or "change"
+
+It was originally introduced in scientific contexts as the opposite of entropy. While entropy describes disorder or 
+dissipation in a system, syntropy has been used to refer to processes of order, organization, and convergence. The 
+term gained traction in fields like biology, systems theory, and even physics, often in the context of 
+self-organizing systems and life processes.
+
+It was notably popularized by the Italian mathematician Luigi Fantappiè in the 1940s when he explored its implications 
+in quantum mechanics and relativity.
+
+### The Application
+The Syntropy Application leverages AI to seamlessly align code with product requirements, transforming development 
+chaos into structured, coherent execution.
+
+## Using the application
+
+### Requirements
+
+The application can be set up in two ways: Poetry or Docker. Docker is the preferred method to maintain consistency 
+across platforms.
+
+#### Poetry
+To use the application with poetry, ensure you have poetry 2 and python 3.12 (or greater) downloaded. You can run this line in your shell.
+```bash
+curl -sSL https://install.python-poetry.org | python3 - --version 2.0.1
+```
+
+Then you can simply run `poetry install` to initialize your poetry virtual environment.
+
+#### Docker
+
+Ensure you have Docker Client (27.5.1) and Docker Desktop (4.38.0) installed (if on MacOS), or any compatible version 
+of each.
+
+You can check your docker version with `docker version` in your shell.
+
+#### Gemini (or latest LLM in use) API Key
+Be sure to set your `GEMINI_API_KEY` in your shell, replace the empty quotes with your key. You can generate an API 
+key here: https://ai.google.dev/gemini-api/docs/api-key
+```bash
+export GEMINI_API_KEY=""
+```
+
+### Running the FastAPI
+
+#### Poetry
+If you are using Poetry, you can start a local instance of the FastAPI by running the following command in your shell:
+```bash
+poetry run uvicorn src.main:app --host 127.0.0.1 --port 8000
+```
+
+#### Docker
+If you are using Docker, you can start a local instance of the FastAPI by running the following commands in your shell:
+
+*Build the Image*
+```bash
+docker build --pull -t syntropy-app .
+```
+
+*Start the container*
+```bash
+docker run -p 8000:8000 syntropy-app
+```
+
+### Available Endpoints
+If you followed the above instructions you should have a local FastAPI instance available to you running on 
+`http://127.0.0.1:8000`
+
+- */*
+  - This is the root endpoint of the FastAPI. Nothing to do here.
+- */health* (GET)
+  - This is the endpoint to get a healthcheck of the application.
+- */syntropy/code/summarize* (POST)
+  - This endpoint requires a json-structured POST request.
+  - You can pass a json with the following variables.
+    - *diffs* : string of the diffs from a Pull Request. (Can also just be a code chunk.)
+    - Sample curl request. Uses `jq` and a `sample_code.txt` file
+    ```bash 
+    jq -Rs '{diffs: .}' < sample_code.txt | curl -X 'POST' \
+    'http://localhost:8000/syntropy/code/summarize' \
+    -H 'Content-Type: application/json' \
+    -d @- | jq
+    ```
+    - The response will yield the following variables in a json-structured output similar to this example:
+    ```json
+    {
+        "code_functionality_and_business_logic": "Handles user authentication and session management.",
+        "code_structure_and_modularity": "Follows MVC architecture with reusable components.",
+        "performance_and_scalability": "Optimized query execution; scales horizontally.",
+        "variables_data_types_and_data_integrity": "Strict type enforcement and validation in API inputs.",
+        "error_handling_and_user_impact": "Graceful error messages; logs unexpected failures.",
+        "code_efficiency_for_product_use_cases": "Uses caching to reduce redundant computations.",
+        "readability_maintainability_and_collaboration": "Well-documented functions with clear naming conventions.",
+        "testing_validation_and_product_requirements": "80% test coverage with unit and integration tests.",
+        "external_dependencies_and_integration": "Relies on PostgreSQL and Redis for data storage.",
+        "security_considerations_in_context_of_product_use": "Implements OAuth2 for authentication and authorization.",
+        "compliance_and_regulatory_requirements": "Ensures GDPR compliance by encrypting user data.",
+        "code_standards_and_best_practices": "Follows PEP 8 and internal coding guidelines."
+    }
+    ```
+- */syntropy/requirements/summarize* (POST)
+  - This endpoint requires a json-structured POST request.
+  - You can pass a json with the following variables.
+    - *requirements* : string of the requirements for the code.
+    - Sample curl request.
+    ```bash 
+    curl -X 'POST' \
+    'http://localhost:8000/syntropy/requirements/summarize' \
+    -H 'Content-Type: application/json' \
+    -d '{"requirements": "users need to log into a platform and run a calculation"}' | jq
+    ```
+  - The response will yield the following variables in a json-structured output similar to this example:
+    ```json
+    {
+      "core_business_functionality": "User authentication and role-based access control.",
+      "structural_and_modular_requirements": "Must support plugin-based extensions for new features.",
+      "performance_and_scalability_criteria": "API response times under 200ms; handles 10k concurrent users.",
+      "data_handling_and_integrity": "Must ensure ACID compliance for database transactions.",
+      "error_handling_and_user_experience": "User-friendly error messages with retry mechanisms.",
+      "efficiency_requirements_for_product_use_cases": "Optimized performance for high-volume transactions.",
+      "readability_maintainability_and_team_adoption": "Clear documentation and modular design.",
+      "testing_and_validation_criteria": "Automated tests covering 90%+ of code paths.",
+      "external_dependencies_and_integrations": "Must integrate with third-party payment gateways.",
+      "security_standards_and_threat_mitigation": "Enforce OWASP best practices for security.",
+      "compliance_and_regulatory_considerations": "Must comply with GDPR and HIPAA regulations.",
+      "adherence_to_standards_and_best_practices": "Follows ISO 27001 security best practices."
+    }
+    ```
+- */syntropy/comparison/summarize* (POST)
+  - This endpoint requires a json-structured POST request.
+  - You can pass a json with the following variables.
+  - *code_summary* : a json-structure that matches the output of the `/syntropy/code/summarize` endpoint.
+  - *requirements_summary* : a json-structure that matches the output of the `/syntropy/requirements/summarize` endpoint.
+  - Here is a sample curl request, assuming `code_summary.json` and `requirements_summary.json` exist:
+  ```bash
+  jq -s '{code_summary: .[0], requirements_summary: .[1]}' code_summary.json requirements_summary.json | curl -X 'POST' \
+  'http://localhost:8000/syntropy/comparison/summarize' \
+  -H 'Content-Type: application/json' \
+  -d @- | jq
+  ```
