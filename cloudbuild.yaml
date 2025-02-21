@@ -15,6 +15,14 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/blast-radius:$COMMIT_SHA']
 
+  # Build the Docker image for syntropy app
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'build', '-t', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/syntropy:$COMMIT_SHA', './syntropy-app' ]
+
+  # Push the syntropy Docker image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'push', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/syntropy:$COMMIT_SHA' ]
+
   # Deploy github-app to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
@@ -48,9 +56,26 @@ steps:
       - '--set-secrets'
       - 'JIRA_EMAIL=push-to-prod-jira-email:latest,JIRA_API_TOKEN=push-to-prod-jira-token:latest'
 
+  # Deploy syntropy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'syntropy'
+      - '--image'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/syntropy:$COMMIT_SHA'
+      - '--region'
+      - '${_REGION}'
+      - '--memory'
+      - '2048Mi'
+      - '--set-secrets'
+      - 'GEMINI_API_KEY=push-to-prod-gemini-key:latest'
+
 images:
   - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/github-app:$COMMIT_SHA'
   - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/blast-radius:$COMMIT_SHA'
+  - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/syntropy:$COMMIT_SHA'
   
 options:
   logging: CLOUD_LOGGING_ONLY
