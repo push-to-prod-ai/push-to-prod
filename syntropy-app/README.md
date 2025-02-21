@@ -54,7 +54,7 @@ export GEMINI_API_KEY=""
 #### Poetry
 If you are using Poetry, you can start a local instance of the FastAPI by running the following command in your shell:
 ```bash
-poetry run uvicorn src.main:app --host 127.0.0.1 --port 8000
+poetry run uvicorn src.main:app --host 127.0.0.1 --port 8080
 ```
 
 #### Docker
@@ -66,13 +66,23 @@ docker build --pull -t syntropy-app .
 ```
 
 *Start the container*
+
+Ensure that your `GEMINI_API_KEY` is sent to the container, by either passing `-e GEMINI_API_KEY` or specifying an
+environment variables file (e.g. `.env`).
+
+Running with exported variable:
 ```bash
-docker run -p 8000:8000 syntropy-app
+docker run -p 8080:8080 -e GEMINI_API_KEY syntropy-app
+```
+
+...or running with `.env` file. (Ensure that your `.env` file is in the repository you're running from!)
+```bash
+docker run -p 8080:8080 --env-file .env syntropy-app
 ```
 
 ### Available Endpoints
 If you followed the above instructions you should have a local FastAPI instance available to you running on 
-`http://127.0.0.1:8000`
+`http://127.0.0.1:8080`
 
 - */*
   - This is the root endpoint of the FastAPI. Nothing to do here.
@@ -85,7 +95,7 @@ If you followed the above instructions you should have a local FastAPI instance 
     - Sample curl request. Uses `jq` and a `sample_code.txt` file
     ```bash 
     jq -Rs '{diffs: .}' < sample_code.txt | curl -X 'POST' \
-    'http://localhost:8000/syntropy/code/summarize' \
+    'http://localhost:8080/syntropy/code/summarize' \
     -H 'Content-Type: application/json' \
     -d @- | jq
     ```
@@ -113,7 +123,7 @@ If you followed the above instructions you should have a local FastAPI instance 
     - Sample curl request.
     ```bash 
     curl -X 'POST' \
-    'http://localhost:8000/syntropy/requirements/summarize' \
+    'http://localhost:8080/syntropy/requirements/summarize' \
     -H 'Content-Type: application/json' \
     -d '{"requirements": "users need to log into a platform and run a calculation"}' | jq
     ```
@@ -142,7 +152,7 @@ If you followed the above instructions you should have a local FastAPI instance 
   - Here is a sample curl request, assuming `code_summary.json` and `requirements_summary.json` exist:
   ```bash
   jq -s '{code_summary: .[0], requirements_summary: .[1]}' code_summary.json requirements_summary.json | curl -X 'POST' \
-  'http://localhost:8000/syntropy/comparison/summarize' \
+  'http://localhost:8080/syntropy/comparison/summarize' \
   -H 'Content-Type: application/json' \
   -d @- | jq
   ```
