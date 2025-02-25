@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Header from '@/components/Header';
-import SettingsForm from '../components/SettingsForm';
+import SettingsForm from '@/components/SettingsForm';
 import { Suspense } from 'react';
 
 export const metadata: Metadata = {
