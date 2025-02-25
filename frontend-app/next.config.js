@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: true,
-    swcMinify: true,
     output: 'standalone', // Optimizes for containerized deployments
     images: {
       domains: ['github.com'], // Add any domains you'll load images from
