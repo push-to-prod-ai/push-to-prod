@@ -1,4 +1,11 @@
+'use client';
+
+import { useSession, signOut } from 'next-auth/react';
+import Link from 'next/link';
+
 export default function Header() {
+  const { data: session, status } = useSession();
+
   return (
     <header className="bg-white shadow-sm">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -6,7 +13,7 @@ export default function Header() {
           <div className="text-xl font-bold">Push to Prod</div>
         </div>
         <nav>
-          <ul className="flex space-x-6">
+          <ul className="flex space-x-6 items-center">
             <li>
               <a 
                 href="https://github.com/push-to-prod-ai/push-to-prod" 
@@ -27,6 +34,37 @@ export default function Header() {
                 Support
               </a>
             </li>
+            {status === 'authenticated' && session?.user && (
+              <>
+                <li className="flex items-center">
+                  <div className="flex items-center space-x-2">
+                    {session.user.image && (
+                      <img 
+                        src={session.user.image} 
+                        alt={session.user.name || 'User'} 
+                        className="w-8 h-8 rounded-full"
+                      />
+                    )}
+                    <span className="text-sm text-gray-700">{session.user.name}</span>
+                  </div>
+                </li>
+                <li>
+                  <button
+                    onClick={() => signOut({ callbackUrl: '/auth/signin' })}
+                    className="text-sm text-red-600 hover:text-red-800"
+                  >
+                    Sign out
+                  </button>
+                </li>
+              </>
+            )}
+            {status === 'unauthenticated' && (
+              <li>
+                <Link href="/auth/signin" className="text-blue-600 hover:text-blue-800">
+                  Sign in
+                </Link>
+              </li>
+            )}
           </ul>
         </nav>
       </div>

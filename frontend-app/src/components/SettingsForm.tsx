@@ -2,8 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 export default function SettingsForm() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const organizationId = searchParams.get('organization_id') || '';
   const installationId = searchParams.get('installation_id') || '';
@@ -16,16 +20,30 @@ export default function SettingsForm() {
   const [error, setError] = useState('');
   const [hasExistingSettings, setHasExistingSettings] = useState(false);
 
+  // Redirect to sign-in if not authenticated
   useEffect(() => {
-    if (organizationId) {
+    if (status === 'unauthenticated') {
+      router.push('/auth/signin');
+    }
+  }, [status, router]);
+
+  useEffect(() => {
+    if (organizationId && status === 'authenticated') {
       fetchExistingSettings();
     }
-  }, [organizationId]);
+  }, [organizationId, status]);
 
   const fetchExistingSettings = async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/settings?organizationId=${organizationId}`);
+      
+      if (response.status === 401) {
+        // Handle unauthorized access
+        router.push('/auth/signin');
+        return;
+      }
+      
       const data = await response.json();
       
       if (data.exists) {
@@ -61,6 +79,12 @@ export default function SettingsForm() {
         }),
       });
 
+      if (response.status === 401) {
+        // Handle unauthorized access
+        router.push('/auth/signin');
+        return;
+      }
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to save settings');
@@ -74,6 +98,17 @@ export default function SettingsForm() {
       setLoading(false);
     }
   };
+
+  // Show loading state while checking authentication
+  if (status === 'loading') {
+    return (
+      <div className="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
+        <div className="flex justify-center items-center py-8">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
