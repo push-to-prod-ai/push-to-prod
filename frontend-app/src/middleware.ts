@@ -39,7 +39,9 @@ export const config = {
     // Protected routes that require authentication
     '/',
     '/api/settings/:path*',
-    // Exclude auth-related routes
-    '/((?!auth|_next/static|_next/image|favicon.ico).*)',
+    '/api/github/:path*',
+    '/test-firebase',
+    // Exclude auth-related routes - THIS IS CRITICAL
+    '/((?!api/auth|auth|_next/static|_next/image|favicon.ico).*)',
   ],
 }; 
