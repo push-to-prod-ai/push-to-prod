@@ -2,8 +2,10 @@
 
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { Suspense } from 'react';
 
-export default function ErrorPage() {
+// Extract the content into a separate component that uses useSearchParams
+function ErrorContent() {
   const searchParams = useSearchParams();
   const reason = searchParams.get('reason') || 'unknown_error';
   
@@ -36,5 +38,26 @@ export default function ErrorPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Main component wrapped with Suspense
+export default function ErrorPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50">
+        <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold">Error</h1>
+            <p className="mt-2 text-gray-600">Loading error details...</p>
+          </div>
+          <div className="flex justify-center mt-8">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
+          </div>
+        </div>
+      </div>
+    }>
+      <ErrorContent />
+    </Suspense>
   );
 } 
