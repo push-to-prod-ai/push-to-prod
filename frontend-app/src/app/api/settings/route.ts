@@ -1,37 +1,88 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSessionToken } from '@/lib/session';
+import { getFirestoreDb, collections } from '@/lib/firebase';
+import { getAuth } from '@/utils/auth'; 
+
+export async function POST(request: NextRequest) {
+  try {
+    const session = await getAuth(); 
+    
+    if (!session || !session.user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+    
+    const { jiraEmail, jiraDomain, jiraApiToken } = await request.json();
+    
+    // Use the user's ID as the document ID instead of organization ID
+    const userId = session.user.id;
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'User ID not found in session' },
+        { status: 400 }
+      );
+    }
+    
+    const db = getFirestoreDb();
+    await db.collection(collections.settings).doc(userId).set({
+      jiraEmail,
+      jiraDomain,
+      jiraApiToken,
+      updatedAt: new Date(),
+      updatedBy: userId,
+    }, { merge: true });
+    
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Error saving settings:', error);
+    return NextResponse.json(
+      { error: 'Failed to save settings' },
+      { status: 500 }
+    );
+  }
+}
 
 export async function GET(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams;
-  const installationId = searchParams.get('installation_id');
-  const setupAction = searchParams.get('setup_action');
-  
-  if (!installationId || !setupAction) {
-    return NextResponse.redirect(new URL('/error?reason=invalid_setup', request.url));
-  }
-  
   try {
-    // Create a session token for this installation
-    const sessionToken = await createSessionToken({ 
-      installationId, 
-      setupAction 
+    const session = await getAuth();
+    
+    if (!session || !session.user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+    
+    // Use the user's ID as the document ID
+    const userId = session.user.id;
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'User ID not found in session' },
+        { status: 400 }
+      );
+    }
+
+    const db = getFirestoreDb();
+    const settingsDoc = await db.collection(collections.settings).doc(userId).get();
+
+    if (!settingsDoc.exists) {
+      return NextResponse.json({ exists: false });
+    }
+
+    const settings = settingsDoc.data();
+    return NextResponse.json({
+      exists: true,
+      jiraEmail: settings?.jiraEmail,
+      jiraDomain: settings?.jiraDomain,
+      // Don't return the API token for security reasons
+      hasJiraToken: !!settings?.jiraApiToken,
     });
-    
-    // Redirect to the settings page with the session token
-    const settingsUrl = new URL('/', request.url);
-    
-    // Set cookie or pass token in query params
-    const response = NextResponse.redirect(settingsUrl);
-    response.cookies.set('app_session', sessionToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24, // 24 hours
-    });
-    
-    return response;
   } catch (error) {
-    console.error('Error handling GitHub app setup:', error);
-    return NextResponse.redirect(new URL('/error?reason=setup_failed', request.url));
+    console.error('Error retrieving settings:', error);
+    return NextResponse.json(
+      { error: 'Failed to retrieve settings' },
+      { status: 500 }
+    );
   }
 }

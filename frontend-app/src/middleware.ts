@@ -40,7 +40,6 @@ export const config = {
     '/',
     '/api/settings/:path*',
     '/api/github/:path*',
-    '/test-firebase',
     // Exclude auth-related routes - THIS IS CRITICAL
     '/((?!api/auth|auth|_next/static|_next/image|favicon.ico).*)',
   ],

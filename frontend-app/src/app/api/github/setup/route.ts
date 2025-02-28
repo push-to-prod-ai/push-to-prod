@@ -20,8 +20,7 @@ export async function GET(request: NextRequest) {
     // Create a session token for this installation
     const sessionToken = await createSessionToken({ 
       installationId, 
-      setupAction,
-      timestamp: Date.now()
+      setupAction 
     });
     
     // Redirect to the settings page with the session token
