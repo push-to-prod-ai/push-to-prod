@@ -31,3 +31,4 @@ yarn-error.log*
 
 # OS files
 .DS_Store
+frontend-app/secrets.sh
