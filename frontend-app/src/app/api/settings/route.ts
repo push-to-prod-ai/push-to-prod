@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getFirestoreDb, collections } from '@/lib/firebase';
-import { getAuth } from '@/lib/auth'; 
+import { getAuth } from '@/utils/auth'; 
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,22 +13,24 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    const { organizationId, jiraEmail, jiraDomain, jiraApiToken } = await request.json();
+    const { jiraEmail, jiraDomain, jiraApiToken } = await request.json();
     
-    if (!organizationId) {
+    // Use the user's ID as the document ID instead of organization ID
+    const userId = session.user.id;
+    if (!userId) {
       return NextResponse.json(
-        { error: 'Organization ID is required' },
+        { error: 'User ID not found in session' },
         { status: 400 }
       );
     }
     
     const db = getFirestoreDb();
-    await db.collection(collections.settings).doc(organizationId).set({
+    await db.collection(collections.settings).doc(userId).set({
       jiraEmail,
       jiraDomain,
       jiraApiToken,
       updatedAt: new Date(),
-      updatedBy: session.user.id,
+      updatedBy: userId,
     }, { merge: true });
     
     return NextResponse.json({ success: true });
@@ -52,17 +54,17 @@ export async function GET(request: NextRequest) {
       );
     }
     
-    const organizationId = request.nextUrl.searchParams.get('organizationId');
-    
-    if (!organizationId) {
+    // Use the user's ID as the document ID
+    const userId = session.user.id;
+    if (!userId) {
       return NextResponse.json(
-        { error: 'Organization ID is required' },
+        { error: 'User ID not found in session' },
         { status: 400 }
       );
     }
 
     const db = getFirestoreDb();
-    const settingsDoc = await db.collection(collections.settings).doc(organizationId).get();
+    const settingsDoc = await db.collection(collections.settings).doc(userId).get();
 
     if (!settingsDoc.exists) {
       return NextResponse.json({ exists: false });

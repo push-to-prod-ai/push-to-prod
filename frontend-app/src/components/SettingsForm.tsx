@@ -1,16 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
 export default function SettingsForm() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const organizationId = searchParams.get('organization_id') || '';
-  const installationId = searchParams.get('installation_id') || '';
   
   const [jiraEmail, setJiraEmail] = useState('');
   const [jiraApiToken, setJiraApiToken] = useState('');
@@ -28,15 +24,15 @@ export default function SettingsForm() {
   }, [status, router]);
 
   useEffect(() => {
-    if (organizationId && status === 'authenticated') {
+    if (status === 'authenticated') {
       fetchExistingSettings();
     }
-  }, [organizationId, status]);
+  }, [status]);
 
   const fetchExistingSettings = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/settings?organizationId=${organizationId}`);
+      const response = await fetch(`/api/settings`);
       
       if (response.status === 401) {
         // Handle unauthorized access
@@ -71,8 +67,6 @@ export default function SettingsForm() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          organizationId,
-          installationId,
           jiraEmail,
           jiraApiToken,
           jiraDomain,

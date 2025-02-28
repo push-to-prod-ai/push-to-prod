@@ -23,6 +23,14 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: [ 'push', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/syntropy:$COMMIT_SHA' ]
 
+  # Build the Docker image for frontend app
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/frontend:$COMMIT_SHA', './frontend-app']
+
+  # Push the frontend Docker image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/frontend:$COMMIT_SHA']
+
   # Deploy github-app to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
@@ -72,10 +80,28 @@ steps:
       - '--set-secrets'
       - 'GEMINI_API_KEY=push-to-prod-gemini-key:latest'
 
+  # Deploy frontend app to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'frontend'
+      - '--image'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/frontend:$COMMIT_SHA'
+      - '--region'
+      - '${_REGION}'
+      - '--set-secrets'
+      - 'NEXTAUTH_SECRET=frontend-nextauth-secret:latest,GITHUB_ID=github-oauth-client-id:latest,GITHUB_SECRET=github-oauth-client-secret:latest,SESSION_SECRET=frontend-session-secret:latest,FIREBASE_PROJECT_ID=frontend-firebase-project-id:latest,FIREBASE_CLIENT_EMAIL=frontend-firebase-client-email:latest,FIREBASE_PRIVATE_KEY=frontend-firebase-private-key:latest'
+      - '--set-env-vars'
+      - 'NEXTAUTH_URL=https://frontend-${PROJECT_NUMBER}.run.app,NODE_ENV=production,PORT=8080'
+      - '--allow-unauthenticated'
+
 images:
   - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/github-app:$COMMIT_SHA'
   - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/blast-radius:$COMMIT_SHA'
   - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/syntropy:$COMMIT_SHA'
+  - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/frontend:$COMMIT_SHA'
   
 options:
   logging: CLOUD_LOGGING_ONLY
