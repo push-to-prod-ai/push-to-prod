@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSessionToken } from '@/lib/session';
 
+/**
+ * Handler for GitHub App setup/configuration redirects
+ * 
+ * When a user installs or configures the GitHub App, they'll be redirected
+ * to this endpoint with installation_id and setup_action parameters.
+ */
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const installationId = searchParams.get('installation_id');
@@ -14,7 +20,8 @@ export async function GET(request: NextRequest) {
     // Create a session token for this installation
     const sessionToken = await createSessionToken({ 
       installationId, 
-      setupAction 
+      setupAction,
+      timestamp: Date.now()
     });
     
     // Redirect to the settings page with the session token
@@ -34,4 +41,4 @@ export async function GET(request: NextRequest) {
     console.error('Error handling GitHub app setup:', error);
     return NextResponse.redirect(new URL('/error?reason=setup_failed', request.url));
   }
-}
+} 

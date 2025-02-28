@@ -11,6 +11,7 @@
   "dependencies": {
     "autoprefixer": "^10.4.16",
     "firebase-admin": "^13.1.0",
+    "jsonwebtoken": "^9.0.2",
     "next": "15.1.7",
     "next-auth": "^4.24.11",
     "postcss": "^8.4.31",
