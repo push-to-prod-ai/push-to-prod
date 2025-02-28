@@ -11,6 +11,7 @@ coverage
 *.idea
 *.DS_Store
 *venv/
+github-app/lib
 
 # Next.js build output
 .next/
