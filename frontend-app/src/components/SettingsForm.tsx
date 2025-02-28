@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
 export default function SettingsForm() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
   
   const [jiraEmail, setJiraEmail] = useState('');
@@ -23,13 +23,8 @@ export default function SettingsForm() {
     }
   }, [status, router]);
 
-  useEffect(() => {
-    if (status === 'authenticated') {
-      fetchExistingSettings();
-    }
-  }, [status]);
-
-  const fetchExistingSettings = async () => {
+  // Use useCallback to memoize the function
+  const fetchExistingSettings = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/settings`);
@@ -52,7 +47,13 @@ export default function SettingsForm() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]); // Only depends on router
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      fetchExistingSettings();
+    }
+  }, [status, fetchExistingSettings]); // Now safe to include fetchExistingSettings
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

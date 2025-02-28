@@ -1,38 +1,48 @@
 steps:
-  # Build the Docker image for github-app
-  - name: 'gcr.io/cloud-builders/docker'
+  # Build all Docker images in parallel
+  - id: 'build-github-app'
+    name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/github-app:$COMMIT_SHA', './github-app']
 
-  # Push the github-app Docker image to Artifact Registry
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/github-app:$COMMIT_SHA']
-
-  # Build the Docker image for blast-radius app
-  - name: 'gcr.io/cloud-builders/docker'
+  - id: 'build-blast-radius'
+    name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/blast-radius:$COMMIT_SHA', './blast-radius-app']
+    waitFor: ['-'] # Start immediately, don't wait for previous step
 
-  # Push the blast-radius Docker image to Artifact Registry
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/blast-radius:$COMMIT_SHA']
+  - id: 'build-syntropy'
+    name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/syntropy:$COMMIT_SHA', './syntropy-app']
+    waitFor: ['-'] # Start immediately
 
-  # Build the Docker image for syntropy app
-  - name: 'gcr.io/cloud-builders/docker'
-    args: [ 'build', '-t', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/syntropy:$COMMIT_SHA', './syntropy-app' ]
-
-  # Push the syntropy Docker image to Artifact Registry
-  - name: 'gcr.io/cloud-builders/docker'
-    args: [ 'push', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/syntropy:$COMMIT_SHA' ]
-
-  # Build the Docker image for frontend app
-  - name: 'gcr.io/cloud-builders/docker'
+  - id: 'build-frontend'
+    name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/frontend:$COMMIT_SHA', './frontend-app']
+    waitFor: ['-'] # Start immediately
 
-  # Push the frontend Docker image to Artifact Registry
-  - name: 'gcr.io/cloud-builders/docker'
+  # Push images after their respective builds complete
+  - id: 'push-github-app'
+    name: 'gcr.io/cloud-builders/docker'
+    args: ['push', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/github-app:$COMMIT_SHA']
+    waitFor: ['build-github-app']
+
+  - id: 'push-blast-radius'
+    name: 'gcr.io/cloud-builders/docker'
+    args: ['push', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/blast-radius:$COMMIT_SHA']
+    waitFor: ['build-blast-radius']
+
+  - id: 'push-syntropy'
+    name: 'gcr.io/cloud-builders/docker'
+    args: ['push', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/syntropy:$COMMIT_SHA']
+    waitFor: ['build-syntropy']
+
+  - id: 'push-frontend'
+    name: 'gcr.io/cloud-builders/docker'
     args: ['push', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/frontend:$COMMIT_SHA']
+    waitFor: ['build-frontend']
 
-  # Deploy github-app to Cloud Run
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  # Deploy all services in parallel after their respective images are pushed
+  - id: 'deploy-github-app'
+    name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
       - 'run'
@@ -47,9 +57,10 @@ steps:
       - '--set-secrets'
       - 'WEBHOOK_SECRET=push-to-prod-webhook-secret:latest,GEMINI_API_KEY=push-to-prod-gemini-key:latest,JIRA_EMAIL=push-to-prod-jira-email:latest,JIRA_API_TOKEN=push-to-prod-jira-token:latest,PRIVATE_KEY=push-to-prod-private-key:latest,APP_ID=push-to-prod-app-id:latest'
       - '--allow-unauthenticated'
+    waitFor: ['push-github-app']
 
-  # Deploy blast-radius to Cloud Run
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  - id: 'deploy-blast-radius'
+    name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
       - 'run'
@@ -63,9 +74,10 @@ steps:
       - '2048Mi'
       - '--set-secrets'
       - 'JIRA_EMAIL=push-to-prod-jira-email:latest,JIRA_API_TOKEN=push-to-prod-jira-token:latest'
+    waitFor: ['push-blast-radius']
 
-  # Deploy syntropy to Cloud Run
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  - id: 'deploy-syntropy'
+    name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
       - 'run'
@@ -79,9 +91,10 @@ steps:
       - '2048Mi'
       - '--set-secrets'
       - 'GEMINI_API_KEY=push-to-prod-gemini-key:latest'
+    waitFor: ['push-syntropy']
 
-  # Deploy frontend app to Cloud Run
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  - id: 'deploy-frontend'
+    name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
       - 'run'
@@ -96,6 +109,7 @@ steps:
       - '--set-env-vars'
       - 'NEXTAUTH_URL=https://frontend-${PROJECT_NUMBER}.run.app,NODE_ENV=production,PORT=8080'
       - '--allow-unauthenticated'
+    waitFor: ['push-frontend']
 
 images:
   - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/github-app:$COMMIT_SHA'

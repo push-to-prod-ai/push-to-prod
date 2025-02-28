@@ -2,6 +2,7 @@
 
 import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Header() {
   const { data: session, status } = useSession();
@@ -39,11 +40,16 @@ export default function Header() {
                 <li className="flex items-center">
                   <div className="flex items-center space-x-2">
                     {session.user.image && (
-                      <img 
-                        src={session.user.image} 
-                        alt={session.user.name || 'User'} 
-                        className="w-8 h-8 rounded-full"
-                      />
+                      <div className="relative w-8 h-8 rounded-full overflow-hidden">
+                        <Image 
+                          src={session.user.image} 
+                          alt={session.user.name || 'User'} 
+                          fill
+                          sizes="32px"
+                          className="object-cover"
+                          priority
+                        />
+                      </div>
                     )}
                     <span className="text-sm text-gray-700">{session.user.name}</span>
                   </div>
