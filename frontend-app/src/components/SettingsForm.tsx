@@ -62,16 +62,27 @@ export default function SettingsForm() {
     setSuccess(false);
 
     try {
+      interface SettingsPayload {
+        jiraEmail: string;
+        jiraDomain: string;
+        jiraApiToken?: string;
+      }
+      
+      const payload: SettingsPayload = {
+        jiraEmail,
+        jiraDomain,
+      };
+      
+      if (jiraApiToken) {
+        payload.jiraApiToken = jiraApiToken;
+      }
+      
       const response = await fetch('/api/settings', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          jiraEmail,
-          jiraApiToken,
-          jiraDomain,
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (response.status === 401) {

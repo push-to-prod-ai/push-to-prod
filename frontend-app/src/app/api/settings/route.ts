@@ -25,13 +25,27 @@ export async function POST(request: NextRequest) {
     }
     
     const db = getFirestoreDb();
-    await db.collection(collections.settings).doc(userId).set({
+    
+    // Create update object with required fields
+    const updateData: {
+      jiraEmail: string;
+      jiraDomain: string;
+      updatedAt: Date;
+      updatedBy: string;
+      jiraApiToken?: string;
+    } = {
       jiraEmail,
       jiraDomain,
-      jiraApiToken,
       updatedAt: new Date(),
       updatedBy: userId,
-    }, { merge: true });
+    };
+    
+    // Only include jiraApiToken if it was provided in the request
+    if (jiraApiToken !== undefined) {
+      updateData.jiraApiToken = jiraApiToken;
+    }
+    
+    await db.collection(collections.settings).doc(userId).set(updateData, { merge: true });
     
     return NextResponse.json({ success: true });
   } catch (error) {
