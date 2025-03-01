@@ -105,9 +105,9 @@ steps:
       - '--region'
       - '${_REGION}'
       - '--set-secrets'
-      - 'NEXTAUTH_SECRET=frontend-nextauth-secret:latest,GITHUB_ID=github-oauth-client-id:latest,GITHUB_SECRET=github-oauth-client-secret:latest,SESSION_SECRET=frontend-session-secret:latest'
+      - 'NEXTAUTH_SECRET=frontend-nextauth-secret:latest,GITHUB_ID=github-oauth-client-id:latest,GITHUB_SECRET=github-oauth-client-secret:latest,SESSION_SECRET=frontend-session-secret:latest,FIREBASE_PROJECT_ID=frontend-firebase-project-id:latest'
       - '--set-env-vars'
-      - 'NEXTAUTH_URL=https://frontend-${PROJECT_NUMBER}.us-central1.run.app,NODE_ENV=production,FIREBASE_PROJECT_ID=pushtoprod-5b295'
+      - 'NEXTAUTH_URL=https://frontend-${PROJECT_NUMBER}.us-central1.run.app,NODE_ENV=production'
       - '--allow-unauthenticated'
       - '--service-account=frontend-service-account@$PROJECT_ID.iam.gserviceaccount.com'
     waitFor: ['push-frontend']
