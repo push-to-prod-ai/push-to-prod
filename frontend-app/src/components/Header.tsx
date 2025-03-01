@@ -43,7 +43,6 @@ export default function Header() {
                   <div className="flex items-center space-x-2">
                     {session.user.image && (
                       <div className="relative w-8 h-8 rounded-full overflow-hidden">
-                        {!imageError ? (
                           <Image 
                             src={session.user.image} 
                             alt={session.user.name || 'User'} 
@@ -53,13 +52,6 @@ export default function Header() {
                             priority
                             onError={() => setImageError(true)}
                           />
-                        ) : (
-                          <img 
-                            src={session.user.image} 
-                            alt={session.user.name || 'User'} 
-                            className="w-full h-full object-cover"
-                          />
-                        )}
                       </div>
                     )}
                     <span className="text-sm text-gray-700">{session.user.name}</span>

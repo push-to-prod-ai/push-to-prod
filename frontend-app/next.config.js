@@ -4,14 +4,17 @@ const path = require('path');
 const nextConfig = {
     reactStrictMode: true,
     images: {
-      domains: [
-        'github.com', 
-        'avatars.githubusercontent.com',
-        'avatar.githubusercontent.com',
-        'avatars0.githubusercontent.com',
-        'avatars1.githubusercontent.com',
-        'avatars2.githubusercontent.com',
-        'avatars3.githubusercontent.com'
+      remotePatterns: [
+        {
+          protocol: 'https',
+          hostname: 'github.com',
+          pathname: '**',
+        },
+        {
+          protocol: 'https',
+          hostname: '*.githubusercontent.com',
+          pathname: '**',
+        }
       ],
     },
     // Skip type checking during build for faster builds in production
