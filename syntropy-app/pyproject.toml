@@ -19,6 +19,8 @@ package-mode = false
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.9.6"
 pytest = "^8.3.4"
+jupyter = "^1.1.1"
+polars = "^1.24.0"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
