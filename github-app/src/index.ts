@@ -178,8 +178,13 @@ export const createApp = (app: Probot) => {
       const relevantIssue = blastRadiusResponse.relevant_issues[0];
       app.log.info("Selected relevant ticket", { ticketKey: relevantIssue.key });
 
-      // Add comment to ticket
-      await ticketService.addComment(relevantIssue.key, { text: summaryText });
+      // Add comment to ticket - pass the user ID (using GitHub user ID as a fallback)
+      const userId = sender?.id?.toString() || "";
+      await ticketService.addComment(
+        relevantIssue.key, 
+        { text: summaryText },
+        userId
+      );
       app.log.info("Added comment to ticket", { ticketKey: relevantIssue.key });
 
       // Add status check with ticket link

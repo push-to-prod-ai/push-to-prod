@@ -5,15 +5,23 @@ export const config = {
   },
   ai: {
     model: "gemini-2.0-flash"
+  },
+  firebase: {
+    projectId: process.env.FIREBASE_PROJECT_ID || "pushtoprod-5b295",
+    collections: {
+      organizations: 'organizations',
+      settings: 'settings',
+      users: 'users',
+    }
   }
 } as const;
 
 // Validate required environment variables
 const requiredEnvVars = [
   'GEMINI_API_KEY',
-  'JIRA_EMAIL',
-  'JIRA_API_TOKEN'
+  'FIREBASE_PROJECT_ID'
 ] as const;
+
 
 requiredEnvVars.forEach(envVar => {
   if (!process.env[envVar]) {

@@ -23,4 +23,12 @@ export type TicketComment = {
 export type TicketSystem = {
   headers: Record<string, string>;
   baseUrl: string;
+};
+
+// Database Service types
+export type JiraCredentials = {
+  jiraEmail: string;
+  jiraDomain: string;
+  jiraApiToken: string;
+  exists: boolean;
 }; 

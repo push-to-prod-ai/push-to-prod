@@ -57,6 +57,8 @@ steps:
       - '--set-secrets'
       - 'WEBHOOK_SECRET=push-to-prod-webhook-secret:latest,GEMINI_API_KEY=push-to-prod-gemini-key:latest,JIRA_EMAIL=push-to-prod-jira-email:latest,JIRA_API_TOKEN=push-to-prod-jira-token:latest,PRIVATE_KEY=push-to-prod-private-key:latest,APP_ID=push-to-prod-app-id:latest'
       - '--allow-unauthenticated'
+      - '--service-account=frontend-service-account@$PROJECT_ID.iam.gserviceaccount.com'
+
     waitFor: ['push-github-app']
 
   - id: 'deploy-blast-radius'
