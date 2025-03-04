@@ -29,7 +29,7 @@ export class TicketService {
     
     if (!credentials.exists || !credentials.jiraEmail || !credentials.jiraApiToken) {
       this.logger.info(`No Jira credentials found for user: ${userId}`);
-      return false;
+      return;
     }
     
     // Use credentials from the database
@@ -47,23 +47,17 @@ export class TicketService {
     };
     
     this.logger.info(`Initialized Jira system with credentials for user: ${userId}`);
-    return true;
+    return;
   }
 
   async addComment(ticketId: string, comment: TicketComment, userId: string) {
     // Initialize the system with the user's credentials if not already initialized
     if (!this.system) {
-      const initialized = await this.initializeSystem(userId);
-      if (!initialized) {
+      await this.initializeSystem(userId);
+      if (!this.system) {
         this.logger.info(`Skipping comment addition to ticket ${ticketId} due to missing credentials`);
         return;
       }
-    }
-    
-    // At this point we know this.system is initialized
-    if (!this.system) {
-      // This should never happen, but it satisfies the type checker
-      return;
     }
     
     this.logger.info(`Adding comment to ticket: ${ticketId}`);
@@ -85,17 +79,11 @@ export class TicketService {
       },
     };
 
-    try {
-      await axios.post(
-        `${this.system.baseUrl}/issue/${ticketId}/comment`,
-        payload,
-        { headers: this.system.headers }
-      );
-      this.logger.info(`Successfully added comment to ticket: ${ticketId}`);
-    } catch (error) {
-      this.logger.error(`Error adding comment to ticket ${ticketId}: ${error}`);
-      // Re-throw to let caller handle the error
-      throw error;
-    }
+    await axios.post(
+      `${this.system.baseUrl}/issue/${ticketId}/comment`,
+      payload,
+      { headers: this.system.headers }
+    );
+    this.logger.info(`Successfully added comment to ticket: ${ticketId}`);
   }
 } 
