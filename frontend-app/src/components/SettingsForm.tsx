@@ -1,36 +1,46 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
-export default function SettingsForm() {
-  const { status } = useSession();
+// Type definitions for better type safety
+interface JiraSettings {
+  jiraEmail: string;
+  jiraApiToken: string;
+  jiraDomain: string;
+}
+
+interface FormStatus {
+  loading: boolean;
+  success: boolean;
+  error: string;
+  hasExistingSettings: boolean;
+}
+
+// Custom hook to manage Jira settings
+function useJiraSettings() {
   const router = useRouter();
+  const [formData, setFormData] = useState<JiraSettings>({
+    jiraEmail: '',
+    jiraApiToken: '',
+    jiraDomain: '',
+  });
   
-  const [jiraEmail, setJiraEmail] = useState('');
-  const [jiraApiToken, setJiraApiToken] = useState('');
-  const [jiraDomain, setJiraDomain] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState('');
-  const [hasExistingSettings, setHasExistingSettings] = useState(false);
+  const [status, setStatus] = useState<FormStatus>({
+    loading: false,
+    success: false,
+    error: '',
+    hasExistingSettings: false,
+  });
 
-  // Redirect to sign-in if not authenticated
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/auth/signin');
-    }
-  }, [status, router]);
-
-  // Use useCallback to memoize the function
-  const fetchExistingSettings = useCallback(async () => {
+  // Fetch existing settings
+  const fetchSettings = async () => {
     try {
-      setLoading(true);
-      const response = await fetch(`/api/settings`);
+      setStatus(prev => ({ ...prev, loading: true }));
+      const response = await fetch('/api/settings');
       
       if (response.status === 401) {
-        // Handle unauthorized access
         router.push('/auth/signin');
         return;
       }
@@ -38,55 +48,48 @@ export default function SettingsForm() {
       const data = await response.json();
       
       if (data.exists) {
-        setJiraEmail(data.jiraEmail || '');
-        setJiraDomain(data.jiraDomain || '');
-        setHasExistingSettings(true);
+        setFormData(prev => ({
+          ...prev,
+          jiraEmail: data.jiraEmail || '',
+          jiraDomain: data.jiraDomain || '',
+        }));
+        setStatus(prev => ({ ...prev, hasExistingSettings: true }));
       }
     } catch (err) {
       console.error('Error fetching settings:', err);
     } finally {
-      setLoading(false);
+      setStatus(prev => ({ ...prev, loading: false }));
     }
-  }, [router]); // Only depends on router
+  };
 
-  useEffect(() => {
-    if (status === 'authenticated') {
-      fetchExistingSettings();
-    }
-  }, [status, fetchExistingSettings]); // Now safe to include fetchExistingSettings
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    setSuccess(false);
+  // Save settings
+  const saveSettings = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setStatus(prev => ({ 
+      ...prev, 
+      loading: true,
+      error: '',
+      success: false
+    }));
 
     try {
-      interface SettingsPayload {
-        jiraEmail: string;
-        jiraDomain: string;
-        jiraApiToken?: string;
-      }
-      
-      const payload: SettingsPayload = {
-        jiraEmail,
-        jiraDomain,
+      const payload: Partial<JiraSettings> = {
+        jiraEmail: formData.jiraEmail,
+        jiraDomain: formData.jiraDomain,
       };
       
-      if (jiraApiToken) {
-        payload.jiraApiToken = jiraApiToken;
+      // Only include API token if provided (for updates)
+      if (formData.jiraApiToken) {
+        payload.jiraApiToken = formData.jiraApiToken;
       }
       
       const response = await fetch('/api/settings', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
 
       if (response.status === 401) {
-        // Handle unauthorized access
         router.push('/auth/signin');
         return;
       }
@@ -96,17 +99,63 @@ export default function SettingsForm() {
         throw new Error(errorData.error || 'Failed to save settings');
       }
 
-      setSuccess(true);
-      setHasExistingSettings(true);
+      setStatus(prev => ({ 
+        ...prev, 
+        success: true,
+        hasExistingSettings: true
+      }));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      setStatus(prev => ({ 
+        ...prev, 
+        error: err instanceof Error ? err.message : 'An unknown error occurred'
+      }));
     } finally {
-      setLoading(false);
+      setStatus(prev => ({ ...prev, loading: false }));
     }
   };
 
+  // Handle form input changes
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setFormData(prev => ({ ...prev, [id]: value }));
+  };
+
+  return {
+    formData,
+    status,
+    fetchSettings,
+    saveSettings,
+    handleInputChange
+  };
+}
+
+export default function SettingsForm() {
+  const { status: authStatus } = useSession();
+  const router = useRouter();
+  const { 
+    formData, 
+    status, 
+    fetchSettings, 
+    saveSettings, 
+    handleInputChange 
+  } = useJiraSettings();
+  
+  // Redirect to sign-in if not authenticated
+  useEffect(() => {
+    if (authStatus === 'unauthenticated') {
+      router.push('/auth/signin');
+    }
+  }, [authStatus, router]);
+
+  // Fetch existing settings when authenticated
+  useEffect(() => {
+    if (authStatus === 'authenticated') {
+      fetchSettings();
+    }
+  }, [authStatus]);
+
   // Show loading state while checking authentication
-  if (status === 'loading') {
+  if (authStatus === 'loading') {
     return (
       <div className="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
         <div className="flex justify-center items-center py-8">
@@ -119,10 +168,10 @@ export default function SettingsForm() {
   return (
     <div className="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-xl font-semibold mb-4">
-        {hasExistingSettings ? 'Update Jira Settings' : 'Configure Jira Integration'}
+        Configure Jira Integration
       </h2>
       
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={saveSettings}>
         <div className="mb-4">
           <label className="block text-sm font-medium mb-1" htmlFor="jiraEmail">
             Jira Email
@@ -131,23 +180,23 @@ export default function SettingsForm() {
             id="jiraEmail"
             type="email"
             className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            value={jiraEmail}
-            onChange={(e) => setJiraEmail(e.target.value)}
+            value={formData.jiraEmail}
+            onChange={handleInputChange}
             required
           />
         </div>
         
         <div className="mb-4">
           <label className="block text-sm font-medium mb-1" htmlFor="jiraApiToken">
-            Jira API Token {hasExistingSettings && <span className="text-xs text-gray-500">(Leave blank to keep current token)</span>}
+            Jira API Token {status.hasExistingSettings && <span className="text-xs text-gray-500">(Leave blank to keep current token)</span>}
           </label>
           <input
             id="jiraApiToken"
             type="password"
             className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            value={jiraApiToken}
-            onChange={(e) => setJiraApiToken(e.target.value)}
-            required={!hasExistingSettings}
+            value={formData.jiraApiToken}
+            onChange={handleInputChange}
+            required={!status.hasExistingSettings}
           />
           <p className="text-xs mt-1 text-gray-500">
             <a href="https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/" 
@@ -170,20 +219,20 @@ export default function SettingsForm() {
               type="text"
               className="flex-1 px-3 py-2 border border-gray-300 rounded-r-md"
               placeholder="company.atlassian.net"
-              value={jiraDomain}
-              onChange={(e) => setJiraDomain(e.target.value)}
+              value={formData.jiraDomain}
+              onChange={handleInputChange}
               required
             />
           </div>
         </div>
         
-        {error && (
+        {status.error && (
           <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">
-            {error}
+            {status.error}
           </div>
         )}
         
-        {success && (
+        {status.success && (
           <div className="mb-4 p-3 bg-green-100 text-green-700 rounded-md">
             Settings saved successfully!
           </div>
@@ -192,9 +241,9 @@ export default function SettingsForm() {
         <button
           type="submit"
           className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-blue-300"
-          disabled={loading}
+          disabled={status.loading}
         >
-          {loading ? 'Saving...' : 'Save Settings'}
+          {status.loading ? 'Saving...' : 'Save Settings'}
         </button>
       </form>
     </div>
