@@ -4,10 +4,10 @@ export const config = {
     jira: "https://push-to-prod.atlassian.net/rest/api/3"
   },
   ai: {
-    model: "gemini-2.0-flash"
+    model: "gemini-2.0-flash-thinking-exp"
   },
   firebase: {
-    projectId: process.env.FIREBASE_PROJECT_ID || "pushtoprod-5b295",
+    projectId: process.env.FIREBASE_PROJECT_ID,
     collections: {
       organizations: 'organizations',
       settings: 'settings',

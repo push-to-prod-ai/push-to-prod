@@ -12,16 +12,13 @@ export class TicketService {
   constructor() {
     this.logger = new Logger();
     this.databaseService = new DatabaseService();
-    
-    // We'll initialize the system when needed, not in constructor
-    // This allows getting credentials from the database per-user
   }
 
   /**
    * Initialize the ticket system with Jira credentials
    * @param userId The user ID to get credentials for
    */
-  private async initializeSystem(userId: string): Promise<void> {
+  private async initializeSystem(userId: string) {
     try {
       this.logger.debug(`Initializing Jira system for user: ${userId}`);
       // Try to get credentials from the database
