@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   github-app:
     build:
@@ -5,6 +7,14 @@ services:
     ports:
       - "8080:8080"
     environment:
+      - NODE_ENV=development
+      - APP_ID=${APP_ID}
+      - WEBHOOK_SECRET=${WEBHOOK_SECRET}
+      - WEBHOOK_PROXY_URL=${WEBHOOK_PROXY_URL}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID}
+      - PORT=${PORT}
       - PRIVATE_KEY_PATH=/usr/src/app/private-key.pem
     volumes:
       - ./pushtoprodbot-dev.2025-03-03.private-key.pem:/usr/src/app/private-key.pem
