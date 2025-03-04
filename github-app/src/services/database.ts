@@ -2,12 +2,15 @@ import { initializeApp, getApps } from 'firebase-admin/app';
 import { getFirestore, Firestore } from 'firebase-admin/firestore';
 import type { JiraCredentials, ServiceResponse } from '../types/index.js';
 import { config } from '../config/index.js';
-import logger from '../utils/logger.js';
+import { Logger } from '../utils/logger.js';
 
 export class DatabaseService {
   private db: Firestore;
+  private logger: Logger;
 
   constructor() {
+    this.logger = new Logger();
+
     if (!process.env.FIREBASE_PROJECT_ID) {
       throw new Error('FIREBASE_PROJECT_ID environment variable is required');
     }
@@ -19,7 +22,7 @@ export class DatabaseService {
         // Deployed using an authenticated service account
         projectId: config.firebase.projectId,
       });
-      logger.info(`Firebase initialized with project ID: ${config.firebase.projectId}`);
+      this.logger.info(`Firebase initialized with project ID: ${config.firebase.projectId}`);
     }
 
     // Get Firestore instance
@@ -39,7 +42,7 @@ export class DatabaseService {
         .get();
       
       if (!settingsDoc.exists) {
-        logger.debug(`No Jira credentials found for user: ${userId}`);
+        this.logger.debug(`No Jira credentials found for user: ${userId}`);
         return {
           exists: false,
           jiraEmail: '',
@@ -49,7 +52,7 @@ export class DatabaseService {
       }
       
       const data = settingsDoc.data();
-      logger.debug(`Retrieved Jira credentials for user: ${userId}`);
+      this.logger.debug(`Retrieved Jira credentials for user: ${userId}`);
       
       return {
         exists: true,
@@ -58,7 +61,7 @@ export class DatabaseService {
         jiraApiToken: data?.jiraApiToken || ''
       };
     } catch (error) {
-      logger.error(`Error retrieving Jira credentials: ${error}`);
+      this.logger.error(`Error retrieving Jira credentials: ${error}`);
       throw new Error('Failed to retrieve Jira credentials from database');
     }
   }
