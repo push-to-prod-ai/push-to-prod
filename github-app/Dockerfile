@@ -10,19 +10,20 @@ RUN npm ci
 COPY src/ ./src/
 RUN npm run build
 
-# Production stage: Install only production dependencies and copy over built files
+# Production stage: Install production dependencies and smee-client
 FROM node:22-slim
 WORKDIR /usr/src/app
 
 # Copy only the files needed for production
 COPY package.json package-lock.json ./
-RUN npm ci --omit=dev
+# Install production dependencies and smee-client specifically
+RUN npm ci --omit=dev && npm install --no-save smee-client@^2.0.4
 
 # Copy the built output from the builder stage (assumes built files are in the "lib" folder)
 COPY --from=builder /usr/src/app/lib/ ./lib/
 
-ENV NODE_ENV="production"
+# Set environment variables
 ENV PORT="8080"
 
-# Start the server using the compiled JavaScript
-CMD [ "npm", "run", "server" ]
+# Start the server using npm start to properly initialize Smee client
+CMD [ "npm", "start" ]
