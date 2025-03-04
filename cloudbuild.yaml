@@ -40,7 +40,6 @@ steps:
     args: ['push', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/frontend:$COMMIT_SHA']
     waitFor: ['build-frontend']
 
-
   # Deploy all services in parallel after their respective images are pushed
   - id: 'deploy-github-app'
     name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -56,7 +55,7 @@ steps:
       - '--update-env-vars'
       - 'LOG_LEVEL=trace'
       - '--set-secrets'
-      - 'WEBHOOK_SECRET=push-to-prod-webhook-secret:latest,GEMINI_API_KEY=push-to-prod-gemini-key:latest,JIRA_EMAIL=push-to-prod-jira-email:latest,JIRA_API_TOKEN=push-to-prod-jira-token:latest,PRIVATE_KEY=push-to-prod-private-key:latest,APP_ID=push-to-prod-app-id:latest'
+      - 'WEBHOOK_SECRET=push-to-prod-webhook-secret:latest,GEMINI_API_KEY=push-to-prod-gemini-key:latest,PRIVATE_KEY=push-to-prod-private-key:latest,APP_ID=push-to-prod-app-id:latest,FIREBASE_PROJECT_ID=push-to-prod-firebase-project-id:latest'
       - '--allow-unauthenticated'
       - '--service-account=frontend-service-account@$PROJECT_ID.iam.gserviceaccount.com'
 
