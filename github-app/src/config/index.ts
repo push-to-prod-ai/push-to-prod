@@ -4,16 +4,24 @@ export const config = {
     jira: "https://push-to-prod.atlassian.net/rest/api/3"
   },
   ai: {
-    model: "gemini-2.0-flash"
+    model: "gemini-2.0-flash-thinking-exp"
+  },
+  firebase: {
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    collections: {
+      organizations: 'organizations',
+      settings: 'settings',
+      users: 'users',
+    }
   }
 } as const;
 
 // Validate required environment variables
 const requiredEnvVars = [
   'GEMINI_API_KEY',
-  'JIRA_EMAIL',
-  'JIRA_API_TOKEN'
+  'FIREBASE_PROJECT_ID'
 ] as const;
+
 
 requiredEnvVars.forEach(envVar => {
   if (!process.env[envVar]) {

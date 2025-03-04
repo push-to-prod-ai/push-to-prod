@@ -28,6 +28,7 @@ out/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+github-app/logs
 
 # OS files
 .DS_Store
