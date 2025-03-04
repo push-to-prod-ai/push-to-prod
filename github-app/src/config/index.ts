@@ -1,7 +1,6 @@
 export const config = {
   urls: {
-    blastRadius: "https://blast-radius-620323149335.us-central1.run.app",
-    jira: "https://push-to-prod.atlassian.net/rest/api/3"
+    blastRadius: "https://blast-radius-620323149335.us-central1.run.app"
   },
   ai: {
     model: "gemini-2.0-flash-thinking-exp"
