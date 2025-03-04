@@ -7,7 +7,7 @@ export function initializeFirebase() {
     // Use Application Default Credentials when running on Google Cloud
     const app = initializeApp({
       // Even when using ADC, project ID is required
-      projectId: process.env.FIREBASE_PROJECT_ID || 'pushtoprod-5b295',
+      projectId: process.env.FIREBASE_PROJECT_ID,
     });
     console.log(`Firebase initialized with project ID: ${process.env.FIREBASE_PROJECT_ID || 'pushtoprod-5b295'}`);
     return app;

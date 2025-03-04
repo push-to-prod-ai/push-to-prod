@@ -23,11 +23,11 @@ export async function GET(request: NextRequest) {
       setupAction 
     });
     
-    // Redirect to the settings page with the session token
-    const settingsUrl = new URL('/', request.url);
+    // Redirect to the home page with the session token
+    const homeUrl = new URL('/', request.url);
     
-    // Set cookie or pass token in query params
-    const response = NextResponse.redirect(settingsUrl);
+    // Set cookie with the session token
+    const response = NextResponse.redirect(homeUrl);
     response.cookies.set('app_session', sessionToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',

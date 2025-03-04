@@ -1,8 +1,8 @@
 import NextAuth from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 
-// Use the authOptions object to create the NextAuth handler
+// Create the handler
 const handler = NextAuth(authOptions);
 
-// Only export the handler functions
+// Export handler for both GET and POST requests
 export { handler as GET, handler as POST }; 

@@ -7,7 +7,7 @@ import { useState } from 'react';
 
 export default function Header() {
   const { data: session, status } = useSession();
-  const [imageError, setImageError] = useState(false);
+  const [setImageError] = useState(false);
 
   return (
     <header className="bg-white shadow-sm">
