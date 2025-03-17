@@ -1,10 +1,10 @@
-import { HeroSection } from './home/hero-section'
-import { LogoCloud } from './home/logo-cloud'
-import { FeatureSection } from './home/feature-section'
-import { SocialProof } from './home/social-proof'
-import { CTA } from './home/cta'
-import { FAQ } from './home/faq'
-import { PricingSection } from './home/pricing'
+import { HeroSection } from '@/components/hero-section'
+import { LogoCloud } from '@/components/logo-cloud'
+import { FeatureSection } from '@/components/feature-section'
+import { SocialProof } from '@/components/social-proof'
+import { CTA } from '@/components/cta'
+import { FAQ } from '@/components/faq'
+import { PricingSection } from '@/components/pricing'
 
 export default function Home() {
   return (
