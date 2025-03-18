@@ -118,7 +118,7 @@ images:
   - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/github-app:$COMMIT_SHA'
   - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/blast-radius:$COMMIT_SHA'
   - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/syntropy:$COMMIT_SHA'
-  - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/frontend:$COMMIT_SHA'
+  - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/pushtoprod:$COMMIT_SHA'
   
 options:
   logging: CLOUD_LOGGING_ONLY
