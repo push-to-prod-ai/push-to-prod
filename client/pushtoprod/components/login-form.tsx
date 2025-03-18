@@ -95,7 +95,7 @@ export function LoginForm({
         </Button>
       </div>
       <div className="text-center text-sm">
-        Don&apos;t have an account?{" "}
+        Don&apos;t have the app?{" "}
         <a href="https://github.com/apps/pushtoprodbot" className="underline underline-offset-4">
           Start here
         </a>
