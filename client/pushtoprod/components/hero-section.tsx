@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { FC } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 export const HeroSection: FC = () => {
   return (
@@ -13,16 +14,27 @@ export const HeroSection: FC = () => {
             Accelerate your workflow with PushToProd.ai
           </h1>
           <p className="text-xl sm:text-2xl text-muted-foreground mb-8">
-            Build stunning landing pages with ease and convert your customers faster than ever.
+            Documentation engine and workflow accelerator built for developers first
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <Button size="lg" className="w-full sm:w-auto" asChild>
-              <a href="#start">
+              <a href="https://github.com/apps/pushtoprodbot">
                 Start now
               </a>
             </Button>
-            <Button variant="outline" size="lg" className="w-full sm:w-auto">
-              <code className="p-1 rounded">npm install convertfast-ui</code>
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="w-full sm:w-auto"
+              asChild
+            >
+              <Link 
+                href="https://github.com/push-to-prod-ai/push-to-prod" 
+                target="_blank" 
+                rel="noopener noreferrer"
+              >
+                <code className="p-1 rounded">git clone git@github.com:push-to-prod-ai/push-to-prod.git</code>
+              </Link>
             </Button>
           </div>
           <p className="mt-4 text-sm text-gray-500">Free and open-source. No credit card required.</p>
