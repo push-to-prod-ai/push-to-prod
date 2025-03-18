@@ -7,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Menu, Sun, Moon, Monitor, Languages } from "lucide-react";
+import { Menu, Sun, Moon, Monitor } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import Link from "next/link";
 import { useState, useEffect } from "react";
@@ -29,8 +29,8 @@ export function Navbar() {
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="mx-auto flex h-14 items-center px-4 sm:px-6 lg:px-8">
         <Link href="/" className="mr-2 flex items-center space-x-1">
-          <img src="/photes-icon-1.svg" alt="Logo" className="h-8 w-8" />
-          <span className="hidden font-bold sm:inline-block">Photos</span>
+          <img src="/penlogo.svg" alt="Logo" className="h-8 w-8" />
+          <span className="hidden font-bold sm:inline-block">PushToProd.ai</span>
         </Link>
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -56,8 +56,8 @@ export function Navbar() {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <Link href="/tools" className="w-full">
-                  Tools
+                <Link href="/settings" className="w-full">
+                  Settings
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
@@ -80,21 +80,23 @@ export function Navbar() {
         <div className="mr-4 space-x-1 hidden lg:flex">   
           <nav className="flex items-center space-x-1 text-sm">
             <Link href="/pricing" className="hover:bg-secondary rounded-md p-2">Pricing</Link>
-            <Link href="/workspace" className="flex items-center space-x-1 hover:bg-secondary rounded-md p-2">
-              <span className="">Workspace</span>
+            <Link href="/settings" className="flex items-center space-x-1 hover:bg-secondary rounded-md p-2">
+              <span className="">Settings</span>
               <span className="bg-primary text-white px-1 rounded-lg transition hidden lg:inline">
                 Get Started
               </span>
             </Link>
-            <Link href="/tools" className="hover:bg-secondary rounded-md p-2">Tools</Link>
             <Link href="/contacts" className="hover:bg-secondary rounded-md p-2">Contacts</Link>
             <Link href="/explore" className="hover:bg-secondary rounded-md p-2">Explore</Link>
             <Link href="/usecases" className="hover:bg-secondary rounded-md p-2">Use Cases</Link>
+            {/* <Link href="/settings" className="hover:bg-secondary rounded-md p-2">Settings</Link> */}
           </nav>
         </div>
         <div className="flex flex-1 items-center space-x-1 justify-end">
-          <Button variant="outline">Feedback</Button>
-          <Link 
+          <Link href="/login">
+            <Button variant="outline">Sign In</Button>
+          </Link>
+          {/* <Link 
             href="/credits" 
             className="items-center text-sm hover:bg-secondary rounded-md p-2"
           >
@@ -102,13 +104,13 @@ export function Navbar() {
               <span>Credits</span>
               <span className="ml-1 hidden xl:inline">17953 / 18000</span>
             </div>
-          </Link>
-          <button
+          </Link> */}
+          {/* <button
             aria-label="Change Language"
             className="w-4 h-4 flex items-center justify-center hover:bg-secondary rounded-md"
           >
             <Languages className="h-4 w-4" />
-          </button>
+          </button> */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" aria-label="Toggle theme">
