@@ -14,7 +14,7 @@ export const HeroSection: FC = () => {
             Accelerate your workflow with PushToProd.ai
           </h1>
           <p className="text-xl sm:text-2xl text-muted-foreground mb-8">
-            Documentation engine and workflow accelerator built for developers first
+            A documentation engine and workflow accelerator built for developers
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <Button size="lg" className="w-full sm:w-auto" asChild>
