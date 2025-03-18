@@ -4,50 +4,53 @@ import { cn } from "@/lib/utils";
 
 const plans = [
   {
-    name: "Starter",
-    id: "plan-starter",
-    href: "#",
-    price: { monthly: "$19", annually: "$190" },
-    description: "Perfect for individual developers or small projects.",
+    name: "Free",
+    id: "plan-free",
+    href: "https://github.com/apps/pushtoprodbot",
+    price: { monthly: "$0", annually: "$0" },
+    description: "Perfect for individual developers and open source projects.",
     actionTitle: "Get started",
     features: [
-      "5 landing page templates",
-      "Basic customization options",
-      "Export to HTML/CSS",
-      "48-hour email support",
+      "Automatic PR descriptions",
+      "Code change analysis",
+      "GitHub-formatted markdown",
+      "Compatible with public repositories",
+      "Community support"
     ],
     popular: false,
   },
   {
-    name: "Pro",
-    id: "plan-pro",
-    href: "#",
-    price: { monthly: "$49", annually: "$490" },
-    description: "Ideal for growing businesses and agencies.",
+    name: "Team",
+    id: "plan-team",
+    href: "https://github.com/apps/pushtoprodbot",
+    price: { monthly: "$29", annually: "$290" },
+    description: "Ideal for development teams working together.",
     actionTitle: "Get started",
     features: [
-      "20 landing page templates",
-      "Advanced customization",
-      "Export to React/Vue/Angular",
-      "24-hour email support",
-      "A/B testing tools",
+      "Everything in Free",
+      "Private repository support",
+      "Customizable PR templates",
+      "Priority processing",
+      "Email support",
+      "Integration with Jira"
     ],
     popular: true,
   },
   {
     name: "Enterprise",
     id: "plan-enterprise",
-    href: "#",
-    price: { monthly: "$99", annually: "$990" },
-    description: "For large teams and high-volume projects.",
-    actionTitle: "Contact sales",
+    href: "https://github.com/push-to-prod-ai/push-to-prod/discussions",
+    price: { monthly: "Custom", annually: "Custom" },
+    description: "For large organizations with advanced needs.",
+    actionTitle: "Contact us",
     features: [
-      "Unlimited landing page templates",
-      "Full customization control",
-      "Export to any framework",
-      "Priority 24/7 support",
+      "Everything in Team",
+      "Self-hosting option",
+      "Dedicated support",
+      "Custom integrations",
       "Advanced analytics",
-      "White-labeling options",
+      "Team training and onboarding",
+      "SLA guarantees"
     ],
     popular: false,
   },
@@ -64,8 +67,7 @@ export function PricingSection() {
           </p>
         </div>
         <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-muted-foreground sm:text-center">
-          ConvertFast offers flexible pricing options to suit developers and teams of all sizes. Start building stunning
-          landing pages faster than ever.
+          Simple, transparent pricing for teams of all sizes. Let AI handle your PR descriptions while you focus on shipping quality code faster.
         </p>
         <div className="mt-20 flow-root">
           <div className="isolate -mt-16 grid max-w-sm grid-cols-1 gap-y-16 gap-x-4 sm:mx-auto lg:-mx-8 lg:mt-0 lg:max-w-none lg:grid-cols-3 xl:-mx-4">

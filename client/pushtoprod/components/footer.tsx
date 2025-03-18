@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Facebook, Twitter, Instagram, Github } from "lucide-react";
+import { Github, Twitter, Mail } from "lucide-react";
+import Link from "next/link";
 
 export function Footer() {
   return (
@@ -12,19 +13,19 @@ export function Footer() {
             <h5 className="uppercase mb-6 font-bold">Company</h5>
             <ul className="mb-4">
               <li className="mt-2">
-                <a href="/about" className="hover:underline text-gray-600 hover:text-gray-800">
-                  About Us
-                </a>
+                <Link href="/#features" className="hover:underline text-gray-600 hover:text-gray-800">
+                  Features
+                </Link>
               </li>
               <li className="mt-2">
-                <a href="/contact" className="hover:underline text-gray-600 hover:text-gray-800">
+                <Link href="https://github.com/push-to-prod-ai/push-to-prod/discussions" target="_blank" rel="noopener noreferrer" className="hover:underline text-gray-600 hover:text-gray-800">
                   Contact
-                </a>
+                </Link>
               </li>
               <li className="mt-2">
-                <a href="/careers" className="hover:underline text-gray-600 hover:text-gray-800">
-                  Careers
-                </a>
+                <Link href="https://github.com/push-to-prod-ai/push-to-prod" target="_blank" rel="noopener noreferrer" className="hover:underline text-gray-600 hover:text-gray-800">
+                  GitHub
+                </Link>
               </li>
             </ul>
           </div>
@@ -34,19 +35,19 @@ export function Footer() {
             <h5 className="uppercase mb-6 font-bold">Products</h5>
             <ul className="mb-4">
               <li className="mt-2">
-                <a href="/products" className="hover:underline text-gray-600 hover:text-gray-800">
-                  All Products
-                </a>
+                <Link href="https://github.com/apps/pushtoprodbot" target="_blank" rel="noopener noreferrer" className="hover:underline text-gray-600 hover:text-gray-800">
+                  PushToProd App
+                </Link>
               </li>
               <li className="mt-2">
-                <a href="/pricing" className="hover:underline text-gray-600 hover:text-gray-800">
+                <Link href="/#pricing" className="hover:underline text-gray-600 hover:text-gray-800">
                   Pricing
-                </a>
+                </Link>
               </li>
               <li className="mt-2">
-                <a href="/docs" className="hover:underline text-gray-600 hover:text-gray-800">
+                <Link href="https://github.com/push-to-prod-ai/push-to-prod#readme" target="_blank" rel="noopener noreferrer" className="hover:underline text-gray-600 hover:text-gray-800">
                   Documentation
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -56,19 +57,19 @@ export function Footer() {
             <h5 className="uppercase mb-6 font-bold">Support</h5>
             <ul className="mb-4">
               <li className="mt-2">
-                <a href="/help" className="hover:underline text-gray-600 hover:text-gray-800">
-                  Help Center
-                </a>
+                <Link href="https://github.com/push-to-prod-ai/push-to-prod/issues" target="_blank" rel="noopener noreferrer" className="hover:underline text-gray-600 hover:text-gray-800">
+                  Issues
+                </Link>
               </li>
               <li className="mt-2">
-                <a href="/terms" className="hover:underline text-gray-600 hover:text-gray-800">
-                  Terms of Service
-                </a>
+                <Link href="https://github.com/push-to-prod-ai/push-to-prod/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" className="hover:underline text-gray-600 hover:text-gray-800">
+                  License
+                </Link>
               </li>
               <li className="mt-2">
-                <a href="/privacy" className="hover:underline text-gray-600 hover:text-gray-800">
+                <Link href="https://github.com/push-to-prod-ai/push-to-prod/blob/main/PRIVACY.md" target="_blank" rel="noopener noreferrer" className="hover:underline text-gray-600 hover:text-gray-800">
                   Privacy Policy
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -85,22 +86,18 @@ export function Footer() {
 
         {/* Social Links */}
         <div className="flex justify-center mt-8 space-x-6">
-          <a href="#" className="text-gray-400 hover:text-gray-500">
-            <span className="sr-only">Facebook</span>
-            <Facebook className="h-6 w-6" />
-          </a>
-          <a href="#" className="text-gray-400 hover:text-gray-500">
-            <span className="sr-only">Instagram</span>
-            <Instagram className="h-6 w-6" />
-          </a>
-          <a href="#" className="text-gray-400 hover:text-gray-500">
-            <span className="sr-only">Twitter</span>
-            <Twitter className="h-6 w-6" />
-          </a>
-          <a href="#" className="text-gray-400 hover:text-gray-500">
+          <Link href="https://github.com/push-to-prod-ai" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-gray-500">
             <span className="sr-only">GitHub</span>
             <Github className="h-6 w-6" />
-          </a>
+          </Link>
+          <Link href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-gray-500">
+            <span className="sr-only">Twitter</span>
+            <Twitter className="h-6 w-6" />
+          </Link>
+          <Link href="mailto:info@pushtoprod.ai" className="text-gray-400 hover:text-gray-500">
+            <span className="sr-only">Email</span>
+            <Mail className="h-6 w-6" />
+          </Link>
         </div>
 
         {/* Copyright */}

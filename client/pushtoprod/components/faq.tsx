@@ -13,29 +13,29 @@ interface FAQItem {
 
 const DEFAULT_ITEMS: FAQItem[] = [
   {
-    question: "Why use ConvertFast to build landing pages?",
+    question: "What does PushToProd.ai do?",
     answer:
-      "ConvertFast provides a comprehensive set of tools and pre-built components specifically designed for creating high-converting landing pages. Our intuitive interface, customizable templates, and optimized code export save you time and effort while ensuring professional results.",
+      "PushToProd.ai is a GitHub App that automatically generates detailed pull request descriptions by analyzing your code changes. It creates context-aware summaries with proper code references and permalinks, helping reviewers quickly understand the purpose and impact of your changes.",
   },
   {
-    question: "Is ConvertFast open source?",
+    question: "How do I get started with PushToProd.ai?",
     answer:
-      "Yes, ConvertFast is an open-source project. This means you can use, modify, and contribute to the codebase. We believe in transparency and community-driven development, which helps us continually improve and adapt to developers' needs.",
+      "Getting started is simple. Just install our GitHub App at github.com/apps/pushtoprodbot, open a pull request, and our bot will automatically analyze your changes and generate a description. No configuration required - you'll see results immediately.",
   },
   {
-    question: "How does ConvertFast compare to other landing page builders?",
+    question: "How does PushToProd.ai compare to manual PR descriptions?",
     answer:
-      "ConvertFast stands out by focusing on developers' needs. Unlike traditional drag-and-drop builders, we provide clean, exportable code that integrates seamlessly with your existing projects. Our components are based on popular libraries like shadcn, ensuring high-quality, customizable UI elements.",
+      "Unlike manually writing PR descriptions, PushToProd.ai saves you valuable time by automatically analyzing code changes and generating comprehensive, well-formatted descriptions. It includes proper code references, creates GitHub-formatted markdown, and ensures consistency across your team's pull requests.",
   },
   {
-    question: "Can I use ConvertFast with my preferred frontend framework?",
+    question: "Does PushToProd.ai respect existing PR templates?",
     answer:
-      "Absolutely! ConvertFast is designed to be framework-agnostic. While our components are primarily React-based, the exported code can be easily adapted to work with other popular frontend frameworks like Vue, Angular, or even vanilla JavaScript.",
+      "Yes! PushToProd.ai respects and incorporates your repository's PR template (from .github/PULL_REQUEST_TEMPLATE.md) or falls back to a default template. It also preserves any existing content you've already added to your PR description.",
   },
   {
-    question: "Is there a learning curve to using ConvertFast?",
+    question: "Can I self-host PushToProd.ai?",
     answer:
-      "ConvertFast is designed to be intuitive for developers familiar with modern web development practices. If you're comfortable with React and component-based architecture, you'll find ConvertFast easy to use. We also provide comprehensive documentation and examples to help you get started quickly.",
+      "Absolutely. While we offer a hosted version, you can also self-host by forking our repository, setting up the required environment variables, deploying to your preferred cloud provider, and configuring your own GitHub App. Our documentation provides detailed instructions for this process.",
   },
 ];
 

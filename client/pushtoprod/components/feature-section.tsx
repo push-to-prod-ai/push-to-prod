@@ -47,30 +47,30 @@ const FeatureItem: FC<FeatureItemProps> = ({ title, description, imageUrl, isIma
 
 const DEFAULT_ITEMS: FeatureItemProps[] = [
   {
-    title: "Rapid Landing Page Development",
+    title: "AI-Powered PR Descriptions",
     description:
-      "Build stunning landing pages in minutes with our intuitive drag-and-drop interface and pre-designed components.",
+      "Automatically generate detailed pull request descriptions when PRs are opened or reopened, saving developers time and improving code review quality.",
     imageUrl: "https://ui.convertfa.st/images/graphic-walker-light-2.png",
     isImageLeft: true,
   },
   {
-    title: "Customizable Templates",
+    title: "Intelligent Code Analysis",
     description:
-      "Choose from a wide range of professionally designed templates and easily customize them to match your brand.",
+      "Our tool analyzes your code changes and provides context-aware summaries, helping reviewers quickly understand the purpose and impact of your changes.",
     imageUrl: "https://ui.convertfa.st/images/convertfast-ui-cli.png",
     isImageLeft: false,
   },
   {
-    title: "Code Export and Integration",
+    title: "GitHub-Formatted Documentation",
     description:
-      "Export clean, optimized code that seamlessly integrates with your existing projects, saving valuable development time.",
+      "Creates perfectly formatted markdown with proper code references and permalinks, making your PRs more readable and professional.",
     imageUrl: "https://ui.convertfa.st/images/convertfast-ui-light-demo.png",
     isImageLeft: true,
   },
   {
-    title: "Responsive Design",
+    title: "Seamless Integration",
     description:
-      "Create mobile-friendly landing pages that look great on all devices, ensuring a consistent user experience.",
+      "Respects your existing workflow by incorporating PR templates, preserving manual edits, and working with your repository's structure.",
     imageUrl: "https://ui.convertfa.st/images/convertfast-demo.png",
     isImageLeft: false,
   },
@@ -86,9 +86,9 @@ interface FeatureSectionProps {
 export const FeatureSection: FC<FeatureSectionProps> = (props) => {
   const {
     items = DEFAULT_ITEMS,
-    brand = "ConvertFast",
-    title = "Everything you need to build landing pages",
-    description = "ConvertFast is a powerful landing page builder for developers, offering code templates and components inspired by shadcn. Create beautiful, functional landing pages quickly and efficiently.",
+    brand = "PushToProd.ai",
+    title = "Streamline your PR documentation workflow",
+    description = "PushToProd.ai is a powerful GitHub App that automatically generates intelligent PR descriptions by analyzing your code changes, improving team communication and speeding up code reviews.",
   } = props;
 
   return (
