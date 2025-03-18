@@ -109,7 +109,7 @@ steps:
       - '--set-secrets'
       - 'NEXTAUTH_SECRET=frontend-nextauth-secret:latest,GITHUB_ID=github-oauth-client-id:latest,GITHUB_SECRET=github-oauth-client-secret:latest,SESSION_SECRET=frontend-session-secret:latest,FIREBASE_PROJECT_ID=frontend-firebase-project-id:latest'
       - '--set-env-vars'
-      - 'NEXTAUTH_URL=https://pushtoprod-${PROJECT_NUMBER}.us-central1.run.app,NODE_ENV=production'
+      - 'NEXTAUTH_URL=https://pushtoprod.me,NODE_ENV=production'
       - '--allow-unauthenticated'
       - '--service-account=frontend-service-account@$PROJECT_ID.iam.gserviceaccount.com'
     waitFor: ['push-pushtoprod']
