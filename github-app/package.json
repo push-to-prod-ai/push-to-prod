@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
-    "axios": "^1.7.9",
+    "axios": "^1.8.2",
     "dotenv": "^16.4.7",
     "firebase-admin": "^12.7.0",
     "google-auth-library": "^9.15.1",
