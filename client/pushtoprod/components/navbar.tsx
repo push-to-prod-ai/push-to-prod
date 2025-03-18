@@ -54,18 +54,13 @@ export function Navbar() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem>
-                <Link href="/" className="w-full">
-                  Photos
+                <Link href="/#features" className="w-full">
+                  Explore
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <Link href="/pricing" className="w-full">
+                <Link href="/#pricing" className="w-full">
                   Pricing
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Link href="/workspace" className="w-full">
-                  Workspace
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
@@ -74,17 +69,17 @@ export function Navbar() {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <Link href="/contacts" className="w-full">
-                  Contacts
+                <Link href="https://github.com/push-to-prod-ai/push-to-prod/discussions" target="_blank" rel="noopener noreferrer" className="w-full">
+                  Contact
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <Link href="/explore" className="w-full">
+                <Link href="/#features" className="w-full">
                   Explore
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <Link href="/usecases" className="w-full">
+                <Link href="/#features" className="w-full">
                   Use Cases
                 </Link>
               </DropdownMenuItem>
@@ -97,16 +92,16 @@ export function Navbar() {
           </DropdownMenu>
         <div className="mr-4 space-x-1 hidden lg:flex">   
           <nav className="flex items-center space-x-1 text-sm">
-            <Link href="/pricing" className="hover:bg-secondary rounded-md p-2">Pricing</Link>
+            <Link href="/#pricing" className="hover:bg-secondary rounded-md p-2">Pricing</Link>
             <Link href="/settings" className="flex items-center space-x-1 hover:bg-secondary rounded-md p-2">
               <span className="">Settings</span>
               <span className="bg-primary text-white px-1 rounded-lg transition hidden lg:inline">
                 Get Started
               </span>
             </Link>
-            <Link href="/contacts" className="hover:bg-secondary rounded-md p-2">Contacts</Link>
-            <Link href="/explore" className="hover:bg-secondary rounded-md p-2">Explore</Link>
-            <Link href="/usecases" className="hover:bg-secondary rounded-md p-2">Use Cases</Link>
+            <Link href="https://github.com/push-to-prod-ai/push-to-prod/discussions" target="_blank" rel="noopener noreferrer" className="hover:bg-secondary rounded-md p-2">Contact</Link>
+            <Link href="/#features" className="hover:bg-secondary rounded-md p-2">Explore</Link>
+            <Link href="/#features" className="hover:bg-secondary rounded-md p-2">Use Cases</Link>
           </nav>
         </div>
         <div className="flex flex-1 items-center space-x-1 justify-end">
@@ -150,19 +145,37 @@ export function Navbar() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Link 
-            href="/profile" 
-            className="block"
-            aria-label="View Profile"
-          >
-            <Avatar className="border border-secondary">
-              <AvatarImage
-                alt={session?.user?.name || "User"}
-                src={session?.user?.image || "https://ui.convertfa.st/avatars/avatar-1.svg"}
-              />
-              <AvatarFallback>{session?.user?.name?.[0] || "U"}</AvatarFallback>
-            </Avatar>
-          </Link>
+          {status === "authenticated" ? (
+            <Link 
+              href="https://github.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block"
+              aria-label="View Profile"
+            >
+              <Avatar className="border border-secondary">
+                <AvatarImage
+                  alt={session?.user?.name || "User"}
+                  src={session?.user?.image || "https://ui.convertfa.st/avatars/avatar-1.svg"}
+                />
+                <AvatarFallback>{session?.user?.name?.[0] || "U"}</AvatarFallback>
+              </Avatar>
+            </Link>
+          ) : (
+            <Link 
+              href="/login"
+              className="block"
+              aria-label="Sign In"
+            >
+              <Avatar className="border border-secondary">
+                <AvatarImage
+                  alt="Sign In"
+                  src="https://ui.convertfa.st/avatars/avatar-1.svg"
+                />
+                <AvatarFallback>?</AvatarFallback>
+              </Avatar>
+            </Link>
+          )}
         </div>
       </div>
     </header>

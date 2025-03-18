@@ -92,7 +92,7 @@ export const FeatureSection: FC<FeatureSectionProps> = (props) => {
   } = props;
 
   return (
-    <div className="py-16 px-4 sm:px-6 lg:px-8 mx-auto max-w-7xl">
+    <div id="features" className="py-16 px-4 sm:px-6 lg:px-8 mx-auto max-w-7xl">
       <div className="mx-auto max-w-2xl text-center mb-16">
         <div className="text-base font-semibold leading-7 text-primary">{brand}</div>
         <h2 className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl text-primary">{title}</h2>
