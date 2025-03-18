@@ -9,7 +9,7 @@ export const HeroSection: FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-24 lg:py-32 relative z-10">
         <div className="max-w-3xl">
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-primary mb-6 drop-shadow-md">
-            Bootstrap your landing page with ConvertFast UI
+            Accelerate your workflow with PushToProd.ai
           </h1>
           <p className="text-xl sm:text-2xl text-muted-foreground mb-8">
             Build stunning landing pages with ease and convert your customers faster than ever.

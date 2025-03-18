@@ -10,12 +10,21 @@ import {
 import { Menu, Sun, Moon, Monitor, Languages } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import Link from "next/link";
+import { useState, useEffect } from "react";
 
 export function Navbar() {
   const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  
+  // Only show UI after component has mounted to avoid hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
   const handleThemeChange = (selectedTheme: "light" | "dark" | "system") => {
       setTheme(selectedTheme); 
   };
+  
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="mx-auto flex h-14 items-center px-4 sm:px-6 lg:px-8">
@@ -103,12 +112,16 @@ export function Navbar() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" aria-label="Toggle theme">
-                {theme === "dark" ? (
-                  <Moon className="h-5 w-5" />
-                ) : theme === "light" ? (
-                  <Sun className="h-5 w-5" />
+                {mounted ? (
+                  theme === "dark" ? (
+                    <Moon className="h-5 w-5" />
+                  ) : theme === "system" ? (
+                    <Monitor className="h-5 w-5" />
+                  ) : (
+                    <Sun className="h-5 w-5" />
+                  )
                 ) : (
-                  <Monitor className="h-5 w-5" />
+                  <Sun className="h-5 w-5" />
                 )}
               </Button>
             </DropdownMenuTrigger>
