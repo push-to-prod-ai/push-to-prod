@@ -1,4 +1,3 @@
-# Docker Compose for PushToProd.ai services
 services:
   github-app:
     build:
@@ -13,7 +12,6 @@ services:
     env_file:
       - ./server/github/.env
 
-  # You can add more services here as needed, like blast-radius, syntropy, and frontend
   blast-radius:
     build:
       context: ./server/blast-radius

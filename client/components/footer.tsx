@@ -102,7 +102,7 @@ export function Footer() {
 
         {/* Copyright */}
         <div className="mt-8 text-center">
-          <p className="text-base text-gray-400">© 2024 PushToProd.ai. All rights reserved.</p>
+          <p className="text-base text-gray-400">© 2025 PushToProd.ai. All rights reserved.</p>
         </div>
       </div>
     </footer>
