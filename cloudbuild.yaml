@@ -1,29 +1,29 @@
 steps:
   # Build all Docker images in parallel
-  - id: 'build-github-app'
+  - id: 'build-github'
     name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/github-app:$COMMIT_SHA', './github-app']
+    args: ['build', '-t', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/github:$COMMIT_SHA', './server/github']
 
   - id: 'build-blast-radius'
     name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/blast-radius:$COMMIT_SHA', './blast-radius-app']
+    args: ['build', '-t', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/blast-radius:$COMMIT_SHA', './server/blast-radius']
     waitFor: ['-'] # Start immediately, don't wait for previous step
 
   - id: 'build-syntropy'
     name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/syntropy:$COMMIT_SHA', './syntropy-app']
+    args: ['build', '-t', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/syntropy:$COMMIT_SHA', './server/syntropy']
     waitFor: ['-'] # Start immediately
 
   - id: 'build-pushtoprod'
     name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/pushtoprod:$COMMIT_SHA', './client/pushtoprod']
+    args: ['build', '-t', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/pushtoprod:$COMMIT_SHA', './client']
     waitFor: ['-'] # Start immediately
 
   # Push images after their respective builds complete
-  - id: 'push-github-app'
+  - id: 'push-github'
     name: 'gcr.io/cloud-builders/docker'
-    args: ['push', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/github-app:$COMMIT_SHA']
-    waitFor: ['build-github-app']
+    args: ['push', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/github:$COMMIT_SHA']
+    waitFor: ['build-github']
 
   - id: 'push-blast-radius'
     name: 'gcr.io/cloud-builders/docker'
@@ -41,7 +41,7 @@ steps:
     waitFor: ['build-pushtoprod']
 
   # Deploy all services in parallel after their respective images are pushed
-  - id: 'deploy-github-app'
+  - id: 'deploy-github'
     name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
@@ -49,7 +49,7 @@ steps:
       - 'deploy'
       - 'github-app'
       - '--image'
-      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/github-app:$COMMIT_SHA'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/github:$COMMIT_SHA'
       - '--region'
       - '${_REGION}'
       - '--update-env-vars'
@@ -59,7 +59,7 @@ steps:
       - '--allow-unauthenticated'
       - '--service-account=frontend-service-account@$PROJECT_ID.iam.gserviceaccount.com'
 
-    waitFor: ['push-github-app']
+    waitFor: ['push-github']
 
   - id: 'deploy-blast-radius'
     name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -115,7 +115,7 @@ steps:
     waitFor: ['push-pushtoprod']
 
 images:
-  - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/github-app:$COMMIT_SHA'
+  - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/github:$COMMIT_SHA'
   - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/blast-radius:$COMMIT_SHA'
   - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/syntropy:$COMMIT_SHA'
   - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/pushtoprod:$COMMIT_SHA'

@@ -1,37 +1,58 @@
+# Docker Compose for PushToProd.ai services
 services:
   github-app:
     build:
-      context: ./github-app
+      context: ./server/github
     ports:
       - "8080:8080"
     environment:
       - PRIVATE_KEY_PATH=/usr/src/app/private-key.pem
+      - LOG_LEVEL=trace
     volumes:
-      - ./github-app/pushtoprodbot-dev.2025-03-03.private-key.pem:/usr/src/app/private-key.pem
+      - ./server/github/pushtoprodbot-dev.2025-03-03.private-key.pem:/usr/src/app/private-key.pem
     env_file:
-      - ./github-app/.env
+      - ./server/github/.env
 
   # You can add more services here as needed, like blast-radius, syntropy, and frontend
-  # blast-radius:
-  #   build:
-  #     context: ./blast-radius-app
-  #   ports:
-  #     - "8081:8080"
-  #   env_file:
-  #     - ./blast-radius-app/.env
+  blast-radius:
+    build:
+      context: ./server/blast-radius
+    ports:
+      - "8081:8080"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./server/blast-radius:/usr/src/app
+      - /usr/src/app/node_modules
+    # env_file:
+    #  - ./server/blast-radius/.env
 
-  # syntropy:
-  #   build:
-  #     context: ./syntropy-app
-  #   ports:
-  #     - "8082:8080"
-  #   env_file:
-  #     - ./syntropy-app/.env
+  syntropy:
+    build:
+      context: ./server/syntropy
+    ports:
+      - "8082:8080"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./server/syntropy:/usr/src/app
+      - /usr/src/app/node_modules
+    # env_file:
+    #   - ./server/syntropy/.env
   
-  # frontend:
-  #   build:
-  #     context: ./frontend-app
-  #   ports:
-  #     - "3000:3000"
-  #   env_file:
-  #     - ./frontend-app/.env 
+  frontend:
+    build:
+      context: ./client
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - NEXTAUTH_URL=http://localhost:3000
+    volumes:
+      - ./client:/usr/src/app
+      - /usr/src/app/node_modules
+      - /usr/src/app/.next
+    env_file:
+      - ./client/.env.local
+    depends_on:
+      - github-app 
