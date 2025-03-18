@@ -54,11 +54,6 @@ export function Navbar() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem>
-                <Link href="/#features" className="w-full">
-                  Explore
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
                 <Link href="/#pricing" className="w-full">
                   Pricing
                 </Link>
@@ -73,14 +68,14 @@ export function Navbar() {
                   Contact
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              {/* <DropdownMenuItem>
                 <Link href="/#features" className="w-full">
                   Explore
                 </Link>
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
               <DropdownMenuItem>
                 <Link href="/#features" className="w-full">
-                  Use Cases
+                  Features
                 </Link>
               </DropdownMenuItem>
               {status === "authenticated" && (
@@ -100,8 +95,8 @@ export function Navbar() {
               </span>
             </Link>
             <Link href="https://github.com/push-to-prod-ai/push-to-prod/discussions" target="_blank" rel="noopener noreferrer" className="hover:bg-secondary rounded-md p-2">Contact</Link>
-            <Link href="/#features" className="hover:bg-secondary rounded-md p-2">Explore</Link>
-            <Link href="/#features" className="hover:bg-secondary rounded-md p-2">Use Cases</Link>
+            {/* <Link href="/#features" className="hover:bg-secondary rounded-md p-2">Explore</Link> */}
+            <Link href="/#features" className="hover:bg-secondary rounded-md p-2">Features</Link>
           </nav>
         </div>
         <div className="flex flex-1 items-center space-x-1 justify-end">
