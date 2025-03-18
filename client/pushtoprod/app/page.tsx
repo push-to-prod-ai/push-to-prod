@@ -5,10 +5,13 @@ import { SocialProof } from '@/components/social-proof'
 import { CTA } from '@/components/cta'
 import { FAQ } from '@/components/faq'
 import { PricingSection } from '@/components/pricing'
+import { Footer } from '@/components/footer'
+import { Navbar } from '@/components/navbar'
 
 export default function Home() {
   return (
     <>
+      <Navbar />
       <HeroSection />
       <LogoCloud />
       <FeatureSection />
@@ -16,6 +19,7 @@ export default function Home() {
       <CTA />
       <FAQ />
       <PricingSection />
+      <Footer />
     </>
   )
 }
