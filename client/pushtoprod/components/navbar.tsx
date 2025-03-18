@@ -115,13 +115,13 @@ export function Navbar() {
                 {mounted ? (
                   theme === "dark" ? (
                     <Moon className="h-5 w-5" />
-                  ) : theme === "system" ? (
-                    <Monitor className="h-5 w-5" />
-                  ) : (
+                  ) : theme === "light" ? (
                     <Sun className="h-5 w-5" />
+                  ) : (
+                    <Monitor className="h-5 w-5" />
                   )
                 ) : (
-                  <Sun className="h-5 w-5" />
+                  <Monitor className="h-5 w-5" />
                 )}
               </Button>
             </DropdownMenuTrigger>
