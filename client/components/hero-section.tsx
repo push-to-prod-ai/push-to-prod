@@ -18,7 +18,7 @@ export const HeroSection: FC = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <Button size="lg" className="w-full sm:w-auto" asChild>
-              <a href="https://github.com/apps/pushtoprodbot">
+              <a href="https://github.com/apps/pushtoprod-ai">
                 Start now
               </a>
             </Button>

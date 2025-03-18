@@ -22,7 +22,7 @@ export const CTA: FC<CTAData> = (props) => {
           <p className="mt-6 text-xl leading-8 opacity-90 text-muted-foreground">{description}</p>
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button size="lg" variant="outline" className="w-full sm:w-auto" asChild>
-              <Link href="https://github.com/apps/pushtoprodbot" target="_blank" rel="noopener noreferrer">
+              <Link href="https://github.com/apps/pushtoprod-ai" target="_blank" rel="noopener noreferrer">
                 Get started for free
               </Link>
             </Button>

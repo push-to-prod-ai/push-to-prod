@@ -6,7 +6,7 @@ const plans = [
   {
     name: "Free",
     id: "plan-free",
-    href: "https://github.com/apps/pushtoprodbot",
+    href: "https://github.com/apps/pushtoprod-ai",
     price: { monthly: "$0", annually: "$0" },
     description: "Perfect for individual developers and open source projects.",
     actionTitle: "Get started",
@@ -22,7 +22,7 @@ const plans = [
   {
     name: "Team",
     id: "plan-team",
-    href: "https://github.com/apps/pushtoprodbot",
+    href: "https://github.com/apps/pushtoprod-ai",
     price: { monthly: "$29", annually: "$290" },
     description: "Ideal for development teams working together.",
     actionTitle: "Get started",

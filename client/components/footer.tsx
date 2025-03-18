@@ -35,7 +35,7 @@ export function Footer() {
             <h5 className="uppercase mb-6 font-bold">Products</h5>
             <ul className="mb-4">
               <li className="mt-2">
-                <Link href="https://github.com/apps/pushtoprodbot" target="_blank" rel="noopener noreferrer" className="hover:underline text-gray-600 hover:text-gray-800">
+                <Link href="https://github.com/apps/pushtoprod-ai" target="_blank" rel="noopener noreferrer" className="hover:underline text-gray-600 hover:text-gray-800">
                   PushToProd App
                 </Link>
               </li>
