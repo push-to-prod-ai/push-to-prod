@@ -10,7 +10,7 @@ interface CTAData {
 
 export const CTA: FC<CTAData> = (props) => {
   const {
-    title = "Ready to improve your pull request workflow?",
+    title = "Ready to improve your documentation?",
     description = "PushToProd.ai automatically generates detailed PR descriptions by analyzing your code changes, saving time and improving code review quality. Get started in minutes with our GitHub App.",
   } = props;
   return (
