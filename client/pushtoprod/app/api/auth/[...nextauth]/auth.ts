@@ -10,6 +10,9 @@ export const authOptions: NextAuthOptions = {
   ],
   pages: {
     signIn: "/login",
+    newUser: "/settings",
+    signOut: "/login",
+    error: "/login",
   },
   callbacks: {
     async session({ session, token }) {
@@ -18,5 +21,14 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      else if (new URL(url).origin === baseUrl) return url;
+      return baseUrl + "/settings";
+    },
   },
+  theme: {
+    logo: "/penlogo.svg",
+  },
+  useSecureCookies: process.env.NODE_ENV === "production",
 }; 

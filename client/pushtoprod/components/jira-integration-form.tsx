@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,7 +10,6 @@ import { AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export function JiraIntegrationForm() {
   const { status } = useSession();
-  const router = useRouter();
   
   const [jiraEmail, setJiraEmail] = useState('');
   const [jiraApiToken, setJiraApiToken] = useState('');
@@ -21,13 +19,6 @@ export function JiraIntegrationForm() {
   const [error, setError] = useState('');
   const [hasExistingSettings, setHasExistingSettings] = useState(false);
 
-  // Redirect to sign-in if not authenticated
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/auth/signin');
-    }
-  }, [status, router]);
-
   // Use useCallback to memoize the function
   const fetchExistingSettings = useCallback(async () => {
     try {
@@ -35,8 +26,7 @@ export function JiraIntegrationForm() {
       const response = await fetch(`/api/settings`);
       
       if (response.status === 401) {
-        // Handle unauthorized access
-        router.push('/auth/signin');
+        // API will redirect if unauthorized due to middleware
         return;
       }
       
@@ -52,13 +42,13 @@ export function JiraIntegrationForm() {
     } finally {
       setLoading(false);
     }
-  }, [router]); // Only depends on router
+  }, []); // No dependencies since we removed router
 
   useEffect(() => {
     if (status === 'authenticated') {
       fetchExistingSettings();
     }
-  }, [status, fetchExistingSettings]); // Now safe to include fetchExistingSettings
+  }, [status, fetchExistingSettings]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,12 +79,6 @@ export function JiraIntegrationForm() {
         },
         body: JSON.stringify(payload),
       });
-
-      if (response.status === 401) {
-        // Handle unauthorized access
-        router.push('/auth/signin');
-        return;
-      }
 
       if (!response.ok) {
         const errorData = await response.json();

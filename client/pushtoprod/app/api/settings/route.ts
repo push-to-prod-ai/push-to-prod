@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getFirestoreDb, collections } from '@/lib/firebase';
-import { getAuth } from '@/utils/auth'; 
+import { getCurrentUser } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getAuth(); 
+    const user = await getCurrentUser();
     
-    if (!session || !session.user) {
+    if (!user || !user.id) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -15,14 +15,8 @@ export async function POST(request: NextRequest) {
     
     const { jiraEmail, jiraDomain, jiraApiToken } = await request.json();
     
-    // Use the user's ID as the document ID instead of organization ID
-    const userId = session.user.id;
-    if (!userId) {
-      return NextResponse.json(
-        { error: 'User ID not found in session' },
-        { status: 400 }
-      );
-    }
+    // Use the user's ID as the document ID
+    const userId = user.id;
     
     const db = getFirestoreDb();
     
@@ -41,7 +35,7 @@ export async function POST(request: NextRequest) {
     };
     
     // Only include jiraApiToken if it was provided in the request
-    if (jiraApiToken !== undefined) {
+    if (jiraApiToken) {
       updateData.jiraApiToken = jiraApiToken;
     }
     
@@ -59,24 +53,17 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    const session = await getAuth();
+    const user = await getCurrentUser();
     
-    if (!session || !session.user) {
+    if (!user || !user.id) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       );
     }
     
-    // Use the user's ID as the document ID
-    const userId = session.user.id;
-    if (!userId) {
-      return NextResponse.json(
-        { error: 'User ID not found in session' },
-        { status: 400 }
-      );
-    }
-
+    const userId = user.id;
+    
     const db = getFirestoreDb();
     const settingsDoc = await db.collection(collections.settings).doc(userId).get();
 
@@ -99,4 +86,4 @@ export async function GET() {
       { status: 500 }
     );
   }
-}
+} 

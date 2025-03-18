@@ -11,10 +11,12 @@ import { Menu, Sun, Moon, Monitor } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { useSession, signOut } from "next-auth/react";
 
 export function Navbar() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const { data: session, status } = useSession();
   
   // Only show UI after component has mounted to avoid hydration mismatch
   useEffect(() => {
@@ -23,6 +25,10 @@ export function Navbar() {
   
   const handleThemeChange = (selectedTheme: "light" | "dark" | "system") => {
       setTheme(selectedTheme); 
+  };
+
+  const handleSignOut = async () => {
+    await signOut({ callbackUrl: '/login' });
   };
   
   return (
@@ -75,6 +81,11 @@ export function Navbar() {
                   Use Cases
                 </Link>
               </DropdownMenuItem>
+              {status === "authenticated" && (
+                <DropdownMenuItem onSelect={handleSignOut}>
+                  Sign Out
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         <div className="mr-4 space-x-1 hidden lg:flex">   
@@ -89,28 +100,18 @@ export function Navbar() {
             <Link href="/contacts" className="hover:bg-secondary rounded-md p-2">Contacts</Link>
             <Link href="/explore" className="hover:bg-secondary rounded-md p-2">Explore</Link>
             <Link href="/usecases" className="hover:bg-secondary rounded-md p-2">Use Cases</Link>
-            {/* <Link href="/settings" className="hover:bg-secondary rounded-md p-2">Settings</Link> */}
           </nav>
         </div>
         <div className="flex flex-1 items-center space-x-1 justify-end">
-          <Link href="/login">
-            <Button variant="outline">Sign In</Button>
-          </Link>
-          {/* <Link 
-            href="/credits" 
-            className="items-center text-sm hover:bg-secondary rounded-md p-2"
-          >
-            <div>
-              <span>Credits</span>
-              <span className="ml-1 hidden xl:inline">17953 / 18000</span>
-            </div>
-          </Link> */}
-          {/* <button
-            aria-label="Change Language"
-            className="w-4 h-4 flex items-center justify-center hover:bg-secondary rounded-md"
-          >
-            <Languages className="h-4 w-4" />
-          </button> */}
+          {status === "authenticated" ? (
+            <Button variant="outline" onClick={handleSignOut}>
+              Sign Out
+            </Button>
+          ) : (
+            <Link href="/login">
+              <Button variant="outline">Sign In</Button>
+            </Link>
+          )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" aria-label="Toggle theme">
@@ -149,10 +150,10 @@ export function Navbar() {
           >
             <Avatar className="border border-secondary">
               <AvatarImage
-                alt="Author"
-                src="https://ui.convertfa.st/avatars/avatar-1.svg"
+                alt={session?.user?.name || "User"}
+                src={session?.user?.image || "https://ui.convertfa.st/avatars/avatar-1.svg"}
               />
-              <AvatarFallback>Emily Chen</AvatarFallback>
+              <AvatarFallback>{session?.user?.name?.[0] || "U"}</AvatarFallback>
             </Avatar>
           </Link>
         </div>

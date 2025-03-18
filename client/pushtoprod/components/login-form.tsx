@@ -25,7 +25,7 @@ export function LoginForm({
       await signIn("credentials", {
         email,
         password,
-        callbackUrl: "/",
+        callbackUrl: "/settings",
       });
     } catch (error) {
       console.error("Login error:", error);
@@ -37,7 +37,7 @@ export function LoginForm({
   const handleGitHubSignIn = async () => {
     setIsLoading(true);
     try {
-      await signIn("github", { callbackUrl: "/" });
+      await signIn("github", { callbackUrl: "/settings" });
     } catch (error) {
       console.error("GitHub login error:", error);
     } finally {
@@ -96,8 +96,8 @@ export function LoginForm({
       </div>
       <div className="text-center text-sm">
         Don&apos;t have an account?{" "}
-        <a href="#" className="underline underline-offset-4">
-          Sign up
+        <a href="https://github.com/apps/pushtoprodbot" className="underline underline-offset-4">
+          Start here
         </a>
       </div>
     </form>

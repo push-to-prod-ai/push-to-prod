@@ -42,21 +42,16 @@ export default function Component() {
             </Link>
           </nav>
           <div className="grid gap-6">
-            <Card>
+          <Card>
               <CardHeader>
-                <CardTitle>Project Name</CardTitle>
-                <CardDescription>Used to identify your project in the dashboard.</CardDescription>
+                <CardTitle>Jira Integration</CardTitle>
+                <CardDescription>Configure your Jira account settings for integration.</CardDescription>
               </CardHeader>
               <CardContent>
-                <form>
-                  <Input placeholder="Project Name" />
-                </form>
+                <JiraIntegrationForm />
               </CardContent>
-              <CardFooter className="border-t p-6">
-                <Button>Save</Button>
-              </CardFooter>
             </Card>
-            <Card>
+            {/* <Card>
               <CardHeader>
                 <CardTitle>Root Directory</CardTitle>
                 <CardDescription>The directory within your project, in which your code is located.</CardDescription>
@@ -78,7 +73,7 @@ export default function Component() {
               <CardFooter className="border-t p-6">
                 <Button>Save</Button>
               </CardFooter>
-            </Card>
+            </Card> */}
             <Card>
               <CardHeader>
                 <CardTitle>Notifications</CardTitle>
@@ -191,15 +186,6 @@ export default function Component() {
                   </div>
                   <Switch id="third-party-cookies" />
                 </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>Jira Integration</CardTitle>
-                <CardDescription>Configure your Jira account settings for integration.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <JiraIntegrationForm />
               </CardContent>
             </Card>
           </div>
