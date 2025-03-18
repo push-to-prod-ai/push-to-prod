@@ -12,6 +12,7 @@ import { useTheme } from "@/components/theme-provider";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
+import Image from "next/image";
 
 export function Navbar() {
   const { theme, setTheme } = useTheme();
@@ -35,7 +36,13 @@ export function Navbar() {
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="mx-auto flex h-14 items-center px-4 sm:px-6 lg:px-8">
         <Link href="/" className="mr-2 flex items-center space-x-1">
-          <img src="/penlogo.svg" alt="Logo" className="h-8 w-8" />
+          <Image 
+            src="/penlogo.svg" 
+            alt="Logo" 
+            width={32} 
+            height={32} 
+            className="h-8 w-8"
+          />
           <span className="hidden font-bold sm:inline-block">PushToProd.ai</span>
         </Link>
         <DropdownMenu>

@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { FC } from "react";
+import Image from 'next/image'
 
 interface FeatureItemProps {
   title: string;
@@ -12,7 +13,14 @@ const FeatureItem: FC<FeatureItemProps> = ({ title, description, imageUrl, isIma
   <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-24 items-center">
     {isImageLeft && (
       <div className="order-1 md:order-1">
-        <img className="w-full max-w-2xl rounded-xl shadow-xl ring-1 ring-gray-400/10" src={imageUrl} alt={title} />
+        <Image 
+          src={imageUrl}
+          alt={title}
+          width={500}
+          height={300}
+          className="w-full max-w-2xl rounded-xl shadow-xl ring-1 ring-gray-400/10"
+          quality={90}
+        />
       </div>
     )}
     <div className={`order-2 ${isImageLeft ? "md:order-2" : "md:order-1"}`}>
@@ -24,7 +32,14 @@ const FeatureItem: FC<FeatureItemProps> = ({ title, description, imageUrl, isIma
     </div>
     {!isImageLeft && (
       <div className="order-1 md:order-2">
-        <img className="w-full max-w-2xl rounded-xl shadow-xl ring-1 ring-gray-400/10" src={imageUrl} alt={title} />
+        <Image 
+          src={imageUrl}
+          alt={title}
+          width={500}
+          height={300}
+          className="w-full max-w-2xl rounded-xl shadow-xl ring-1 ring-gray-400/10"
+          quality={90}
+        />
       </div>
     )}
   </div>

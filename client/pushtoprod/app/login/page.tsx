@@ -19,10 +19,13 @@ export default function LoginPage() {
         </div>
       </div>
       <div className="bg-muted relative hidden lg:block">
-        <img
+        <Image
           src="/penlogo.svg"
-          alt="Image"
-          className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+          alt="Background Logo"
+          fill
+          priority
+          className="absolute inset-0 object-cover dark:brightness-[0.2] dark:grayscale"
+          quality={90}
         />
       </div>
     </div>

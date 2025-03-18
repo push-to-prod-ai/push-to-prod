@@ -1,6 +1,7 @@
 // import { BGShapeCircle } from "@/components/bg-shape-circle";
 import { Button } from "@/components/ui/button";
 import { FC } from "react";
+import Image from "next/image";
 
 export const HeroSection: FC = () => {
   return (
@@ -27,20 +28,28 @@ export const HeroSection: FC = () => {
           <p className="mt-4 text-sm text-gray-500">Free and open-source. No credit card required.</p>
         </div>
 
-        <img
-          alt="app screenshot"
-          src="https://ui.convertfa.st/images/graphic-walker-light-2.png"
-          width={2432}
-          height={1442}
-          className="mt-8 rounded-md shadow-2xl border sm:mt-12 block dark:hidden"
-        />
-        <img
-          alt="app screenshot"
-          src="https://ui.convertfa.st/images/graphic-walker-dark-2.png"
-          width={2432}
-          height={1442}
-          className="mt-8 rounded-md shadow-2xl border sm:mt-12 hidden dark:block"
-        />
+        <div className="mt-8 sm:mt-12 relative block dark:hidden">
+          <Image
+            alt="app screenshot"
+            src="https://ui.convertfa.st/images/graphic-walker-light-2.png"
+            width={2432}
+            height={1442}
+            quality={90}
+            priority
+            className="rounded-md shadow-2xl border"
+          />
+        </div>
+        <div className="mt-8 sm:mt-12 relative hidden dark:block">
+          <Image
+            alt="app screenshot"
+            src="https://ui.convertfa.st/images/graphic-walker-dark-2.png"
+            width={2432}
+            height={1442}
+            quality={90}
+            priority
+            className="rounded-md shadow-2xl border"
+          />
+        </div>
       </div>
     </div>
   );

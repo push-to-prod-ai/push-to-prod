@@ -1,4 +1,5 @@
 import { Card } from "@/components/ui/card";
+import Image from "next/image";
 
 const logos = [
   { name: "Google", src: "https://ui.convertfa.st/logos/Google.svg", alt: "Google logo" },
@@ -17,20 +18,24 @@ export function LogoCloud() {
         </h2>
         <div className="mx-auto mt-10 grid max-w-lg grid-cols-4 items-center gap-x-8 gap-y-10 sm:max-w-xl sm:grid-cols-6 sm:gap-x-10 lg:mx-0 lg:max-w-none lg:grid-cols-5">
           {logos.map((logo, index) => (
-            <img
-              key={logo.name}
-              src={logo.src}
-              alt={logo.alt}
-              width={158}
-              height={48}
-              className={`col-span-2 max-h-12 w-full object-contain grayscale dark:invert ${
+            <div 
+              key={logo.name} 
+              className={`col-span-2 relative ${
                 index === 3
                   ? "sm:col-start-2 lg:col-span-1"
                   : index === 4
                   ? "col-start-2 sm:col-start-auto lg:col-span-1"
                   : "lg:col-span-1"
               }`}
-            />
+            >
+              <Image
+                src={logo.src}
+                alt={logo.alt}
+                width={158}
+                height={48}
+                className="max-h-12 w-full object-contain grayscale dark:invert"
+              />
+            </div>
           ))}
         </div>
       </div>
