@@ -11,6 +11,8 @@ services:
       - ./server/github/pushtoprodbot-dev.2025-03-03.private-key.pem:/usr/src/app/private-key.pem
     env_file:
       - ./server/github/.env
+    networks:
+      - app-network
 
   blast-radius:
     build:
@@ -22,6 +24,8 @@ services:
     volumes:
       - ./server/blast-radius:/usr/src/app
       - /usr/src/app/node_modules
+    networks:
+      - app-network
     # env_file:
     #  - ./server/blast-radius/.env
 
@@ -35,6 +39,8 @@ services:
     volumes:
       - ./server/syntropy:/usr/src/app
       - /usr/src/app/node_modules
+    networks:
+      - app-network
     # env_file:
     #   - ./server/syntropy/.env
   
@@ -53,4 +59,8 @@ services:
     env_file:
       - ./client/.env.local
     depends_on:
-      - github-app 
+      - github-app
+
+networks:
+  app-network:
+    driver: bridge
