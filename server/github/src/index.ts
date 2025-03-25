@@ -190,7 +190,7 @@ export class AppService {
             { summaryLength: JSON.stringify(requirementsSummary).length }
         );
 
-        const codeSummary: Record<string, any> = await this.aiService.summarizeCode(diffs) ?? {};
+        const codeSummary: Record<string, any> = await this.aiService.summarizeCode(JSON.stringify(diffs)) ?? {};
         this.logger.info("Generated code summary", { summaryLength: JSON.stringify(codeSummary).length });
 
         const alignment: Record<string, any> = await this.aiService.compareSummaries(codeSummary, requirementsSummary) ?? {};
