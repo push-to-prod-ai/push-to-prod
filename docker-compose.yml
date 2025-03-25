@@ -42,7 +42,7 @@ services:
     build:
       context: ./client
     ports:
-      - "3000:3000"
+      - "3000:8080"
     environment:
       - NODE_ENV=development
       - NEXTAUTH_URL=http://localhost:3000

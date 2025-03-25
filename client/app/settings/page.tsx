@@ -1,9 +1,9 @@
 import Link from "next/link"
 import * as React from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
-// import { Input } from "@/components/ui/input"
-// import { Checkbox } from "@/components/ui/checkbox"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Checkbox } from "@/components/ui/checkbox"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem } from "@/components/ui/dropdown-menu"
 import { Switch } from "@/components/ui/switch"
 import { Navbar } from "@/components/navbar"
@@ -51,7 +51,7 @@ export default function Component() {
                 <JiraIntegrationForm />
               </CardContent>
             </Card>
-            {/* <Card>
+            <Card>
               <CardHeader>
                 <CardTitle>Root Directory</CardTitle>
                 <CardDescription>The directory within your project, in which your code is located.</CardDescription>
@@ -73,7 +73,7 @@ export default function Component() {
               <CardFooter className="border-t p-6">
                 <Button>Save</Button>
               </CardFooter>
-            </Card> */}
+            </Card>
             <Card>
               <CardHeader>
                 <CardTitle>Notifications</CardTitle>
