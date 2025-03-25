@@ -2,9 +2,10 @@ import { GoogleGenerativeAI, GenerativeModel } from "@google/generative-ai";
 import { config } from "../config/index.js";
 import type { AIPrompt, AISummary, ServiceResponse } from "../types/index.js";
 
-const axios = require('axios');
+import axios from 'axios';
 
-const BASE_URL = 'http://syntropy:8080';  // Docker FastAPI URL
+const BASE_URL = config.urls.syntropy
+// const BASE_URL = 'http://syntropy:8080';  // Docker FastAPI URL
 
 export class AIService {
 
