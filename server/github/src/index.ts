@@ -184,13 +184,18 @@ export class AppService {
         // TODO: we need a way to pull the requirements, then to pass to the summarizing sequence.
         //  Since we're working with async, how do we parallelize the summarizers?
         const requirements: string = "Sample requirements";
-        const requirementsSummary: Record<string, any> = await this.aiService.summarizeRequirements(requirements) ?? {};
+        /* const requirementsSummary: Record<string, any> = await this.aiService.summarizeRequirements(requirements) ?? {};
         this.logger.info(
             "Generated requirement summary",
             { summaryLength: JSON.stringify(requirementsSummary).length }
         );
 
-        const codeSummary: Record<string, any> = await this.aiService.summarizeCode(JSON.stringify(diffs)) ?? {};
+        const codeSummary: Record<string, any> = await this.aiService.summarizeCode(JSON.stringify(diffs)) ?? {}; */
+        const [requirementsSummary, codeSummary] = await Promise.all([
+          this.aiService.summarizeRequirements(requirements),
+          this.aiService.summarizeCode(JSON.stringify(diffs))
+        ]);
+
         this.logger.info("Generated code summary", { summaryLength: JSON.stringify(codeSummary).length });
 
         const alignment: Record<string, any> = await this.aiService.compareSummaries(codeSummary, requirementsSummary) ?? {};
