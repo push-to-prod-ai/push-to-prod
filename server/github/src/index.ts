@@ -184,16 +184,16 @@ export class AppService {
         // TODO: we need a way to pull the requirements, then to pass to the summarizing sequence.
         //  Since we're working with async, how do we parallelize the summarizers?
         const requirements: string = "Sample requirements";
-        const requirementsSummary: Record<string, any> = await this.aiService.summarizeRequirements(requirements);
+        const requirementsSummary: Record<string, any> = await this.aiService.summarizeRequirements(requirements) ?? {};
         this.logger.info(
             "Generated requirement summary",
             { summaryLength: JSON.stringify(requirementsSummary).length }
         );
 
-        const codeSummary: Record<string, any> = await this.aiService.summarizeCode(diffs);
+        const codeSummary: Record<string, any> = await this.aiService.summarizeCode(diffs) ?? {};
         this.logger.info("Generated code summary", { summaryLength: JSON.stringify(codeSummary).length });
 
-        const alignment: Record<string, any> = await this.aiService.compareSummaries(codeSummary, requirementsSummary);
+        const alignment: Record<string, any> = await this.aiService.compareSummaries(codeSummary, requirementsSummary) ?? {};
 
         // Get blast radius calculation, we will flesh out this part of the app later
         // TODO: determine if we should use alignment or code summary for blast radius.
@@ -215,7 +215,7 @@ export class AppService {
         const userId = sender?.id?.toString() || "";
         await this.ticketService.addComment(
           relevantIssue.key, 
-          { text: summaryText },
+          { text: JSON.stringify(codeSummary) },
           userId
         );
         this.logger.info("Added comment to ticket", { ticketKey: relevantIssue.key });
