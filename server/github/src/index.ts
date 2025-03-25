@@ -176,13 +176,35 @@ export class AppService {
           ?.map(file => `File: ${file.filename}\n${file.patch || ""}`)
           .join("\n\n");
 
+        // TODO: update the content generation to use syntropy app.
         // Build prompt and generate summary
-        const prompt = `Analyze these code changes and provide a concise summary:\n\n${diffs}`;
-        const summaryText = await this.aiService.generateContent(prompt);
-        this.logger.info("Generated AI summary", { summaryLength: summaryText.length });
+        // const prompt = `Analyze these code changes and provide a concise summary:\n\n${diffs}`;
+        // const summaryText = await this.aiService.generateContent(prompt);
+
+        // TODO: we need a way to pull the requirements, then to pass to the summarizing sequence.
+        //  Since we're working with async, how do we parallelize the summarizers?
+        const requirements: string = "Sample requirements";
+        /* const requirementsSummary: Record<string, any> = await this.aiService.summarizeRequirements(requirements) ?? {};
+        this.logger.info(
+            "Generated requirement summary",
+            { summaryLength: JSON.stringify(requirementsSummary).length }
+        );
+
+        const codeSummary: Record<string, any> = await this.aiService.summarizeCode(JSON.stringify(diffs)) ?? {}; */
+        const [requirementsSummary, codeSummary] = await Promise.all([
+          this.aiService.summarizeRequirements(requirements),
+          this.aiService.summarizeCode(JSON.stringify(diffs))
+        ]);
+
+        this.logger.info("Generated code summary", { summaryLength: JSON.stringify(codeSummary).length });
+
+        const alignment: Record<string, any> = await this.aiService.compareSummaries(codeSummary, requirementsSummary) ?? {};
 
         // Get blast radius calculation, we will flesh out this part of the app later
-        const blastRadiusResponse = await this.blastRadiusService.calculateBlastRadius(summaryText);
+        // TODO: determine if we should use alignment or code summary for blast radius.
+        const blastRadiusResponse = await this.blastRadiusService.calculateBlastRadius(
+            JSON.stringify(alignment)
+        );
         this.logger.info("Calculated blast radius", {
           issuesFound: blastRadiusResponse.relevant_issues.length,
         });
@@ -198,7 +220,7 @@ export class AppService {
         const userId = sender?.id?.toString() || "";
         await this.ticketService.addComment(
           relevantIssue.key, 
-          { text: summaryText },
+          { text: JSON.stringify(codeSummary) },
           userId
         );
         this.logger.info("Added comment to ticket", { ticketKey: relevantIssue.key });
