@@ -113,37 +113,40 @@ export class AppService {
         body: prDescription,
       });
 
-      // Define label configuration
-      const labelConfig = {
-        name: 'documented',
-        color: '6f42c1', // Purple - matches GitHub's documentation color
-        description: 'PR has an AI-generated description'
-      };
-      
-      // Ensure the 'documented' label exists with a color
-      try {
-        // Try to get the label to see if it exists
-        await context.octokit.issues.getLabel({
-          ...context.repo(),
-          name: labelConfig.name
-        });
-      } catch (error) {
-        // Label doesn't exist, create it with a color
-        await context.octokit.issues.createLabel({
-          ...context.repo(),
-          ...labelConfig
-        });
-        this.logger.info("Created label with color", { label: labelConfig.name, color: labelConfig.color });
-      }
-
-      // Add label to indicate the description was updated
-      await context.octokit.issues.addLabels({
+      // Add a status check to indicate the description was updated
+      await context.octokit.repos.createCommitStatus({
         ...context.repo(),
-        issue_number: pr.number,
-        labels: [labelConfig.name]
+        sha: commitSha,
+        state: 'success',
+        context: 'PushToProd.ai',
+        description: 'Documented',
+        target_url: prResponse.data.html_url + '#discussion_bucket' // Link to the PR description section
       });
+      
+      // // Ensure the 'documented' label exists with a color
+      // try {
+      //   // Try to get the label to see if it exists
+      //   await context.octokit.issues.getLabel({
+      //     ...context.repo(),
+      //     name: labelConfig.name
+      //   });
+      // } catch (error) {
+      //   // Label doesn't exist, create it with a color
+      //   await context.octokit.issues.createLabel({
+      //     ...context.repo(),
+      //     ...labelConfig
+      //   });
+      //   this.logger.info("Created label with color", { label: labelConfig.name, color: labelConfig.color });
+      // }
 
-      this.logger.info("Updated PR description and added label", { pr: pr.number });
+      // // Add label to indicate the description was updated
+      // await context.octokit.issues.addLabels({
+      //   ...context.repo(),
+      //   issue_number: pr.number,
+      //   labels: [labelConfig.name]
+      // });
+
+      this.logger.info("Updated PR description and added status check", { pr: pr.number });
     });
 
     // Disabling this feature for now. We will flesh out later.
