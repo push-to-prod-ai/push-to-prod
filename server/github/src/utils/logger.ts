@@ -40,7 +40,15 @@ export class Logger {
       winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
       winston.format.colorize({ all: true }),
       winston.format.printf(
-        (info: winston.Logform.TransformableInfo) => `${info.timestamp} ${info.level}: ${info.message}`
+        (info: winston.Logform.TransformableInfo) => {
+          // Extract metadata by removing known properties
+          const { timestamp, level, message, ...metadata } = info;
+          // Only show metadata if it has properties
+          const metaStr = Object.keys(metadata).length 
+            ? `\n${JSON.stringify(metadata, null, 2)}`
+            : '';
+          return `${timestamp} ${level}: ${message}${metaStr}`;
+        }
       )
     );
 
