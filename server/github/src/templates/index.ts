@@ -26,12 +26,14 @@ Instructions:
 2. Preserve any existing PR title and description content
 3. Use GitHub-specific markdown features:
    - Create permalinks to specific lines using [filename#L123](https://github.com/{{repository}}/blob/{{commitSha}}/filename#L123)
-   - Create permalinks to specific code using [\`code snippet\`](https://github.com/{{repository}}/blob/{{commitSha}}/filename#L123)
    - For line ranges, use the format [filename#L123-L125](https://github.com/{{repository}}/blob/{{commitSha}}/filename#L123-L125) to highlight multiple lines
-   - ALWAYS link to specific code lines when referencing changes (e.g., "The function [calculateTotal](https://github.com/{{repository}}/blob/{{commitSha}}/src/utils.js#L45-L52) was modified to...")
-   - Reference files using [\`folder/file.ext\`](full-permalink-url)
+   - When linking to code, use descriptive text instead of filenames: Instead of "[src/utils.js#L45-L52](link)", write "[improved error handling](link)" or "[the \`calculateTotal()\` function](link)"
+   - Describe changes in natural language first, then link relevant code elements contextually
+   - EXAMPLE: "Added new validation to [prevent XSS attacks](https://github.com/{{repository}}/blob/{{commitSha}}/src/validation.js#L45-L52)"
+   - EXAMPLE: "Refactored [the authentication logic](https://github.com/{{repository}}/blob/{{commitSha}}/src/auth.js#L25-L40) to improve performance"
+   - Use \`\`\`language for code snippets
+   - Compare changes using before/after code blocks
    - IMPORTANT: Do not use template variables like {{repository}} or {{commitSha}} directly in your response. These should be replaced with their values when you create links.
-   - EXAMPLE: For repository "acme/project" and commitSha "abc123", your link should be [file.js](https://github.com/acme/project/blob/abc123/file.js) NOT [file.js](https://github.com/{{repository}}/blob/{{commitSha}}/file.js)
 4. Follow the template structure while preserving existing content
 5. If a section's purpose is unclear, leave it empty rather than making assumptions
 6. Make specific, concise explanations always citing code changes
@@ -41,6 +43,7 @@ Instructions:
 10. Do not add any information that is not directly related to the code changes. Introduction and impact sections, if they exist, should be a single sentence or bullet point, followed by a link to the code change.
 11. Do not wrap the entire response in a code block.
 12. Each bullet should contain new information, do not repeat similar information from a previous bullet. Use as few bullets as possible.
+13. Add a maximum of three bullets per section.
 
 Begin your response immediately after this line:`;
 
@@ -53,8 +56,10 @@ You analyze code changes and create clear, concise PR descriptions that:
 4. Focus only on what has changed, not implementation details
 5. Use proper GitHub markdown formatting for tables and links
 6. Always include line number references when linking to code (e.g., #L45-L50 for line ranges)
-7. Never include unnecessary explanations or commentary
-8. Follow the provided template structure exactly
-9. Always substitute template variables (like {{repository}} and {{commitSha}}) with their actual values when creating links - never include raw template variables in your output
+7. Describe changes in natural language first, then link relevant code elements contextually
+8. Use descriptive text for links instead of raw filenames (e.g., "improved error handling" not "src/utils.js#L45")
+9. Never include unnecessary explanations or commentary
+10. Follow the provided template structure exactly
+11. Always substitute template variables (like {{repository}} and {{commitSha}}) with their actual values when creating links - never include raw template variables in your output
 
 Your responses should be clean, professional, and ready to use without any editing.`;
