@@ -1,4 +1,5 @@
 import { Probot } from "probot";
+import axios from "axios";
 import { AIService } from "./services/ai.js";
 import { BlastRadiusService } from "./services/blast-radius.js";
 import { TicketService } from "./services/ticket.js";
@@ -44,48 +45,32 @@ export class AppService {
       const { pull_request: pr } = context.payload;
       this.logger.info("Processing pull request event", {
         repo: context.repo(),
-        pr: pr.number,
-        labels: {
-          repository: pr.base.repo.full_name,
-          sender: pr.user.login,
-        },
+        pr: pr.number
       });
 
-      // Get the PR diff with more context using the non-deprecated endpoint
-      const compare = await context.octokit.repos.compareCommitsWithBasehead({
+      // First, get the PR metadata to access the diff_url
+      const prResponse = await context.octokit.pulls.get({
         ...context.repo(),
-        basehead: `${pr.base.sha}...${pr.head.sha}`,
-        mediaType: {
-          format: 'diff'
-        }
+        pull_number: pr.number
       });
-
-      // Create rich diff information without downloading files
-      const detailedFiles = compare.data.files?.map(file => ({
-        filename: file.filename,
-        patch: file.patch || "",
-        status: file.status,
-        additions: file.additions,
-        deletions: file.deletions,
-        basePermalink: `https://github.com/${pr.base.repo.full_name}/blob/${pr.base.sha}/${file.filename}`,
-        headPermalink: `https://github.com/${pr.base.repo.full_name}/blob/${pr.head.sha}/${file.filename}`,
-        rawUrl: file.raw_url,
-        blobUrl: file.blob_url,
-      }));
-
-      // Create a rich diff string
-      const diffs = detailedFiles?.map(file => `
-      File: ${file.filename}
-      Status: ${file.status}
-      Changes: +${file.additions} -${file.deletions}
-      Base: ${file.basePermalink}
-      Head: ${file.headPermalink}
-      Raw: ${file.rawUrl}
-      Blob: ${file.blobUrl}
-
-      Diff:
-      ${file.patch}
-      `).join("\n\n") || "";
+      
+      // Extract the head commit SHA for generating permalinks
+      const commitSha = prResponse.data.head.sha;
+      
+      // Get the raw diff using axios to fetch from the diff_url
+      const diffResponse = await axios.get(prResponse.data.diff_url);
+      const rawDiff = diffResponse.data; // This will be a string
+      
+      this.logger.info("PR diff summary", {
+        diffUrl: prResponse.data.diff_url,
+        diffSize: rawDiff.length,
+        commitSha
+      });
+      
+      // Log preview of the diff
+      this.logger.debug("PR diff preview", { 
+        diffPreview: rawDiff.substring(0, 1000) + "..." 
+      });
 
       // Try to get PR template
       let template = "";
@@ -109,26 +94,23 @@ export class AppService {
         .replace("{{title}}", pr.title || "")
         .replace("{{existingDescription}}", pr.body || "")
         .replace("{{baseBranch}}", pr.base.ref)
-        .replace("{{fileCount}}", String(compare.data.files?.length || 0))
-        .replace("{{commitCount}}", String(compare.data.commits?.length || 0))
-        .replace("{{repository}}", pr.base.repo.full_name)
-        .replace("{{diffs}}", diffs);
+        .replace(/\{\{repository\}\}/g, pr.base.repo.full_name)
+        .replace(/\{\{commitSha\}\}/g, commitSha)
+        .replace("{{diffs}}", rawDiff);
+        
+      this.logger.info("Generated prompt", { 
+        promptLength: prompt.length,
+        promptPreview: prompt.substring(0, 500) + "..." 
+      });
+      this.logger.debug("Full prompt", { prompt });
         
       const prDescription = await this.aiService.generateContent(prompt);
-      // Clean up the response
-      const cleanDescription = prDescription
-        // Remove any markdown or code block indicators at the start
-        .replace(/^```\w*\n/, '')
-        // Remove any closing code block indicators at the end
-        .replace(/\n```$/, '')
-        // Trim any extra whitespace
-        .trim();
-
+      
       // Update the PR description
       await context.octokit.pulls.update({
         ...context.repo(),
         pull_number: pr.number,
-        body: cleanDescription,
+        body: prDescription,
       });
 
       // Add a notification comment
