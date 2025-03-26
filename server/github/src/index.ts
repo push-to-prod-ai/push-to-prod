@@ -113,14 +113,14 @@ export class AppService {
         body: prDescription,
       });
 
-      // Add a notification comment
-      await context.octokit.issues.createComment({
+      // Option 1: Add a label to indicate the description was updated
+      await context.octokit.issues.addLabels({
         ...context.repo(),
         issue_number: pr.number,
-        body: "🤖 I've analyzed the changes and updated the PR description based on the diff. Please review and adjust if needed!"
+        labels: ['description-updated']
       });
 
-      this.logger.info("Updated PR description and added comment", { pr: pr.number });
+      this.logger.info("Updated PR description and added label", { pr: pr.number });
     });
 
     // Disabling this feature for now. We will flesh out later.
