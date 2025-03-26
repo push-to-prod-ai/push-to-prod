@@ -40,6 +40,7 @@ Instructions:
 9. When describing a change, ALWAYS link to the specific lines of code being discussed - don't just mention files without line references
 10. Do not add any information that is not directly related to the code changes. Introduction and impact sections, if they exist, should be a single sentence or bullet point, followed by a link to the code change.
 11. Do not wrap the entire response in a code block.
+12. Each bullet should contain new information, do not repeat similar information from a previous bullet. Use as few bullets as possible.
 
 Begin your response immediately after this line:`;
 
