@@ -198,7 +198,7 @@ export class AppService {
 
         this.logger.info("Generated code summary", { summaryLength: JSON.stringify(codeSummary).length });
 
-        const alignment: Record<string, any> = await this.aiService.compareSummaries(codeSummary, requirementsSummary) ?? {};
+        const alignment: Record<string, Record<string, string>> = await this.aiService.compareSummaries(codeSummary, requirementsSummary) ?? {};
 
         // Get blast radius calculation, we will flesh out this part of the app later
         // TODO: determine if we should use alignment or code summary for blast radius.
