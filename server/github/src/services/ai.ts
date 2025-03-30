@@ -28,7 +28,7 @@ export class AIService {
   // Function to summarize code diffs
   async summarizeCode(diffs: string): Promise<any> {
     try {
-      const response: Record<string, any> = await axios.post(`${BASE_URL}/syntropy/code/summarize`, { diffs }, {
+      const response: Record<string, string> = await axios.post(`${BASE_URL}/syntropy/code/summarize`, { diffs }, {
         headers: { 'Content-Type': 'application/json' }
       });
 
@@ -43,7 +43,7 @@ export class AIService {
   // Function to summarize requirements
   async summarizeRequirements(requirements: string): Promise<any> {
     try {
-      const response: Record<string, any> = await axios.post(`${BASE_URL}/syntropy/requirements/summarize`, { requirements }, {
+      const response: Record<string, string> = await axios.post(`${BASE_URL}/syntropy/requirements/summarize`, { requirements }, {
         headers: { 'Content-Type': 'application/json' }
       });
 

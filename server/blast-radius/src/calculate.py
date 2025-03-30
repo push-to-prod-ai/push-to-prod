@@ -4,13 +4,11 @@ from sentence_transformers import SentenceTransformer
 
 from .data_models.jira import JiraIssues
 from .data_models.calculation import CalculationRequestModel, CalculationResponseModel
-
-
 blast_radius_calculation_sub_app = FastAPI()
-model = SentenceTransformer('all-MiniLM-L6-v2')
+model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 
 
-@blast_radius_calculation_sub_app.post("/calculation")
+@blast_radius_calculation_sub_app.post("/calculation", response_model=CalculationResponseModel)
 def calculate_blast_radius(request: CalculationRequestModel):
     threshold = 0.5
 
@@ -19,10 +17,18 @@ def calculate_blast_radius(request: CalculationRequestModel):
     # batch_number = 0
 
     issues = JiraIssues().get_all()
+
+    if len(issues) == 0:
+        return CalculationResponseModel(relevant_issues=[])
+
     issues_strs = [i.textual_representation for i in issues]
+
 
     summary_embedding = model.encode([request.summary])
     issues_embeddings = model.encode(issues_strs)
+
+    summary_embedding = summary_embedding / np.linalg.norm(summary_embedding, axis=1, keepdims=True)
+    issues_embeddings = issues_embeddings / np.linalg.norm(issues_embeddings, axis=1, keepdims=True)
 
     similarities = model.similarity_pairwise(summary_embedding, issues_embeddings).numpy()
 

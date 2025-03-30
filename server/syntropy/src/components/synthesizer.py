@@ -1,10 +1,14 @@
 import os
+import json
+import requests
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
 from google import genai
 
-from .requirements_summarizer import ProductRequirementsSummary
+from .requirements_summarizer import PRModel,ProductRequirementsSummary, generate_requirements_summary
 from .code_summarizer import StructuredSummary
+
+from src.routing_config import get_blast_radius_api_url
 
 comparison_app = APIRouter()
 
@@ -28,11 +32,31 @@ class ComparisonSummary(BaseModel):
     adherence_to_standards_and_best_practices: ComparisonCategory
 
 @comparison_app.post("/summarize", response_model=ComparisonSummary)
-def compare_with_llm(
+async def compare_with_llm(
         code_summary: StructuredSummary,
-        requirements_summary: ProductRequirementsSummary
+        requirements_summary: ProductRequirementsSummary = None
 ) -> ComparisonSummary:
     """Sends both summaries to the LLM for a structured comparison."""
+
+    if requirements_summary is None:
+        # TODO: write code to hit blast radius and pull in relevant items and generate summary.
+        br_api_url = get_blast_radius_api_url()
+        endpoint = '/blast-radius/calculation'
+        headers = {
+            'Content-Type': 'application/json',
+        }
+        blast_radius = requests.post(
+            url=br_api_url + endpoint,
+            json={"summary": json.dumps(code_summary.model_dump())},
+            headers=headers
+        )
+        relevant_issues: list = eval(blast_radius.content)["relevant_issues"]
+        requirements_summary = await generate_requirements_summary(
+            pr_data=PRModel(
+                requirements=json.dumps(relevant_issues)
+            )
+        )
+
     prompt = f"""
     Given the following product requirements and the corresponding code implementation summaries, 
     analyze each category and classify the findings into:

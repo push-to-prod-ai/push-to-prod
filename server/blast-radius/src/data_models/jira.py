@@ -5,7 +5,6 @@ from pydantic import BaseModel, model_validator
 
 
 class JiraIssues:
-
     class JiraIssue(BaseModel):
         issue_id: int
         key: str
@@ -64,12 +63,13 @@ class JiraIssues:
 
         # Extract relevant fields
         return [
-            self.JiraIssue(issue_id=issue["id"],
-                           key=issue["key"],
-                           summary=issue["fields"]["summary"],
-                           description=issue["fields"].get("description", ""),
-                           issue_type=issue["fields"]["issuetype"]["name"],
-                           URL=f"{self.JIRA_URL}/browse/{issue['key']}"  # Construct Jira link
-                           )
+            self.JiraIssue(
+                issue_id=issue["id"],
+                key=issue["key"],
+                summary=issue["fields"]["summary"],
+                description=issue["fields"].get("description", ""),
+                issue_type=issue["fields"]["issuetype"]["name"],
+                URL=f"{self.JIRA_URL}/browse/{issue['key']}"  # Construct Jira link
+            )
             for issue in issues
         ]

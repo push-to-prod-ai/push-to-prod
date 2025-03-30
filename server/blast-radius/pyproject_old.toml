@@ -8,12 +8,8 @@ packages = [{include = "src"}]
 
 [tool.poetry.dependencies]
 python = ">=3.12"
-fastapi = {version = "0.115.12", extras = ["standard"]}
-numpy = "2.2.4"
+fastapi = {extras = ["standard"], version = ">=0.115.6,<0.116.0"}
+numpy = ">=1.26.0"
 torch = ">=2.1.0"
-sentence-transformers = "4.0.1"
-uvicorn = "0.34.0"
-
-[build-system]
-requires = ["poetry>=1.0"]
-build-backend = "poetry.core.masonry.api"
+sentence-transformers = "3.4.1"
+uvicorn = "0.20.0"
