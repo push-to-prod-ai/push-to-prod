@@ -1,8 +1,11 @@
 import { GoogleGenerativeAI, GenerativeModel } from "@google/generative-ai";
 import { config } from "../config/index.js";
-import { systemInstructions as defaultSystemInstructions, prAnalysisPrompt as defaultPrAnalysisPrompt } from "../templates/index.js";
 import { DatabaseService } from "./database.js";
 import type { AIPrompt, AISummary, ServiceResponse } from "../types/index.js";
+
+// Minimal emergency fallbacks in case of catastrophic failure
+const EMERGENCY_SYSTEM_INSTRUCTIONS = "You analyze code changes and create clear, concise PR descriptions.";
+const EMERGENCY_PR_PROMPT = "Summarize these code changes: {{diffs}}";
 
 export class AIService {
   private genAI: GoogleGenerativeAI;
@@ -26,13 +29,57 @@ export class AIService {
   }
 
   /**
+   * Get default templates from Firestore
+   * @returns Promise resolving to default templates
+   */
+  private async getDefaultTemplates() {
+    try {
+      // Get default templates from config collection
+      const db = this.databaseService.getFirestoreInstance();
+      const defaultTemplatesDoc = await db
+        .collection('config')
+        .doc('default_templates')
+        .get();
+      
+      if (!defaultTemplatesDoc.exists) {
+        console.error("Default templates not found in Firestore, using emergency fallbacks");
+        return {
+          systemInstructions: EMERGENCY_SYSTEM_INSTRUCTIONS,
+          prAnalysisPrompt: EMERGENCY_PR_PROMPT,
+        };
+      }
+      
+      const data = defaultTemplatesDoc.data();
+      return {
+        systemInstructions: data?.systemInstructions || EMERGENCY_SYSTEM_INSTRUCTIONS,
+        prAnalysisPrompt: data?.prAnalysisPrompt || EMERGENCY_PR_PROMPT,
+      };
+    } catch (error) {
+      console.error("Error fetching default templates:", error);
+      // Use emergency fallbacks in case of error
+      return {
+        systemInstructions: EMERGENCY_SYSTEM_INSTRUCTIONS,
+        prAnalysisPrompt: EMERGENCY_PR_PROMPT,
+      };
+    }
+  }
+
+  /**
    * Get system instructions, using custom ones if available for the user
    * @param userId The user ID to get custom instructions for
    * @returns The system instructions to use
    */
   async getSystemInstructions(userId: string): Promise<string> {
+    // Try to get user's custom template
     const customTemplates = await this.databaseService.getPromptTemplates(userId);
-    return customTemplates.systemInstructions || defaultSystemInstructions;
+    
+    if (customTemplates.systemInstructions) {
+      return customTemplates.systemInstructions;
+    }
+    
+    // No custom template, get default from Firestore
+    const defaultTemplates = await this.getDefaultTemplates();
+    return defaultTemplates.systemInstructions;
   }
   
   /**
@@ -41,8 +88,16 @@ export class AIService {
    * @returns The PR analysis prompt template to use
    */
   async getPrAnalysisPrompt(userId: string): Promise<string> {
+    // Try to get user's custom template
     const customTemplates = await this.databaseService.getPromptTemplates(userId);
-    return customTemplates.prAnalysisPrompt || defaultPrAnalysisPrompt;
+    
+    if (customTemplates.prAnalysisPrompt) {
+      return customTemplates.prAnalysisPrompt;
+    }
+    
+    // No custom template, get default from Firestore
+    const defaultTemplates = await this.getDefaultTemplates();
+    return defaultTemplates.prAnalysisPrompt;
   }
 
   /**

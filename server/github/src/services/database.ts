@@ -45,6 +45,14 @@ export class DatabaseService {
   }
 
   /**
+   * Get the Firestore instance for direct access
+   * @returns The Firestore instance
+   */
+  getFirestoreInstance(): Firestore {
+    return this.db;
+  }
+
+  /**
    * Get Jira credentials for a user from Firestore
    * @param userId The ID of the user whose credentials to retrieve
    * @returns A promise resolving to the user's Jira credentials

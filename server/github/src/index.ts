@@ -4,7 +4,6 @@ import { AIService } from "./services/ai.js";
 import { BlastRadiusService } from "./services/blast-radius.js";
 import { TicketService } from "./services/ticket.js";
 import { DatabaseService } from "./services/database.js";
-import { defaultPRTemplate, prAnalysisPrompt } from "./templates/index.js";
 import { Logger } from "./utils/logger.js";
 
 /**
@@ -103,7 +102,6 @@ export class AppService {
         }
       } catch (error) {
         this.logger.info("No PR template found, using default format");
-        template = defaultPRTemplate;
       }
 
       // Get custom or default PR analysis prompt template
