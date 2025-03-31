@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getFirestoreDb, collections } from '@/lib/firebase';
 import { getCurrentUser } from '@/lib/auth';
+import * as firebase from 'firebase-admin';
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,7 +14,15 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    const { jiraEmail, jiraDomain, jiraApiToken, prSummariesEnabled, jiraTicketEnabled } = await request.json();
+    const { 
+      jiraEmail, 
+      jiraDomain, 
+      jiraApiToken, 
+      prSummariesEnabled, 
+      jiraTicketEnabled,
+      systemInstructions,
+      prAnalysisPrompt
+    } = await request.json();
     
     // Use the user's ID as the document ID
     const userId = user.id;
@@ -29,6 +38,8 @@ export async function POST(request: NextRequest) {
       jiraApiToken?: string;
       prSummariesEnabled?: boolean;
       jiraTicketEnabled?: boolean;
+      systemInstructions?: string | null;
+      prAnalysisPrompt?: string | null;
     } = {
       updatedAt: new Date(),
       updatedBy: userId,
@@ -40,6 +51,25 @@ export async function POST(request: NextRequest) {
     if (jiraApiToken) updateData.jiraApiToken = jiraApiToken;
     if (prSummariesEnabled !== undefined) updateData.prSummariesEnabled = prSummariesEnabled;
     if (jiraTicketEnabled !== undefined) updateData.jiraTicketEnabled = jiraTicketEnabled;
+    
+    // Handle prompt templates, allowing null for deletion
+    if (systemInstructions === null) {
+      // Firebase requires a different approach to delete fields
+      await db.collection(collections.settings).doc(userId).update({
+        systemInstructions: firebase.firestore.FieldValue.delete()
+      });
+    } else if (systemInstructions !== undefined) {
+      updateData.systemInstructions = systemInstructions;
+    }
+    
+    if (prAnalysisPrompt === null) {
+      // Firebase requires a different approach to delete fields
+      await db.collection(collections.settings).doc(userId).update({
+        prAnalysisPrompt: firebase.firestore.FieldValue.delete()
+      });
+    } else if (prAnalysisPrompt !== undefined) {
+      updateData.prAnalysisPrompt = prAnalysisPrompt;
+    }
     
     await db.collection(collections.settings).doc(userId).set(updateData, { merge: true });
     
