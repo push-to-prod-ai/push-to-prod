@@ -163,8 +163,8 @@ export class AppService {
       this.logger.info("Updated PR description and added status check", { pr: pr.number });
     });
 
-    // Ticket integration - check feature flag at runtime
-    app.on(["push"], async (context) => {
+    // Jira ticket integration - now triggered on PR opened and closed
+    app.on(["pull_request.opened", "pull_request.closed"], async (context) => {
       // Get feature flags at runtime
       const featureFlags = await this.databaseService.getFeatureFlags();
       
@@ -173,61 +173,65 @@ export class AppService {
         return;
       }
       
-      const { ref, repository, sender } = context.payload;
-      this.logger.info("Processing push event", {
+      const { pull_request: pr, repository, sender } = context.payload;
+      const action = context.payload.action; // 'opened' or 'closed'
+      
+      this.logger.info("Processing pull request for Jira integration", {
         repo: context.repo(),
-        ref,
+        pr: pr.number,
+        action,
         labels: {
           repository: repository?.full_name,
           sender: sender?.login,
         },
       });
 
-      // Skip if not targeting the main branch.
-      if (ref !== "refs/heads/main") {
-        this.logger.info("Skipping non-main branch", { ref });
-        return;
-      }
-
-      // Get the diff for analysis
-      const compare = await context.octokit.repos.compareCommits({
+      // Get the PR details to access the diff
+      const prResponse = await context.octokit.pulls.get({
         ...context.repo(),
-        base: context.payload.before,
-        head: context.payload.after,
+        pull_number: pr.number
       });
-      this.logger.info("Retrieved commit comparison", {
-        files: compare.data.files?.length,
-        commits: compare.data.commits?.length,
-      });
+      
+      // Get the raw diff using axios
+      const diffResponse = await axios.get(prResponse.data.diff_url);
+      const rawDiff = diffResponse.data; // This will be a string
+      
+      // Create a formatted diff string
+      const diffs = `Pull Request #${pr.number} (${action})\nTitle: ${pr.title}\n\n${rawDiff}`;
 
-      // Create a diff string for the prompt.
-      const diffs = compare.data.files
-        ?.map(file => `File: ${file.filename}\n${file.patch || ""}`)
-        .join("\n\n");
-
-      // Build prompt and generate summary
-      const prompt = `Analyze these code changes and provide a concise summary:\n\n${diffs}`;
+      // Build prompt for Jira analysis - adjust messaging based on PR action
+      const actionText = action === 'opened' ? 'opened' : 'merged/closed';
+      const prompt = `Analyze these code changes from a ${actionText} pull request and provide a concise summary for a Jira ticket:\n\n${diffs}`;
+      
       const summaryText = await this.aiService.generateContent(prompt);
-      this.logger.info("Generated AI summary", { summaryLength: summaryText.length });
+      this.logger.info("Generated AI summary for Jira", { summaryLength: summaryText.length });
 
-      // Get blast radius calculation, we will flesh out this part of the app later
+      // Get blast radius calculation to find relevant Jira tickets
       const blastRadiusResponse = await this.blastRadiusService.calculateBlastRadius(summaryText);
       this.logger.info("Calculated blast radius", {
         issuesFound: blastRadiusResponse.relevant_issues.length,
       });
 
       if (!blastRadiusResponse.relevant_issues.length) {
-        this.logger.info("No relevant tickets found for this change");
+        this.logger.info("No relevant tickets found for this PR");
         return;
       }
+      
       const relevantIssue = blastRadiusResponse.relevant_issues[0];
       this.logger.info("Selected relevant ticket", { ticketKey: relevantIssue.key });
+
+      // Create different comment content based on PR action
+      const commentPrefix = action === 'opened' 
+        ? `🔄 **PR Opened**: Pull request #${pr.number} has been opened.\n\n` 
+        : `✅ **PR ${pr.merged ? 'Merged' : 'Closed'}**: Pull request #${pr.number} has been ${pr.merged ? 'merged' : 'closed'}.\n\n`;
+      
+      const commentText = `${commentPrefix}**Summary:**\n${summaryText}\n\n**PR Link:** ${pr.html_url}`;
 
       // Add comment to ticket - pass the user ID (using GitHub user ID as a fallback)
       const userId = sender?.id?.toString() || "";
       await this.ticketService.addComment(
         relevantIssue.key, 
-        { text: summaryText },
+        { text: commentText },
         userId
       );
       this.logger.info("Added comment to ticket", { ticketKey: relevantIssue.key });
@@ -235,14 +239,14 @@ export class AppService {
       // Add status check with ticket link
       await context.octokit.repos.createCommitStatus({
         ...context.repo(),
-        sha: context.payload.after,
+        sha: pr.head.sha,
         state: "success",
-        description: `Analysis linked to ${relevantIssue.key}`,
+        description: `PR ${action} - Linked to ${relevantIssue.key}`,
         target_url: relevantIssue.URL,
-        context: "PushToProd/analysis",
+        context: "PushToProd/jira-link",
       });
-      this.logger.info("Created commit status", {
-        sha: context.payload.after,
+      this.logger.info("Created commit status with Jira link", {
+        sha: pr.head.sha,
         ticketKey: relevantIssue.key,
       });
     });
