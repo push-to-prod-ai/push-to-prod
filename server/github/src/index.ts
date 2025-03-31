@@ -42,16 +42,20 @@ export class AppService {
       });
     });
     
-    // Add PR handler - check feature flag at runtime
+    // Add PR handler - check feature flag at runtime with user ID
     app.on(["pull_request.opened", "pull_request.reopened"], async (context) => {
-      // Get feature flags at runtime
-      const featureFlags = await this.databaseService.getFeatureFlags();
+      // Get the user ID from the sender
+      const userId = context.payload.sender?.id?.toString() || 'default';
+      
+      // Get feature flags at runtime for this user
+      const featureFlags = await this.databaseService.getFeatureFlags(userId);
       
       // Skip if PR summaries are disabled
       if (!featureFlags.prSummariesEnabled) {
-        this.logger.info("PR summaries feature is disabled, skipping", {
+        this.logger.info("PR summaries feature is disabled for this user, skipping", {
           repo: context.repo(),
-          pr: context.payload.pull_request.number
+          pr: context.payload.pull_request.number,
+          userId
         });
         return;
       }
@@ -163,12 +167,15 @@ export class AppService {
       this.logger.info("Updated PR description and added status check", { pr: pr.number });
     });
 
-    // Jira ticket integration - now triggered on PR opened and closed
+    // Jira ticket integration - check feature flag at runtime with user ID
     app.on(["pull_request.opened", "pull_request.closed"], async (context) => {
-      // Get feature flags at runtime
-      const featureFlags = await this.databaseService.getFeatureFlags();
+      // Get the user ID from the sender
+      const userId = context.payload.sender?.id?.toString() || 'default';
       
-      // Skip if Jira ticket integration is disabled
+      // Get feature flags at runtime for this user
+      const featureFlags = await this.databaseService.getFeatureFlags(userId);
+      
+      // Skip if Jira ticket integration is disabled for this user
       if (!featureFlags.jiraTicketEnabled) {
         return;
       }
@@ -228,7 +235,6 @@ export class AppService {
       const commentText = `${commentPrefix}**Summary:**\n${summaryText}\n\n**PR Link:** ${pr.html_url}`;
 
       // Add comment to ticket - pass the user ID (using GitHub user ID as a fallback)
-      const userId = sender?.id?.toString() || "";
       await this.ticketService.addComment(
         relevantIssue.key, 
         { text: commentText },
@@ -253,10 +259,6 @@ export class AppService {
   }
 }
 
-/**
- * Create the app with Probot
- * @param app Probot instance
- */
 export const createApp = (app: Probot) => {
   const appService = new AppService();
   appService.initialize(app);

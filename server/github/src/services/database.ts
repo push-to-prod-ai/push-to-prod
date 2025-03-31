@@ -69,24 +69,25 @@ export class DatabaseService {
   }
 
   /**
-   * Get feature flag settings from Firestore
+   * Get feature flag settings from Firestore for a specific user
+   * @param userId The ID of the user whose feature flags to retrieve
    * @returns A promise resolving to the feature flag settings with defaults applied
    */
-  async getFeatureFlags(): Promise<FeatureFlags> {
+  async getFeatureFlags(userId: string): Promise<FeatureFlags> {
     try {
-      // Default organization settings (could be configurable later)
-      const orgSettingsDoc = await this.db
+      // Get user-specific settings
+      const userSettingsDoc = await this.db
         .collection(config.firebase.collections.settings)
-        .doc('organization')
+        .doc(userId)
         .get();
       
-      if (!orgSettingsDoc.exists) {
-        this.logger.debug('No organization feature flags found, using defaults');
+      if (!userSettingsDoc.exists) {
+        this.logger.debug(`No feature flags found for user: ${userId}, using defaults`);
         return this.getDefaultFeatureFlags();
       }
       
-      const data = orgSettingsDoc.data();
-      this.logger.debug('Retrieved feature flags from database');
+      const data = userSettingsDoc.data();
+      this.logger.debug(`Retrieved feature flags for user: ${userId}`);
       
       // Apply defaults for any missing values
       return {
@@ -94,7 +95,7 @@ export class DatabaseService {
         jiraTicketEnabled: data?.jiraTicketEnabled === true, // Default to false if not set
       };
     } catch (error) {
-      this.logger.error('Failed to retrieve feature flags', { error });
+      this.logger.error(`Failed to retrieve feature flags for user: ${userId}`, { error });
       // Return defaults in case of error
       return this.getDefaultFeatureFlags();
     }
