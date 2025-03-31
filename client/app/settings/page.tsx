@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Navbar } from "@/components/navbar"
 import { JiraIntegrationForm } from "@/components/jira-integration-form"
 import { FeatureFlagsForm } from "@/components/feature-flags-form"
+import { PromptTemplatesForm } from "@/components/prompt-templates-form"
 
 export default function Component() {
   return (
@@ -38,7 +39,7 @@ export default function Component() {
             </Link> */}
           </nav>
           <div className="grid gap-6">
-          <Card>
+            <Card>
               <CardHeader>
                 <CardTitle>Jira Integration</CardTitle>
                 <CardDescription>Configure your Jira account settings for integration.</CardDescription>
@@ -106,6 +107,15 @@ export default function Component() {
               </CardHeader>
               <CardContent>
                 <FeatureFlagsForm />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>AI Prompts</CardTitle>
+                <CardDescription>Customize AI prompts for PR descriptions and Jira summaries.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <PromptTemplatesForm />
               </CardContent>
             </Card>
             {/* <Card>

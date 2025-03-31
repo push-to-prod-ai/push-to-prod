@@ -83,6 +83,9 @@ export async function GET() {
       // Include feature flags
       prSummariesEnabled: settings?.prSummariesEnabled !== false, // Default to true if not set
       jiraTicketEnabled: settings?.jiraTicketEnabled === true, // Default to false if not set
+      // Include prompt templates if they exist
+      systemInstructions: settings?.systemInstructions,
+      prAnalysisPrompt: settings?.prAnalysisPrompt,
     });
   } catch (error) {
     console.error('Error retrieving settings:', error);

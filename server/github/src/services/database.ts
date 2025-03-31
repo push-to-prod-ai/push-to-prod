@@ -11,6 +11,14 @@ export interface FeatureFlags {
   jiraTicketEnabled: boolean;
 }
 
+/**
+ * Interface for user-configurable prompt templates
+ */
+export interface PromptTemplates {
+  systemInstructions?: string;
+  prAnalysisPrompt?: string;
+}
+
 export class DatabaseService {
   private db: Firestore;
   private logger: Logger;
@@ -110,5 +118,37 @@ export class DatabaseService {
       prSummariesEnabled: true,  // PR summaries enabled by default
       jiraTicketEnabled: false,  // Jira ticket integration disabled by default
     };
+  }
+
+  /**
+   * Get custom prompt templates for a user, falling back to defaults if not set
+   * @param userId The ID of the user whose templates to retrieve
+   * @returns A promise resolving to the user's custom prompt templates or defaults
+   */
+  async getPromptTemplates(userId: string): Promise<PromptTemplates> {
+    try {
+      const userSettingsDoc = await this.db
+        .collection(config.firebase.collections.settings)
+        .doc(userId)
+        .get();
+      
+      if (!userSettingsDoc.exists) {
+        this.logger.debug(`No custom prompts found for user: ${userId}, using defaults`);
+        return {}; // Return empty object to use defaults
+      }
+      
+      const data = userSettingsDoc.data();
+      const templates: PromptTemplates = {};
+      
+      // Only include fields if they exist in the database
+      if (data?.systemInstructions) templates.systemInstructions = data.systemInstructions;
+      if (data?.prAnalysisPrompt) templates.prAnalysisPrompt = data.prAnalysisPrompt;
+      
+      this.logger.debug(`Retrieved custom prompts for user: ${userId}`);
+      return templates;
+    } catch (error) {
+      this.logger.error(`Failed to retrieve custom prompts for user: ${userId}`, { error });
+      return {}; // Return empty object to use defaults
+    }
   }
 }
