@@ -3,6 +3,7 @@ import axios from "axios";
 import { AIService } from "./services/ai.js";
 import { BlastRadiusService } from "./services/blast-radius.js";
 import { TicketService } from "./services/ticket.js";
+import { DatabaseService } from "./services/database.js";
 import { defaultPRTemplate, prAnalysisPrompt } from "./templates/index.js";
 import { Logger } from "./utils/logger.js";
 
@@ -14,20 +15,21 @@ export class AppService {
   private aiService: AIService;
   private blastRadiusService: BlastRadiusService;
   private ticketService: TicketService;
-  private ticketFeatureFlag = false;
-
+  private databaseService: DatabaseService;
+  
   constructor() {
     this.logger = new Logger();
     this.aiService = new AIService();
     this.blastRadiusService = new BlastRadiusService();
     this.ticketService = new TicketService();
+    this.databaseService = new DatabaseService();
   }
 
   /**
    * Initialize the app with Probot
    * @param app Probot instance
    */
-  initialize(app: Probot) {
+  async initialize(app: Probot) {
     // Handle marketplace events
     app.on(['marketplace_purchase'], async (context) => {
       const event = context.name; // 'marketplace_purchase'
@@ -40,8 +42,24 @@ export class AppService {
       });
     });
     
-    // Add PR handler
+    // Add PR handler - check feature flag at runtime with user ID
     app.on(["pull_request.opened", "pull_request.reopened"], async (context) => {
+      // Get the user ID from the sender
+      const userId = context.payload.sender?.id?.toString() || 'default';
+      
+      // Get feature flags at runtime for this user
+      const featureFlags = await this.databaseService.getFeatureFlags(userId);
+      
+      // Skip if PR summaries are disabled
+      if (!featureFlags.prSummariesEnabled) {
+        this.logger.info("PR summaries feature is disabled for this user, skipping", {
+          repo: context.repo(),
+          pr: context.payload.pull_request.number,
+          userId
+        });
+        return;
+      }
+      
       const { pull_request: pr } = context.payload;
       this.logger.info("Processing pull request event", {
         repo: context.repo(),
@@ -149,90 +167,98 @@ export class AppService {
       this.logger.info("Updated PR description and added status check", { pr: pr.number });
     });
 
-    // Disabling this feature for now. We will flesh out later.
-    if (this.ticketFeatureFlag) {  
-      app.on(["push"], async (context) => {
-        const { ref, repository, sender } = context.payload;
-        this.logger.info("Processing push event", {
-          repo: context.repo(),
-          ref,
-          labels: {
-            repository: repository?.full_name,
-            sender: sender?.login,
-          },
-        });
-
-        // Skip if not targeting the main branch.
-        if (ref !== "refs/heads/main") {
-          this.logger.info("Skipping non-main branch", { ref });
-          return;
-        }
-
-        // Get the diff for analysis
-        const compare = await context.octokit.repos.compareCommits({
-          ...context.repo(),
-          base: context.payload.before,
-          head: context.payload.after,
-        });
-        this.logger.info("Retrieved commit comparison", {
-          files: compare.data.files?.length,
-          commits: compare.data.commits?.length,
-        });
-
-        // Create a diff string for the prompt.
-        const diffs = compare.data.files
-          ?.map(file => `File: ${file.filename}\n${file.patch || ""}`)
-          .join("\n\n");
-
-        // Build prompt and generate summary
-        const prompt = `Analyze these code changes and provide a concise summary:\n\n${diffs}`;
-        const summaryText = await this.aiService.generateContent(prompt);
-        this.logger.info("Generated AI summary", { summaryLength: summaryText.length });
-
-        // Get blast radius calculation, we will flesh out this part of the app later
-        const blastRadiusResponse = await this.blastRadiusService.calculateBlastRadius(summaryText);
-        this.logger.info("Calculated blast radius", {
-          issuesFound: blastRadiusResponse.relevant_issues.length,
-        });
-
-        if (!blastRadiusResponse.relevant_issues.length) {
-          this.logger.info("No relevant tickets found for this change");
-          return;
-        }
-        const relevantIssue = blastRadiusResponse.relevant_issues[0];
-        this.logger.info("Selected relevant ticket", { ticketKey: relevantIssue.key });
-
-        // Add comment to ticket - pass the user ID (using GitHub user ID as a fallback)
-        const userId = sender?.id?.toString() || "";
-        await this.ticketService.addComment(
-          relevantIssue.key, 
-          { text: summaryText },
-          userId
-        );
-        this.logger.info("Added comment to ticket", { ticketKey: relevantIssue.key });
-
-        // Add status check with ticket link
-        await context.octokit.repos.createCommitStatus({
-          ...context.repo(),
-          sha: context.payload.after,
-          state: "success",
-          description: `Analysis linked to ${relevantIssue.key}`,
-          target_url: relevantIssue.URL,
-          context: "PushToProd/analysis",
-        });
-        this.logger.info("Created commit status", {
-          sha: context.payload.after,
-          ticketKey: relevantIssue.key,
-        });
+    // Jira ticket integration - check feature flag at runtime with user ID
+    app.on(["pull_request.opened", "pull_request.closed"], async (context) => {
+      // Get the user ID from the sender
+      const userId = context.payload.sender?.id?.toString() || 'default';
+      
+      // Get feature flags at runtime for this user
+      const featureFlags = await this.databaseService.getFeatureFlags(userId);
+      
+      // Skip if Jira ticket integration is disabled for this user
+      if (!featureFlags.jiraTicketEnabled) {
+        return;
+      }
+      
+      const { pull_request: pr, repository, sender } = context.payload;
+      const action = context.payload.action; // 'opened' or 'closed'
+      
+      this.logger.info("Processing pull request for Jira integration", {
+        repo: context.repo(),
+        pr: pr.number,
+        action,
+        labels: {
+          repository: repository?.full_name,
+          sender: sender?.login,
+        },
       });
-    }
+
+      // Get the PR details to access the diff
+      const prResponse = await context.octokit.pulls.get({
+        ...context.repo(),
+        pull_number: pr.number
+      });
+      
+      // Get the raw diff using axios
+      const diffResponse = await axios.get(prResponse.data.diff_url);
+      const rawDiff = diffResponse.data; // This will be a string
+      
+      // Create a formatted diff string
+      const diffs = `Pull Request #${pr.number} (${action})\nTitle: ${pr.title}\n\n${rawDiff}`;
+
+      // Build prompt for Jira analysis - adjust messaging based on PR action
+      const actionText = action === 'opened' ? 'opened' : 'merged/closed';
+      const prompt = `Analyze these code changes from a ${actionText} pull request and provide a concise summary for a Jira ticket:\n\n${diffs}`;
+      
+      const summaryText = await this.aiService.generateContent(prompt);
+      this.logger.info("Generated AI summary for Jira", { summaryLength: summaryText.length });
+
+      // Get blast radius calculation to find relevant Jira tickets
+      const blastRadiusResponse = await this.blastRadiusService.calculateBlastRadius(summaryText);
+      this.logger.info("Calculated blast radius", {
+        issuesFound: blastRadiusResponse.relevant_issues.length,
+      });
+
+      if (!blastRadiusResponse.relevant_issues.length) {
+        this.logger.info("No relevant tickets found for this PR");
+        return;
+      }
+      
+      const relevantIssue = blastRadiusResponse.relevant_issues[0];
+      this.logger.info("Selected relevant ticket", { ticketKey: relevantIssue.key });
+
+      // Create different comment content based on PR action
+      const commentPrefix = action === 'opened' 
+        ? `🔄 **PR Opened**: Pull request #${pr.number} has been opened.\n\n` 
+        : `✅ **PR ${pr.merged ? 'Merged' : 'Closed'}**: Pull request #${pr.number} has been ${pr.merged ? 'merged' : 'closed'}.\n\n`;
+      
+      const commentText = `${commentPrefix}**Summary:**\n${summaryText}\n\n**PR Link:** ${pr.html_url}`;
+
+      // Add comment to ticket - pass the user ID (using GitHub user ID as a fallback)
+      await this.ticketService.addComment(
+        relevantIssue.key, 
+        { text: commentText },
+        userId
+      );
+      this.logger.info("Added comment to ticket", { ticketKey: relevantIssue.key });
+
+      // Add status check with ticket link
+      await context.octokit.repos.createCommitStatus({
+        ...context.repo(),
+        sha: pr.head.sha,
+        state: "success",
+        description: `PR ${action} - Linked to ${relevantIssue.key}`,
+        target_url: relevantIssue.URL,
+        context: "PushToProd/jira-link",
+      });
+      this.logger.info("Created commit status with Jira link", {
+        sha: pr.head.sha,
+        ticketKey: relevantIssue.key,
+      });
+    });
   }
 }
 
-/**
- * Create the app with Probot
- * @param app Probot instance
- */
 export const createApp = (app: Probot) => {
   const appService = new AppService();
   appService.initialize(app);

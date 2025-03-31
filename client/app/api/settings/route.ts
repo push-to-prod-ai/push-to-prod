@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    const { jiraEmail, jiraDomain, jiraApiToken } = await request.json();
+    const { jiraEmail, jiraDomain, jiraApiToken, prSummariesEnabled, jiraTicketEnabled } = await request.json();
     
     // Use the user's ID as the document ID
     const userId = user.id;
@@ -22,22 +22,24 @@ export async function POST(request: NextRequest) {
     
     // Create update object with required fields
     const updateData: {
-      jiraEmail: string;
-      jiraDomain: string;
       updatedAt: Date;
       updatedBy: string;
+      jiraEmail?: string;
+      jiraDomain?: string;
       jiraApiToken?: string;
+      prSummariesEnabled?: boolean;
+      jiraTicketEnabled?: boolean;
     } = {
-      jiraEmail,
-      jiraDomain,
       updatedAt: new Date(),
       updatedBy: userId,
     };
     
-    // Only include jiraApiToken if it was provided in the request
-    if (jiraApiToken) {
-      updateData.jiraApiToken = jiraApiToken;
-    }
+    // Only include fields that were provided in the request
+    if (jiraEmail !== undefined) updateData.jiraEmail = jiraEmail;
+    if (jiraDomain !== undefined) updateData.jiraDomain = jiraDomain;
+    if (jiraApiToken) updateData.jiraApiToken = jiraApiToken;
+    if (prSummariesEnabled !== undefined) updateData.prSummariesEnabled = prSummariesEnabled;
+    if (jiraTicketEnabled !== undefined) updateData.jiraTicketEnabled = jiraTicketEnabled;
     
     await db.collection(collections.settings).doc(userId).set(updateData, { merge: true });
     
@@ -78,6 +80,9 @@ export async function GET() {
       jiraDomain: settings?.jiraDomain,
       // Don't return the API token for security reasons
       hasJiraToken: !!settings?.jiraApiToken,
+      // Include feature flags
+      prSummariesEnabled: settings?.prSummariesEnabled !== false, // Default to true if not set
+      jiraTicketEnabled: settings?.jiraTicketEnabled === true, // Default to false if not set
     });
   } catch (error) {
     console.error('Error retrieving settings:', error);
