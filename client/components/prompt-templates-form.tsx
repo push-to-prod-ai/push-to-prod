@@ -229,7 +229,7 @@ export function PromptTemplatesForm() {
             <div className="flex justify-between">
               <Label htmlFor="prAnalysisPrompt">Prompt</Label>
               <span className="text-xs text-muted-foreground">
-                {templateVariablesText.replace(/{{/g, '{{')}
+                {templateVariablesText}
               </span>
             </div>
             <Textarea
