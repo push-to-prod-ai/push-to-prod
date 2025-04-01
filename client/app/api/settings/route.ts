@@ -35,6 +35,8 @@ export async function POST(request: NextRequest) {
       updatedBy: string;
       jiraEmail?: string;
       jiraDomain?: string;
+      jiraEmail?: string;
+      jiraDomain?: string;
       jiraApiToken?: string;
       prSummariesEnabled?: boolean;
       jiraTicketEnabled?: boolean;
