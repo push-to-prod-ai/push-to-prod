@@ -16,14 +16,11 @@ export class AppService {
   private ticketService: TicketService;
   private databaseService: DatabaseService;
   
-  private databaseService: DatabaseService;
-  
   constructor() {
     this.logger = new Logger();
     this.aiService = new AIService();
     this.blastRadiusService = new BlastRadiusService();
     this.ticketService = new TicketService();
-    this.databaseService = new DatabaseService();
     this.databaseService = new DatabaseService();
   }
 
@@ -31,7 +28,6 @@ export class AppService {
    * Initialize the app with Probot
    * @param app Probot instance
    */
-  async initialize(app: Probot) {
   async initialize(app: Probot) {
     // Handle marketplace events
     app.on(['marketplace_purchase'], async (context) => {
@@ -46,24 +42,7 @@ export class AppService {
     });
     
     // Add PR handler - check feature flag at runtime with user ID
-    // Add PR handler - check feature flag at runtime with user ID
     app.on(["pull_request.opened", "pull_request.reopened"], async (context) => {
-      // Get the user ID from the sender
-      const userId = context.payload.sender?.id?.toString() || 'default';
-      
-      // Get feature flags at runtime for this user
-      const featureFlags = await this.databaseService.getFeatureFlags(userId);
-      
-      // Skip if PR summaries are disabled
-      if (!featureFlags.prSummariesEnabled) {
-        this.logger.info("PR summaries feature is disabled for this user, skipping", {
-          repo: context.repo(),
-          pr: context.payload.pull_request.number,
-          userId
-        });
-        return;
-      }
-      
       // Get the user ID from the sender
       const userId = context.payload.sender?.id?.toString() || 'default';
       
@@ -192,44 +171,15 @@ export class AppService {
 
     // Jira ticket integration - check feature flag at runtime with user ID
     app.on(["pull_request.opened", "pull_request.closed"], async (context) => {
-      // Get the user ID from the sender
       const userId = context.payload.sender?.id?.toString() || 'default';
-      
-      // Get feature flags at runtime for this user
       const featureFlags = await this.databaseService.getFeatureFlags(userId);
       
-      // Skip if Jira ticket integration is disabled for this user
       if (!featureFlags.jiraTicketEnabled) {
         return;
       }
       
       const { pull_request: pr, repository, sender } = context.payload;
-      const action = context.payload.action; // 'opened' or 'closed'
-      
-      this.logger.info("Processing pull request for Jira integration", {
-        repo: context.repo(),
-        pr: pr.number,
-        action,
-        labels: {
-          repository: repository?.full_name,
-          sender: sender?.login,
-        },
-      });
-    // Jira ticket integration - check feature flag at runtime with user ID
-    app.on(["pull_request.opened", "pull_request.closed"], async (context) => {
-      // Get the user ID from the sender
-      const userId = context.payload.sender?.id?.toString() || 'default';
-      
-      // Get feature flags at runtime for this user
-      const featureFlags = await this.databaseService.getFeatureFlags(userId);
-      
-      // Skip if Jira ticket integration is disabled for this user
-      if (!featureFlags.jiraTicketEnabled) {
-        return;
-      }
-      
-      const { pull_request: pr, repository, sender } = context.payload;
-      const action = context.payload.action; // 'opened' or 'closed'
+      const action = context.payload.action;
       
       this.logger.info("Processing pull request for Jira integration", {
         repo: context.repo(),
@@ -267,26 +217,7 @@ export class AppService {
       this.logger.info("Calculated blast radius", {
         issuesFound: blastRadiusResponse.relevant_issues.length,
       });
-      // Get blast radius calculation to find relevant Jira tickets
-      const blastRadiusResponse = await this.blastRadiusService.calculateBlastRadius(summaryText);
-      this.logger.info("Calculated blast radius", {
-        issuesFound: blastRadiusResponse.relevant_issues.length,
-      });
 
-      if (!blastRadiusResponse.relevant_issues.length) {
-        this.logger.info("No relevant tickets found for this PR");
-        return;
-      }
-      
-      const relevantIssue = blastRadiusResponse.relevant_issues[0];
-      this.logger.info("Selected relevant ticket", { ticketKey: relevantIssue.key });
-
-      // Create different comment content based on PR action
-      const commentPrefix = action === 'opened' 
-        ? `🔄 **PR Opened**: Pull request #${pr.number} has been opened.\n\n` 
-        : `✅ **PR ${pr.merged ? 'Merged' : 'Closed'}**: Pull request #${pr.number} has been ${pr.merged ? 'merged' : 'closed'}.\n\n`;
-      
-      const commentText = `${commentPrefix}**Summary:**\n${summaryText}\n\n**PR Link:** ${pr.html_url}`;
       if (!blastRadiusResponse.relevant_issues.length) {
         this.logger.info("No relevant tickets found for this PR");
         return;
@@ -309,28 +240,7 @@ export class AppService {
         userId
       );
       this.logger.info("Added comment to ticket", { ticketKey: relevantIssue.key });
-      // Add comment to ticket - pass the user ID (using GitHub user ID as a fallback)
-      await this.ticketService.addComment(
-        relevantIssue.key, 
-        { text: commentText },
-        userId
-      );
-      this.logger.info("Added comment to ticket", { ticketKey: relevantIssue.key });
 
-      // Add status check with ticket link
-      await context.octokit.repos.createCommitStatus({
-        ...context.repo(),
-        sha: pr.head.sha,
-        state: "success",
-        description: `PR ${action} - Linked to ${relevantIssue.key}`,
-        target_url: relevantIssue.URL,
-        context: "PushToProd/jira-link",
-      });
-      this.logger.info("Created commit status with Jira link", {
-        sha: pr.head.sha,
-        ticketKey: relevantIssue.key,
-      });
-    });
       // Add status check with ticket link
       await context.octokit.repos.createCommitStatus({
         ...context.repo(),
