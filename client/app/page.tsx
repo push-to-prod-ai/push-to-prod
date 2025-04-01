@@ -1,5 +1,5 @@
 import { HeroSection } from '@/components/hero-section'
-import { LogoCloud } from '@/components/logo-cloud'
+// import { LogoCloud } from '@/components/logo-cloud'
 import { FeatureSection } from '@/components/feature-section'
 import { SocialProof } from '@/components/social-proof'
 import { CTA } from '@/components/cta'
@@ -13,7 +13,7 @@ export default function Home() {
     <>
       <Navbar />
       <HeroSection />
-      <LogoCloud />
+      {/* <LogoCloud /> */}
       <FeatureSection />
       <SocialProof />
       <CTA />

@@ -4,7 +4,6 @@ import { AIService } from "./services/ai.js";
 import { BlastRadiusService } from "./services/blast-radius.js";
 import { TicketService } from "./services/ticket.js";
 import { DatabaseService } from "./services/database.js";
-import { defaultPRTemplate, prAnalysisPrompt } from "./templates/index.js";
 import { Logger } from "./utils/logger.js";
 
 /**
@@ -103,11 +102,13 @@ export class AppService {
         }
       } catch (error) {
         this.logger.info("No PR template found, using default format");
-        template = defaultPRTemplate;
       }
 
+      // Get custom or default PR analysis prompt template
+      const promptTemplate = await this.aiService.getPrAnalysisPrompt(userId);
+      
       // Build prompt using template
-      const prompt = prAnalysisPrompt
+      const prompt = promptTemplate
         .replace("{{template}}", template)
         .replace("{{title}}", pr.title || "")
         .replace("{{existingDescription}}", pr.body || "")
@@ -122,7 +123,8 @@ export class AppService {
       });
       this.logger.debug("Full prompt", { prompt });
         
-      const prDescription = await this.aiService.generateContent(prompt);
+      // Pass userId to generateContent for custom system instructions
+      const prDescription = await this.aiService.generateContent(prompt, userId);
       
       // Update the PR description
       await context.octokit.pulls.update({
@@ -169,19 +171,15 @@ export class AppService {
 
     // Jira ticket integration - check feature flag at runtime with user ID
     app.on(["pull_request.opened", "pull_request.closed"], async (context) => {
-      // Get the user ID from the sender
       const userId = context.payload.sender?.id?.toString() || 'default';
-      
-      // Get feature flags at runtime for this user
       const featureFlags = await this.databaseService.getFeatureFlags(userId);
       
-      // Skip if Jira ticket integration is disabled for this user
       if (!featureFlags.jiraTicketEnabled) {
         return;
       }
       
       const { pull_request: pr, repository, sender } = context.payload;
-      const action = context.payload.action; // 'opened' or 'closed'
+      const action = context.payload.action;
       
       this.logger.info("Processing pull request for Jira integration", {
         repo: context.repo(),
@@ -210,7 +208,8 @@ export class AppService {
       const actionText = action === 'opened' ? 'opened' : 'merged/closed';
       const prompt = `Analyze these code changes from a ${actionText} pull request and provide a concise summary for a Jira ticket:\n\n${diffs}`;
       
-      const summaryText = await this.aiService.generateContent(prompt);
+      // Pass userId to generateContent for custom system instructions
+      const summaryText = await this.aiService.generateContent(prompt, userId);
       this.logger.info("Generated AI summary for Jira", { summaryLength: summaryText.length });
 
       // Get blast radius calculation to find relevant Jira tickets

@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { FC } from "react";
 import Image from 'next/image'
+import Link from "next/link"
 
 interface FeatureItemProps {
   title: string;
@@ -27,7 +28,15 @@ const FeatureItem: FC<FeatureItemProps> = ({ title, description, imageUrl, isIma
       <h3 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl">{title}</h3>
       <p className="mt-6 text-lg leading-8 text-muted-foreground">{description}</p>
       <div className="mt-4">
-        <Button variant="secondary">Learn more</Button>
+        <Button variant="secondary" asChild>
+          <Link 
+            href="https://github.com/push-to-prod-ai/push-to-prod"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Learn more
+          </Link>
+        </Button>
       </div>
     </div>
     {!isImageLeft && (
@@ -50,7 +59,7 @@ const DEFAULT_ITEMS: FeatureItemProps[] = [
     title: "AI-Powered PR Descriptions",
     description:
       "Automatically generate detailed pull request descriptions when PRs are opened or reopened, saving developers time and improving code review quality.",
-    imageUrl: "https://ui.convertfa.st/images/graphic-walker-light-2.png",
+    imageUrl: "/prompts.png",
     isImageLeft: true,
   },
   {
@@ -64,15 +73,8 @@ const DEFAULT_ITEMS: FeatureItemProps[] = [
     title: "GitHub-Formatted Documentation",
     description:
       "Creates perfectly formatted markdown with proper code references and permalinks, making your PRs more readable and professional.",
-    imageUrl: "https://ui.convertfa.st/images/convertfast-ui-light-demo.png",
+    imageUrl: "/github.png",
     isImageLeft: true,
-  },
-  {
-    title: "Seamless Integration",
-    description:
-      "Respects your existing workflow by incorporating PR templates, preserving manual edits, and working with your repository's structure.",
-    imageUrl: "https://ui.convertfa.st/images/convertfast-demo.png",
-    isImageLeft: false,
   },
 ];
 
@@ -87,7 +89,7 @@ export const FeatureSection: FC<FeatureSectionProps> = (props) => {
   const {
     items = DEFAULT_ITEMS,
     brand = "PushToProd.ai",
-    title = "Streamline your PR documentation workflow",
+    title = "Streamline your documentation workflow",
     description = "PushToProd.ai is a powerful GitHub App that automatically generates intelligent PR descriptions by analyzing your code changes, improving team communication and speeding up code reviews.",
   } = props;
 

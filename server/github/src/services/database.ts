@@ -11,6 +11,14 @@ export interface FeatureFlags {
   jiraTicketEnabled: boolean;
 }
 
+/**
+ * Interface for user-configurable prompt templates
+ */
+export interface PromptTemplates {
+  systemInstructions?: string;
+  prAnalysisPrompt?: string;
+}
+
 export class DatabaseService {
   private db: Firestore;
   private logger: Logger;
@@ -34,6 +42,14 @@ export class DatabaseService {
 
     // Get Firestore instance
     this.db = getFirestore();
+  }
+
+  /**
+   * Get the Firestore instance for direct access
+   * @returns The Firestore instance
+   */
+  getFirestoreInstance(): Firestore {
+    return this.db;
   }
 
   /**
@@ -69,6 +85,41 @@ export class DatabaseService {
   }
 
   /**
+   * Get default feature flag values from Firestore
+   * @returns Promise resolving to default feature flag values
+   */
+  private async getDefaultFeatureFlags(): Promise<FeatureFlags> {
+    try {
+      // Get default feature flags from config collection
+      const defaultFlagsDoc = await this.db
+        .collection('config')
+        .doc('default_feature_flags')
+        .get();
+      
+      if (!defaultFlagsDoc.exists) {
+        this.logger.debug("No default feature flags found in Firestore, using hardcoded defaults");
+        return {
+          prSummariesEnabled: true,  // PR summaries enabled by default
+          jiraTicketEnabled: false,  // Jira ticket integration disabled by default
+        };
+      }
+      
+      const data = defaultFlagsDoc.data();
+      return {
+        prSummariesEnabled: data?.prSummariesEnabled !== false, // Default to true if not set
+        jiraTicketEnabled: data?.jiraTicketEnabled === true, // Default to false if not set
+      };
+    } catch (error) {
+      this.logger.error("Error fetching default feature flags:", error);
+      // Use hardcoded defaults in case of error
+      return {
+        prSummariesEnabled: true,
+        jiraTicketEnabled: false,
+      };
+    }
+  }
+
+  /**
    * Get feature flag settings from Firestore for a specific user
    * @param userId The ID of the user whose feature flags to retrieve
    * @returns A promise resolving to the feature flag settings with defaults applied
@@ -89,10 +140,13 @@ export class DatabaseService {
       const data = userSettingsDoc.data();
       this.logger.debug(`Retrieved feature flags for user: ${userId}`);
       
-      // Apply defaults for any missing values
+      // Get default flags to use as fallback
+      const defaultFlags = await this.getDefaultFeatureFlags();
+      
+      // Apply user settings, falling back to defaults for any missing values
       return {
-        prSummariesEnabled: data?.prSummariesEnabled !== false, // Default to true if not set
-        jiraTicketEnabled: data?.jiraTicketEnabled === true, // Default to false if not set
+        prSummariesEnabled: data?.prSummariesEnabled !== false ? true : defaultFlags.prSummariesEnabled,
+        jiraTicketEnabled: data?.jiraTicketEnabled === true ? true : defaultFlags.jiraTicketEnabled,
       };
     } catch (error) {
       this.logger.error(`Failed to retrieve feature flags for user: ${userId}`, { error });
@@ -100,15 +154,36 @@ export class DatabaseService {
       return this.getDefaultFeatureFlags();
     }
   }
-  
+
   /**
-   * Get default feature flag values
-   * @returns The default feature flag values
+   * Get custom prompt templates for a user, falling back to defaults if not set
+   * @param userId The ID of the user whose templates to retrieve
+   * @returns A promise resolving to the user's custom prompt templates or defaults
    */
-  private getDefaultFeatureFlags(): FeatureFlags {
-    return {
-      prSummariesEnabled: true,  // PR summaries enabled by default
-      jiraTicketEnabled: false,  // Jira ticket integration disabled by default
-    };
+  async getPromptTemplates(userId: string): Promise<PromptTemplates> {
+    try {
+      const userSettingsDoc = await this.db
+        .collection(config.firebase.collections.settings)
+        .doc(userId)
+        .get();
+      
+      if (!userSettingsDoc.exists) {
+        this.logger.debug(`No custom prompts found for user: ${userId}, using defaults`);
+        return {}; // Return empty object to use defaults
+      }
+      
+      const data = userSettingsDoc.data();
+      const templates: PromptTemplates = {};
+      
+      // Only include fields if they exist in the database
+      if (data?.systemInstructions) templates.systemInstructions = data.systemInstructions;
+      if (data?.prAnalysisPrompt) templates.prAnalysisPrompt = data.prAnalysisPrompt;
+      
+      this.logger.debug(`Retrieved custom prompts for user: ${userId}`);
+      return templates;
+    } catch (error) {
+      this.logger.error(`Failed to retrieve custom prompts for user: ${userId}`, { error });
+      return {}; // Return empty object to use defaults
+    }
   }
 }
