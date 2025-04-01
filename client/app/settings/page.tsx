@@ -7,18 +7,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 export default function SettingsPage() {
   return (
     <SettingsLayout>
-      <section id="integrations">
-        <Card>
-          <CardHeader>
-            <CardTitle>Jira Integration</CardTitle>
-            <CardDescription>Configure your Jira account settings for integration.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <JiraIntegrationForm />
-          </CardContent>
-        </Card>
-      </section>
-
+      
       <section id="features">
         <Card>
           <CardHeader>
@@ -39,6 +28,18 @@ export default function SettingsPage() {
           </CardHeader>
           <CardContent>
             <PromptTemplatesForm />
+          </CardContent>
+        </Card>
+      </section>
+
+      <section id="integrations">
+        <Card>
+          <CardHeader>
+            <CardTitle>Jira Integration</CardTitle>
+            <CardDescription>Configure your Jira account settings for integration.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <JiraIntegrationForm />
           </CardContent>
         </Card>
       </section>
