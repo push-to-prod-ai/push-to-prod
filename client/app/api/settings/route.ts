@@ -35,8 +35,6 @@ export async function POST(request: NextRequest) {
       updatedBy: string;
       jiraEmail?: string;
       jiraDomain?: string;
-      jiraEmail?: string;
-      jiraDomain?: string;
       jiraApiToken?: string;
       prSummariesEnabled?: boolean;
       jiraTicketEnabled?: boolean;
@@ -85,7 +83,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const user = await getCurrentUser();
     
@@ -97,8 +95,34 @@ export async function GET() {
     }
     
     const userId = user.id;
-    
     const db = getFirestoreDb();
+
+    // Check if we're requesting default templates
+    const { searchParams } = new URL(request.url);
+    const getDefaults = searchParams.get('defaults') === 'true';
+
+    if (getDefaults) {
+      const defaultTemplatesDoc = await db
+        .collection('config')
+        .doc('default_templates')
+        .get();
+
+      if (!defaultTemplatesDoc.exists) {
+        return NextResponse.json({
+          success: false,
+          error: 'Default templates not found'
+        }, { status: 404 });
+      }
+
+      const data = defaultTemplatesDoc.data();
+      return NextResponse.json({
+        success: true,
+        systemInstructions: data?.systemInstructions,
+        prAnalysisPrompt: data?.prAnalysisPrompt
+      });
+    }
+
+    // Regular settings retrieval
     const settingsDoc = await db.collection(collections.settings).doc(userId).get();
 
     if (!settingsDoc.exists) {
@@ -110,12 +134,9 @@ export async function GET() {
       exists: true,
       jiraEmail: settings?.jiraEmail,
       jiraDomain: settings?.jiraDomain,
-      // Don't return the API token for security reasons
       hasJiraToken: !!settings?.jiraApiToken,
-      // Include feature flags
-      prSummariesEnabled: settings?.prSummariesEnabled !== false, // Default to true if not set
-      jiraTicketEnabled: settings?.jiraTicketEnabled === true, // Default to false if not set
-      // Include prompt templates if they exist
+      prSummariesEnabled: settings?.prSummariesEnabled !== false,
+      jiraTicketEnabled: settings?.jiraTicketEnabled === true,
       systemInstructions: settings?.systemInstructions,
       prAnalysisPrompt: settings?.prAnalysisPrompt,
     });
