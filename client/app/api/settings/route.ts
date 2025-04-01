@@ -97,9 +97,10 @@ export async function GET(request: NextRequest) {
     const userId = user.id;
     const db = getFirestoreDb();
 
-    // Check if we're requesting default templates
+    // Check if we're requesting default templates or feature flags
     const { searchParams } = new URL(request.url);
     const getDefaults = searchParams.get('defaults') === 'true';
+    const getFeatureFlags = searchParams.get('featureFlags') === 'true';
 
     if (getDefaults) {
       const defaultTemplatesDoc = await db
@@ -122,11 +123,44 @@ export async function GET(request: NextRequest) {
       });
     }
 
+    if (getFeatureFlags) {
+      const defaultFlagsDoc = await db
+        .collection('config')
+        .doc('default_feature_flags')
+        .get();
+
+      if (!defaultFlagsDoc.exists) {
+        return NextResponse.json({
+          success: false,
+          error: 'Default feature flags not found'
+        }, { status: 404 });
+      }
+
+      const data = defaultFlagsDoc.data();
+      return NextResponse.json({
+        success: true,
+        prSummariesEnabled: data?.prSummariesEnabled !== false,
+        jiraTicketEnabled: data?.jiraTicketEnabled === true
+      });
+    }
+
     // Regular settings retrieval
     const settingsDoc = await db.collection(collections.settings).doc(userId).get();
 
     if (!settingsDoc.exists) {
-      return NextResponse.json({ exists: false });
+      // Get default feature flags if no user settings exist
+      const defaultFlagsDoc = await db
+        .collection('config')
+        .doc('default_feature_flags')
+        .get();
+
+      const defaultFlags = defaultFlagsDoc.exists ? defaultFlagsDoc.data() : null;
+
+      return NextResponse.json({
+        exists: false,
+        prSummariesEnabled: defaultFlags?.prSummariesEnabled !== false,
+        jiraTicketEnabled: defaultFlags?.jiraTicketEnabled === true
+      });
     }
 
     const settings = settingsDoc.data();

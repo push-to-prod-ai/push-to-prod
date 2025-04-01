@@ -29,7 +29,7 @@ export function PromptTemplatesForm() {
       setLoading(true);
       setError('');
       
-      const response = await fetch(`/api/settings/default-templates`);
+      const response = await fetch(`/api/settings?defaults=true`);
       const data = await response.json();
       
       if (data.success) {
