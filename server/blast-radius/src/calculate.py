@@ -23,6 +23,12 @@ async def calculate_blast_radius(
     if not jira_url:
         raise HTTPException(status_code=400, detail="Jira URL is missing")
 
+    # Validate the Jira URL
+    from urllib.parse import urlparse
+    parsed_url = urlparse(jira_url)
+    if parsed_url.scheme not in ["http", "https"] or not parsed_url.netloc:
+        raise HTTPException(status_code=400, detail="Invalid Jira URL")
+
     # Your logic with the summary and Jira URL
     issues = JiraIssues(jira_url=jira_url).get_all(headers={"Authorization": authorization})
 

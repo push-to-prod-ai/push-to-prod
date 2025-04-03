@@ -9,6 +9,9 @@ export type AISummary = string;
 export type BlastRadiusIssue = {
   key: string;
   URL: string;
+  summary: string;
+  description: string;
+  issue_type: string;
 };
 
 export type BlastRadiusResult = {

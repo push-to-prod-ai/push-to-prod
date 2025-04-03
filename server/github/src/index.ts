@@ -5,7 +5,7 @@ import { BlastRadiusService } from "./services/blast-radius.js";
 import { TicketService } from "./services/ticket.js";
 import { DatabaseService } from "./services/database.js";
 import { Logger } from "./utils/logger.js";
-// import {SyntropyService} from "./services/syntropy.js";
+import {SyntropyService} from "./services/syntropy.js";
 
 /**
  * AppService class that handles all GitHub app functionality
@@ -16,7 +16,7 @@ export class AppService {
   private blastRadiusService: BlastRadiusService;
   private ticketService: TicketService;
   private databaseService: DatabaseService;
-  // private syntropyService: SyntropyService
+  private syntropyService: SyntropyService
   
   constructor() {
     this.logger = new Logger();
@@ -24,7 +24,7 @@ export class AppService {
     this.blastRadiusService = new BlastRadiusService();
     this.ticketService = new TicketService();
     this.databaseService = new DatabaseService();
-    // this.syntropyService = new SyntropyService();
+    this.syntropyService = new SyntropyService();
   }
 
   /**
@@ -176,10 +176,11 @@ export class AppService {
     app.on(["pull_request.opened", "pull_request.closed"], async (context) => {
       const userId = context.payload.sender?.id?.toString() || 'default';
       const featureFlags = await this.databaseService.getFeatureFlags(userId);
-      
+
       if (!featureFlags.jiraTicketEnabled) {
         return;
       }
+      // TODO: --------------------------------------------------------------------------------------------------------
       
       const { pull_request: pr, repository, sender } = context.payload;
       const action = context.payload.action;
@@ -216,7 +217,7 @@ export class AppService {
       this.logger.info("Generated AI summary for Jira", { summaryLength: summaryText.length });
 
       // Get blast radius calculation to find relevant Jira tickets
-      const blastRadiusResponse = await this.blastRadiusService.calculateBlastRadius(userId, summaryText);
+      const blastRadiusResponse = await this.blastRadiusService.calculateBlastRadius(summaryText);
       this.logger.info("Calculated blast radius", {
         issuesFound: blastRadiusResponse.relevant_issues.length,
       });
@@ -258,6 +259,26 @@ export class AppService {
         sha: pr.head.sha,
         ticketKey: relevantIssue.key,
       });
+
+      // TODO: TEMP: testing functionality here until firestore bug is resolved.
+      const pr_metadata: Record<string, string> = {
+        "title": pr.title,
+        "repository": pr.base.repo.full_name,
+        "base_branch": pr.base.ref,
+        "diffs": rawDiff,
+      }
+
+      const synthesisSummary: Record<string, Record<string, string>> = await this.syntropyService.generateSynthesisSummary(
+          JSON.stringify(pr_metadata),
+          JSON.stringify(blastRadiusResponse)
+      )
+
+      await this.ticketService.addComment(
+        relevantIssue.key,
+        { text: JSON.stringify(synthesisSummary) },
+        userId
+      );
+
     });
   }
 }

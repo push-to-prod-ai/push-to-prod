@@ -34,4 +34,4 @@ COPY src/ ./src/
 ENV PATH=${APP_DIR}/venv/bin:$PATH
 EXPOSE 8080
 
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8081"]
