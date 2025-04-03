@@ -5,6 +5,7 @@ import { BlastRadiusService } from "./services/blast-radius.js";
 import { TicketService } from "./services/ticket.js";
 import { DatabaseService } from "./services/database.js";
 import { Logger } from "./utils/logger.js";
+// import {SyntropyService} from "./services/syntropy.js";
 
 /**
  * AppService class that handles all GitHub app functionality
@@ -15,6 +16,7 @@ export class AppService {
   private blastRadiusService: BlastRadiusService;
   private ticketService: TicketService;
   private databaseService: DatabaseService;
+  // private syntropyService: SyntropyService
   
   constructor() {
     this.logger = new Logger();
@@ -22,6 +24,7 @@ export class AppService {
     this.blastRadiusService = new BlastRadiusService();
     this.ticketService = new TicketService();
     this.databaseService = new DatabaseService();
+    // this.syntropyService = new SyntropyService();
   }
 
   /**
@@ -213,7 +216,7 @@ export class AppService {
       this.logger.info("Generated AI summary for Jira", { summaryLength: summaryText.length });
 
       // Get blast radius calculation to find relevant Jira tickets
-      const blastRadiusResponse = await this.blastRadiusService.calculateBlastRadius(summaryText);
+      const blastRadiusResponse = await this.blastRadiusService.calculateBlastRadius(userId, summaryText);
       this.logger.info("Calculated blast radius", {
         issuesFound: blastRadiusResponse.relevant_issues.length,
       });
@@ -222,7 +225,8 @@ export class AppService {
         this.logger.info("No relevant tickets found for this PR");
         return;
       }
-      
+
+      // TODO: determine if it makes sense to add the comment to each and every "relevant" issue found?
       const relevantIssue = blastRadiusResponse.relevant_issues[0];
       this.logger.info("Selected relevant ticket", { ticketKey: relevantIssue.key });
 

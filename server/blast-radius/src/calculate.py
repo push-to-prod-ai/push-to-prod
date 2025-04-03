@@ -1,5 +1,6 @@
+from pydantic import BaseModel
 import numpy as np
-from fastapi import FastAPI
+from fastapi import FastAPI, Header, HTTPException
 from sentence_transformers import SentenceTransformer
 
 from .data_models.jira import JiraIssues
@@ -11,14 +12,20 @@ model = SentenceTransformer('all-MiniLM-L6-v2')
 
 
 @blast_radius_calculation_sub_app.post("/calculation")
-def calculate_blast_radius(request: CalculationRequestModel):
-    threshold = 0.5
+async def calculate_blast_radius(
+    request: CalculationRequestModel,  # Receive the body as the CalculationRequestModel
+    authorization: str = Header(None),  # The Authorization header
+    jira_url: str = Header(None)  # Custom Jira URL header
+):
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Invalid token")
 
-    # TODO: add batching
-    # batch_size = 1024
-    # batch_number = 0
+    if not jira_url:
+        raise HTTPException(status_code=400, detail="Jira URL is missing")
 
-    issues = JiraIssues().get_all()
+    # Your logic with the summary and Jira URL
+    issues = JiraIssues(jira_url=jira_url).get_all(headers={"Authorization": authorization})
+
     issues_strs = [i.textual_representation for i in issues]
 
     summary_embedding = model.encode([request.summary])
@@ -26,6 +33,7 @@ def calculate_blast_radius(request: CalculationRequestModel):
 
     similarities = model.similarity_pairwise(summary_embedding, issues_embeddings).numpy()
 
+    threshold = 0.7
     indices = np.where(similarities >= threshold)[0]
     relevant_issues = [issues[i] for i in indices][:request.max_items]
 

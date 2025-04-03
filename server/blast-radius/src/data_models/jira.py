@@ -40,24 +40,27 @@ class JiraIssues:
         def textual_representation(self):
             return f'KEY: {self.key} \n SUMMARY: {self.summary} \n DESCRIPTION: {self.description}'
 
-    def __init__(self):
+    #def __init__(self, jira_url, jira_api_token, jira_email):
 
-        self.JIRA_URL = "https://push-to-prod.atlassian.net"  # TODO: change to config
-        self.JIRA_API_TOKEN = os.getenv('JIRA_API_TOKEN')
-        self.JIRA_EMAIL = os.getenv('JIRA_EMAIL')
-        self.issues = []
+     #   self.JIRA_URL =
+     #   self.JIRA_API_TOKEN =
+     #   self.JIRA_EMAIL =
+     #   self.issues = []
 
-    def get_all(self):
-        url = f"{self.JIRA_URL}/rest/api/3/search"
+    # def get_all(self):
+    '''    url = f"{self.JIRA_URL}/rest/api/3/search"
         headers = {
             "Authorization": f"Bearer {self.JIRA_API_TOKEN}",
             "Content-Type": "application/json"
         }
+        params = {"fields": "summary,description,issuetype"}'''
+
+    def __init__(self, jira_url: str):
+        self.JIRA_URL = jira_url
+
+    def get_all(self, headers: dict):
         params = {"fields": "summary,description,issuetype"}
-
-        auth = HTTPBasicAuth(self.JIRA_EMAIL, self.JIRA_API_TOKEN)
-
-        response = requests.get(url, headers=headers, params=params, auth=auth)
+        response = requests.get(self.JIRA_URL, headers=headers, params=params)
         response.raise_for_status()  # Raise error for 4xx/5xx responses
 
         issues = response.json().get("issues", [])
