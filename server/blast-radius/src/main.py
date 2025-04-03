@@ -9,8 +9,8 @@ app.mount("/blast-radius", blast_radius_calculation_sub_app)
 if os.getenv("ENV_TYPE") == "dev":
     from fastapi.middleware.cors import CORSMiddleware
     app.add_middleware(
-        CORSMiddleware, # ignore incorrect type
-        allow_origins=["http://localhost:8082"],  # Update with the correct origin
+        CORSMiddleware,
+        allow_origins=["http://localhost:8082"],  # Update with the correct origin for dev / prod
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
