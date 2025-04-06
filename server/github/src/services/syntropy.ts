@@ -55,7 +55,8 @@ export class SyntropyService {
   ): ServiceResponse<ComparisonSummary> {
     const client = await this.getAuthenticatedClient();
     const response = await client.post(
-      `${config.urls.syntropy}/syntropy/comparison/summarize`,
+      // `${config.urls.syntropy}/syntropy/comparison/summarize`,
+        "localhost:8083/syntropy/comparison/summarize",
       {
         code_summary: codeSummary,
         requirements_summary: requirementsSummary

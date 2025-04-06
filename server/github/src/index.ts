@@ -173,13 +173,18 @@ export class AppService {
     });
 
     // Jira ticket integration - check feature flag at runtime with user ID
-    app.on(["pull_request.opened", "pull_request.closed"], async (context) => {
+    app.on(["pull_request.opened", "pull_request.closed", "pull_request.reopened"], async (context) => {
       const userId = context.payload.sender?.id?.toString() || 'default';
       const featureFlags = await this.databaseService.getFeatureFlags(userId);
 
+      this.logger.info("USER ID FETCHED", {uid : userId})
+      this.logger.info("featureFlags", {featureFlags : featureFlags})
+
+      /*
       if (!featureFlags.jiraTicketEnabled) {
         return;
       }
+      */
       // TODO: --------------------------------------------------------------------------------------------------------
       
       const { pull_request: pr, repository, sender } = context.payload;
@@ -213,7 +218,8 @@ export class AppService {
       const prompt = `Analyze these code changes from a ${actionText} pull request and provide a concise summary for a Jira ticket:\n\n${diffs}`;
       
       // Pass userId to generateContent for custom system instructions
-      const summaryText = await this.aiService.generateContent(prompt, userId);
+      // const summaryText = await this.aiService.generateContent(prompt, userId);
+      const summaryText: string = prompt.substring(0, 5)
       this.logger.info("Generated AI summary for Jira", { summaryLength: summaryText.length });
 
       // Get blast radius calculation to find relevant Jira tickets
@@ -226,6 +232,17 @@ export class AppService {
         this.logger.info("No relevant tickets found for this PR");
         return;
       }
+
+      await context.octokit.issues.createComment(
+          {
+            ...context.repo(),
+            issue_number: pr.number,
+            body:
+              "Here is the calculated blast radius of this Pull Request! 🚀\n\n" +
+              "```json\n" +
+              JSON.stringify(blastRadiusResponse.relevant_issues, null, 2) +
+              "\n```"
+          });
 
       // TODO: determine if it makes sense to add the comment to each and every "relevant" issue found?
       const relevantIssue = blastRadiusResponse.relevant_issues[0];
@@ -267,7 +284,7 @@ export class AppService {
         "base_branch": pr.base.ref,
         "diffs": rawDiff,
       }
-
+    this.logger.info("Synthesizing ")
       const synthesisSummary: Record<string, Record<string, string>> = await this.syntropyService.generateSynthesisSummary(
           JSON.stringify(pr_metadata),
           JSON.stringify(blastRadiusResponse)
