@@ -6,7 +6,11 @@ import { BlastRadiusService } from "./services/blast-radius.js";
 import { DatabaseService } from "./services/database.js";
 import { Logger } from "./utils/logger.js";
 import {SyntropyService} from "./services/syntropy.js";
-import {getPRFilesAsRawCode, formatJsonForGithubComment} from "./utils/octokit_tools.js"
+import {
+  getPRFilesAsRawCode,
+  formatJsonForGithubComment,
+  issuesToMarkdown
+} from "./utils/octokit_tools.js"
 
 /**
  * AppService class that handles all GitHub app functionality
@@ -244,15 +248,14 @@ export class AppService {
         return;
       }
 
+      const comment_body: string = issuesToMarkdown(blastRadiusResponse.relevant_issues)
+      //const comment_body: string = "Here is the calculated blast radius of this Pull Request! 🚀\n\n" + "```json\n" + JSON.stringify(blastRadiusResponse.relevant_issues, null, 2) + "\n```"
+
       await context.octokit.issues.createComment(
           {
             ...context.repo(),
             issue_number: pr.number,
-            body:
-              "Here is the calculated blast radius of this Pull Request! 🚀\n\n" +
-              "```json\n" +
-              JSON.stringify(blastRadiusResponse.relevant_issues, null, 2) +
-              "\n```"
+            body: comment_body
           });
 
       // TODO: determine if it makes sense to add the comment to each and every "relevant" issue found?

@@ -1,3 +1,5 @@
+import {BlastRadiusIssue} from "../types/index.js"
+
 export async function getPRFilesAsRawCode(context: any): Promise<Record<string, string>> {
   const fileMap: Record<string, string> = {};
 
@@ -86,4 +88,15 @@ export function formatJsonForGithubComment(json: any): string {
   }
 
   return comment;
+}
+
+export function issuesToMarkdown(issues: BlastRadiusIssue[]): string {
+    const title = `## 💥 Blast Radius 💥\n\n`;
+    return title + issues
+        .map((issue) => {
+            return `### [${issue.key}](${issue.URL}) - ${issue.issue_type}\n\n` +
+                `**Summary:** ${issue.summary}\n\n` +
+                (issue.description ? `**Description:** ${issue.description}\n\n` : '');
+        })
+        .join('\n---\n\n');
 }
