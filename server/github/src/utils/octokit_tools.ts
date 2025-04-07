@@ -53,3 +53,37 @@ export async function getPRFilesAsRawCode(context: any): Promise<Record<string, 
     throw error;
   }
 }
+
+function capitalizeWords(str: string): string {
+  return str
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+}
+
+export function formatJsonForGithubComment(json: any): string {
+  const formatKey = (key: string) => key.replace(/_/g, ' ').toUpperCase();
+
+  let comment = '';
+
+  for (let key in json) {
+    // Main key as Heading
+    const formattedKey = formatKey(key);
+    comment += `## ${capitalizeWords(formattedKey)}\n`;
+
+    // Loop through the sub-keys (did_right, did_wrong, ambiguous)
+    for (let subKey in json[key]) {
+      const formattedSubKey = formatKey(subKey);
+      const emojiMap: { [key: string]: string } = {
+        'DID RIGHT': '✅',
+        'DID WRONG': '❌',
+        'AMBIGUOUS': '❓'
+      };
+      const emoji = emojiMap[formattedSubKey] || '';
+
+      comment += `- **${emoji} ${capitalizeWords(formattedSubKey)}**: ${json[key][subKey]}\n\n`;
+    }
+  }
+
+  return comment;
+}

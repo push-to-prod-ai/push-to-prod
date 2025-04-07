@@ -6,7 +6,7 @@ import { BlastRadiusService } from "./services/blast-radius.js";
 import { DatabaseService } from "./services/database.js";
 import { Logger } from "./utils/logger.js";
 import {SyntropyService} from "./services/syntropy.js";
-import {getPRFilesAsRawCode} from "./utils/octokit_tools.js"
+import {getPRFilesAsRawCode, formatJsonForGithubComment} from "./utils/octokit_tools.js"
 
 /**
  * AppService class that handles all GitHub app functionality
@@ -46,7 +46,7 @@ export class AppService {
     });
     
     // Add PR handler - check feature flag at runtime with user ID
-    app.on(["pull_request.opened"], async (context) => {
+    app.on(["pull_request.opened", "pull_request.reopened"], async (context) => {
       // Get the user ID from the sender
       const userId = context.payload.sender?.id?.toString() || 'default';
       
@@ -175,6 +175,8 @@ export class AppService {
 
     // Jira ticket integration - check feature flag at runtime with user ID
     app.on(["pull_request.opened", "pull_request.closed", "pull_request.reopened"], async (context) => {
+      // TODO: go through and uncomment previous functionality. Abstract some of the code away to other utilities.
+
       // const userId = context.payload.sender?.id?.toString() || 'default';
       /*
       const featureFlags = await this.databaseService.getFeatureFlags(userId);
@@ -189,7 +191,6 @@ export class AppService {
         return;
       }
       */
-      // TODO: --------------------------------------------------------------------------------------------------------
       
       const { pull_request: pr, repository, sender } = context.payload;
       const action = context.payload.action;
@@ -316,15 +317,11 @@ export class AppService {
       );*/
 
       await context.octokit.issues.createComment(
-          {
-            ...context.repo(),
-            issue_number: pr.number,
-            body:
-              "Here is your synthesized requirements summary! 🔥\n\n" +
-              "```json\n" +
-              JSON.stringify(synthesisSummary, null, 2) +
-              "\n```"
-          });
+        {
+          ...context.repo(),
+          issue_number: pr.number,
+          body: formatJsonForGithubComment(synthesisSummary)
+        });
     });
   }
 }
