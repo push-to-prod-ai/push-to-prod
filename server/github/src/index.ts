@@ -2,10 +2,11 @@ import { Probot } from "probot";
 import axios from "axios";
 import { AIService } from "./services/ai.js";
 import { BlastRadiusService } from "./services/blast-radius.js";
-import { TicketService } from "./services/ticket.js";
+// import { TicketService } from "./services/ticket.js";
 import { DatabaseService } from "./services/database.js";
 import { Logger } from "./utils/logger.js";
 import {SyntropyService} from "./services/syntropy.js";
+import {getPRFilesAsRawCode} from "./utils/octokit_tools.js"
 
 /**
  * AppService class that handles all GitHub app functionality
@@ -14,7 +15,7 @@ export class AppService {
   private logger: Logger;
   private aiService: AIService;
   private blastRadiusService: BlastRadiusService;
-  private ticketService: TicketService;
+  // private ticketService: TicketService;
   private databaseService: DatabaseService;
   private syntropyService: SyntropyService
   
@@ -22,7 +23,7 @@ export class AppService {
     this.logger = new Logger();
     this.aiService = new AIService();
     this.blastRadiusService = new BlastRadiusService();
-    this.ticketService = new TicketService();
+    // this.ticketService = new TicketService();
     this.databaseService = new DatabaseService();
     this.syntropyService = new SyntropyService();
   }
@@ -45,7 +46,7 @@ export class AppService {
     });
     
     // Add PR handler - check feature flag at runtime with user ID
-    app.on(["pull_request.opened", "pull_request.reopened"], async (context) => {
+    app.on(["pull_request.opened"], async (context) => {
       // Get the user ID from the sender
       const userId = context.payload.sender?.id?.toString() || 'default';
       
@@ -174,11 +175,14 @@ export class AppService {
 
     // Jira ticket integration - check feature flag at runtime with user ID
     app.on(["pull_request.opened", "pull_request.closed", "pull_request.reopened"], async (context) => {
-      const userId = context.payload.sender?.id?.toString() || 'default';
+      // const userId = context.payload.sender?.id?.toString() || 'default';
+      /*
       const featureFlags = await this.databaseService.getFeatureFlags(userId);
 
       this.logger.info("USER ID FETCHED", {uid : userId})
       this.logger.info("featureFlags", {featureFlags : featureFlags})
+
+      */
 
       /*
       if (!featureFlags.jiraTicketEnabled) {
@@ -219,7 +223,7 @@ export class AppService {
       
       // Pass userId to generateContent for custom system instructions
       // const summaryText = await this.aiService.generateContent(prompt, userId);
-      const summaryText: string = prompt.substring(0, 5)
+      const summaryText: string = prompt
       this.logger.info("Generated AI summary for Jira", { summaryLength: summaryText.length });
 
       // Get blast radius calculation to find relevant Jira tickets
@@ -230,6 +234,12 @@ export class AppService {
 
       if (!blastRadiusResponse.relevant_issues.length) {
         this.logger.info("No relevant tickets found for this PR");
+        await context.octokit.issues.createComment(
+          {
+            ...context.repo(),
+            issue_number: pr.number,
+            body: "There don't seem to be any relevant tickets for this PR."
+          });
         return;
       }
 
@@ -249,19 +259,19 @@ export class AppService {
       this.logger.info("Selected relevant ticket", { ticketKey: relevantIssue.key });
 
       // Create different comment content based on PR action
-      const commentPrefix = action === 'opened' 
+      /*const commentPrefix = action === 'opened'
         ? `🔄 **PR Opened**: Pull request #${pr.number} has been opened.\n\n` 
-        : `✅ **PR ${pr.merged ? 'Merged' : 'Closed'}**: Pull request #${pr.number} has been ${pr.merged ? 'merged' : 'closed'}.\n\n`;
+        : `✅ **PR ${pr.merged ? 'Merged' : 'Closed'}**: Pull request #${pr.number} has been ${pr.merged ? 'merged' : 'closed'}.\n\n`;*/
       
-      const commentText = `${commentPrefix}**Summary:**\n${summaryText}\n\n**PR Link:** ${pr.html_url}`;
+      // const commentText = `${commentPrefix}**Summary:**\n${summaryText}\n\n**PR Link:** ${pr.html_url}`;
 
       // Add comment to ticket - pass the user ID (using GitHub user ID as a fallback)
-      await this.ticketService.addComment(
+      /*await this.ticketService.addComment(
         relevantIssue.key, 
         { text: commentText },
         userId
       );
-      this.logger.info("Added comment to ticket", { ticketKey: relevantIssue.key });
+      this.logger.info("Added comment to ticket", { ticketKey: relevantIssue.key });*/
 
       // Add status check with ticket link
       await context.octokit.repos.createCommitStatus({
@@ -278,24 +288,43 @@ export class AppService {
       });
 
       // TODO: TEMP: testing functionality here until firestore bug is resolved.
+      /*
       const pr_metadata: Record<string, string> = {
         "title": pr.title,
         "repository": pr.base.repo.full_name,
         "base_branch": pr.base.ref,
         "diffs": rawDiff,
-      }
-    this.logger.info("Synthesizing ")
-      const synthesisSummary: Record<string, Record<string, string>> = await this.syntropyService.generateSynthesisSummary(
-          JSON.stringify(pr_metadata),
-          JSON.stringify(blastRadiusResponse)
-      )
+      }*/
 
-      await this.ticketService.addComment(
+      // const owner: string = context.repo().owner;
+      // const repo: string = context.repo().repo;
+      // const pull_number: number = context.payload.pull_request?.number;
+      const PRFilesAsRawCode: string = JSON.stringify(await getPRFilesAsRawCode(context));
+
+      this.logger.info(PRFilesAsRawCode);
+
+      this.logger.info("Synthesizing");
+      const synthesisSummary: Record<string, Record<string, string>> = await this.syntropyService.generateSynthesisSummary(
+            PRFilesAsRawCode,
+            JSON.stringify(blastRadiusResponse)
+      );
+
+      /*await this.ticketService.addComment(
         relevantIssue.key,
         { text: JSON.stringify(synthesisSummary) },
         userId
-      );
+      );*/
 
+      await context.octokit.issues.createComment(
+          {
+            ...context.repo(),
+            issue_number: pr.number,
+            body:
+              "Here is your synthesized requirements summary! 🔥\n\n" +
+              "```json\n" +
+              JSON.stringify(synthesisSummary, null, 2) +
+              "\n```"
+          });
     });
   }
 }

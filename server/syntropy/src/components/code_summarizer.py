@@ -80,6 +80,8 @@ async def generate_code_summary(pr_data: PRModel) -> StructuredSummary:
     Here is the code diff:
     {pr_data.diffs}
     """
+    print(pr_data.diffs)
+
     client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
     response = client.models.generate_content(
         model="gemini-1.5-pro-latest",

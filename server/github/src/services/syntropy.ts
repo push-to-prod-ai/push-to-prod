@@ -27,12 +27,13 @@ export class SyntropyService {
     });
   }
 
-  async summarizeCode(to_analyze: string): ServiceResponse<SyntropyCodeSummary> {
+  async summarizeCode(toAnalyze: string): ServiceResponse<SyntropyCodeSummary> {
     const client = await this.getAuthenticatedClient();
     const response = await client.post(
-      `${config.urls.syntropy}/syntropy/code/summarize`,
+      //`${config.urls.syntropy}/syntropy/code/summarize`,
+        "http://localhost:8083/syntropy/code/summarize",
       {
-        to_analyze,
+        diffs: toAnalyze,
       }
     );
     return response.data;
@@ -41,9 +42,10 @@ export class SyntropyService {
   async summarizeRequirements(requirements: string): ServiceResponse<SyntropyRequirementsSummary> {
     const client = await this.getAuthenticatedClient();
     const response = await client.post(
-      `${config.urls.syntropy}/syntropy/requirements/summarize`,
+      // `${config.urls.syntropy}/syntropy/requirements/summarize`,
+        "http://localhost:8083/syntropy/requirements/summarize",
       {
-        requirements,
+        requirements: requirements,
       }
     );
     return response.data;
@@ -56,7 +58,7 @@ export class SyntropyService {
     const client = await this.getAuthenticatedClient();
     const response = await client.post(
       // `${config.urls.syntropy}/syntropy/comparison/summarize`,
-        "localhost:8083/syntropy/comparison/summarize",
+        "http://localhost:8083/syntropy/comparison/summarize",
       {
         code_summary: codeSummary,
         requirements_summary: requirementsSummary
@@ -66,9 +68,9 @@ export class SyntropyService {
   }
 
   async generateSynthesisSummary(codeToSummarize: string, requirements: string): ServiceResponse<ComparisonSummary>{
-      const [requirementsSummary, codeSummary] = await Promise.all([
-          this.summarizeRequirements(requirements),
-          this.summarizeCode(JSON.stringify(codeToSummarize))
+      const [codeSummary, requirementsSummary] = await Promise.all([
+          this.summarizeCode(codeToSummarize),
+          this.summarizeRequirements(requirements)
         ]);
 
       return this.generateStructuredSynthesisSummary(codeSummary, requirementsSummary)

@@ -25,7 +25,7 @@ async def calculate_blast_radius(
 
     similarities = model.similarity_pairwise(summary_embedding, issues_embeddings).numpy()
 
-    threshold = 0.7
+    threshold = 0.4
     indices = np.where(similarities >= threshold)[0]
     relevant_issues = [issues[i] for i in indices][:request.max_items]
 
@@ -45,6 +45,6 @@ async def calculate_blast_radius(
         logger.info(f'No relevant issues found. Returning the top {request.max_items} most similar issues:')
         for issue in most_similar_issues:
             logger.info(f'   - {issue.key} {issue.summary} {issue.URL}')
-            return CalculationResponseModel(relevant_issues=most_similar_issues)
+            CalculationResponseModel(relevant_issues=most_similar_issues)
 
     return CalculationResponseModel(relevant_issues=relevant_issues)
