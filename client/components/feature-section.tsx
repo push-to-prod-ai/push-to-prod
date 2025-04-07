@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { FC } from "react";
-import Image from 'next/image'
-import Link from "next/link"
+import Image from "next/image";
+import Link from "next/link";
 
 interface FeatureItemProps {
   title: string;
@@ -10,26 +10,35 @@ interface FeatureItemProps {
   isImageLeft: boolean;
 }
 
-const FeatureItem: FC<FeatureItemProps> = ({ title, description, imageUrl, isImageLeft }) => (
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-24 items-center">
+const FeatureItem: FC<FeatureItemProps> = ({
+  title,
+  description,
+  imageUrl,
+  isImageLeft,
+}) => (
+  <div className="md:gap-24 grid grid-cols-1 items-center gap-8 md:grid-cols-2">
     {isImageLeft && (
       <div className="order-1 md:order-1">
-        <Image 
+        <Image
           src={imageUrl}
           alt={title}
           width={500}
           height={300}
-          className="w-full max-w-2xl rounded-xl shadow-xl ring-1 ring-gray-400/10"
+          className="shadow-xl ring-gray-400/10 w-full max-w-2xl rounded-xl ring-1"
           quality={90}
         />
       </div>
     )}
     <div className={`order-2 ${isImageLeft ? "md:order-2" : "md:order-1"}`}>
-      <h3 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl">{title}</h3>
-      <p className="mt-6 text-lg leading-8 text-muted-foreground">{description}</p>
+      <h3 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl">
+        {title}
+      </h3>
+      <p className="mt-6 text-lg leading-8 text-muted-foreground">
+        {description}
+      </p>
       <div className="mt-4">
         <Button variant="secondary" asChild>
-          <Link 
+          <Link
             href="https://github.com/push-to-prod-ai/push-to-prod"
             target="_blank"
             rel="noopener noreferrer"
@@ -41,12 +50,12 @@ const FeatureItem: FC<FeatureItemProps> = ({ title, description, imageUrl, isIma
     </div>
     {!isImageLeft && (
       <div className="order-1 md:order-2">
-        <Image 
+        <Image
           src={imageUrl}
           alt={title}
           width={500}
           height={300}
-          className="w-full max-w-2xl rounded-xl shadow-xl ring-1 ring-gray-400/10"
+          className="shadow-xl ring-gray-400/10 w-full max-w-2xl rounded-xl ring-1"
           quality={90}
         />
       </div>
@@ -66,7 +75,7 @@ const DEFAULT_ITEMS: FeatureItemProps[] = [
     title: "Intelligent Code Analysis",
     description:
       "Our tool analyzes your code changes and provides context-aware summaries, helping reviewers quickly understand the purpose and impact of your changes.",
-    imageUrl: "https://ui.convertfa.st/images/convertfast-ui-cli.png",
+    imageUrl: "/pushtoprod_terminal.png",
     isImageLeft: false,
   },
   {
@@ -94,11 +103,17 @@ export const FeatureSection: FC<FeatureSectionProps> = (props) => {
   } = props;
 
   return (
-    <div id="features" className="py-16 px-4 sm:px-6 lg:px-8 mx-auto max-w-7xl">
-      <div className="mx-auto max-w-2xl text-center mb-16">
-        <div className="text-base font-semibold leading-7 text-primary">{brand}</div>
-        <h2 className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl text-primary">{title}</h2>
-        <p className="mt-6 text-lg leading-8 text-muted-foreground">{description}</p>
+    <div id="features" className="mx-auto max-w-7xl py-16 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto mb-16 max-w-2xl text-center">
+        <div className="text-base font-semibold leading-7 text-primary">
+          {brand}
+        </div>
+        <h2 className="text-gray-900 mt-2 text-3xl font-bold tracking-tight text-primary sm:text-4xl">
+          {title}
+        </h2>
+        <p className="mt-6 text-lg leading-8 text-muted-foreground">
+          {description}
+        </p>
       </div>
       <div className="mt-8 flex flex-col gap-16">
         {items.map((feature, index) => (
