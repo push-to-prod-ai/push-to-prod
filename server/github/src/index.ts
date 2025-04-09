@@ -10,7 +10,8 @@ import {
   getPRFilesAsRawCode,
   formatJsonForGithubComment,
   issuesToMarkdown,
-  markdownToJira
+  convertToSimpleJiraFormat,
+  convertMarkdownToPlainText
 } from "./utils/octokit_tools.js"
 
 /**
@@ -180,13 +181,10 @@ export class AppService {
 
     // Jira ticket integration - check feature flag at runtime with user ID
     app.on(["pull_request.opened", "pull_request.closed", "pull_request.reopened"], async (context) => {
-      // TODO: go through and uncomment previous functionality. Abstract some of the code away to other utilities.
-
       const userId = context.payload.sender?.id?.toString() || 'default';
+      this.logger.info("USER ID FETCHED", {uid : userId})
 
       const featureFlags = await this.databaseService.getFeatureFlags(userId);
-
-      this.logger.info("USER ID FETCHED", {uid : userId})
       this.logger.info("featureFlags", {featureFlags : featureFlags})
 
       if (!featureFlags.jiraTicketEnabled) {
@@ -224,8 +222,7 @@ export class AppService {
       const prompt = `Analyze these code changes from a ${actionText} pull request and provide a concise summary for a Jira ticket:\n\n${diffs}`;
       
       // Pass userId to generateContent for custom system instructions
-      const summaryText = await this.aiService.generateContent(prompt, userId);
-      // const summaryText: string = prompt
+      const summaryText: string = await this.aiService.generateContent(prompt, userId);
       this.logger.info("Generated AI summary for Jira", { summaryLength: summaryText.length });
 
       // Get blast radius calculation to find relevant Jira tickets
@@ -260,11 +257,12 @@ export class AppService {
 
       // Create different comment content based on PR action
       const commentPrefix = action === 'opened'
-        ? `🔄 **PR Opened**: Pull request #${pr.number} has been opened.\n\n` 
-        : `✅ **PR ${pr.merged ? 'Merged' : 'Closed'}**: Pull request #${pr.number} has been ${pr.merged ? 'merged' : 'closed'}.\n\n`;
+        ? ` **PR Opened**: Pull request #${pr.number} has been opened.\n\n`
+        : ` **PR ${pr.merged ? 'Merged' : 'Closed'}**: Pull request #${pr.number} has been ${pr.merged ? 'merged' : 'closed'}.\n\n`;
       
-      const commentText = markdownToJira(
-          `${commentPrefix}**Summary:**\n${summaryText}\n\n**PR Link:** ${pr.html_url}`
+      const commentText = convertMarkdownToPlainText(
+          // `${commentPrefix}**Summary:**\n${summaryText}\n\n**PR Link:** ${pr.html_url}`
+          `${commentPrefix}\n[PR Link](${pr.html_url})`
       );
 
       // Add comment to ticket - pass the user ID (using GitHub user ID as a fallback)
@@ -288,10 +286,9 @@ export class AppService {
         sha: pr.head.sha,
         ticketKey: relevantIssue.key,
       });
-
-      const PRFilesAsRawCode: string = JSON.stringify(await getPRFilesAsRawCode(context));
-
-      // this.logger.info(PRFilesAsRawCode);
+      return;
+      this.logger.info("Fetching raw files from PR for analysis.")
+      const PRFilesAsRawCode: string = JSON.stringify(await getPRFilesAsRawCode(context, this.logger));
 
       this.logger.info("Synthesizing");
       const synthesisSummary: Record<string, Record<string, string>> = await this.syntropyService.generateSynthesisSummary(
@@ -301,7 +298,7 @@ export class AppService {
 
       await this.ticketService.addComment(
         relevantIssue.key,
-        { text: markdownToJira(formatJsonForGithubComment(synthesisSummary)) },
+        { text: convertToSimpleJiraFormat(synthesisSummary) },
         userId
       );
 

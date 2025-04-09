@@ -1,6 +1,7 @@
 import {BlastRadiusIssue} from "../types/index.js"
+import { Logger } from "./logger.js";
 
-export async function getPRFilesAsRawCode(context: any): Promise<Record<string, string>> {
+export async function getPRFilesAsRawCode(context: any, logger: Logger): Promise<Record<string, string>> {
   const fileMap: Record<string, string> = {};
 
   // Validate and extract pull request data from the context.
@@ -34,7 +35,7 @@ export async function getPRFilesAsRawCode(context: any): Promise<Record<string, 
 
           // Ensure that the content represents a file and not a directory or symlink
           if (contentData.type !== "file") {
-            console.warn(`Skipping ${filePath} because it is of type "${contentData.type}"`);
+            logger.warn(`Skipping ${filePath} because it is of type "${contentData.type}"`)
             return;
           }
 
@@ -44,14 +45,13 @@ export async function getPRFilesAsRawCode(context: any): Promise<Record<string, 
           }
         } catch (err) {
           // Log and continue processing other files if an error occurs for this file
-          console.error(`Error processing file "${filePath}":`, err);
+          logger.error(`Error processing file "${filePath}":`, err);
         }
       })
     );
-    console.info(fileMap)
     return fileMap;
   } catch (error) {
-    console.error("Error fetching PR files:", error);
+    logger.error("Error fetching PR files:", error)
     throw error;
   }
 }
@@ -101,33 +101,56 @@ export function issuesToMarkdown(issues: BlastRadiusIssue[]): string {
         .join('\n---\n\n');
 }
 
-export function markdownToJira(text: string): string {
-  return text
-    // Convert bold (**text**)
-    .replace(/\*\*(.*?)\*\*/g, '*$1*')
+export function convertToSimpleJiraFormat(json: any): string {
+  const formatKey = (key: string) => key.replace(/_/g, ' ').toUpperCase();
 
-    // Convert italic (_text_)
-    .replace(/_(.*?)_/g, '_$1_')
+  let comment = '';
 
-    // Convert inline code (`code`)
-    .replace(/`([^`]+)`/g, '{{$1}}')
+  for (let key in json) {
+    // Main key as a heading-like format
+    const formattedKey = formatKey(key);
+    comment += `${formattedKey}\n`; // Newline after the key
 
-    // Convert fenced code blocks (```lang\ncode\n```)
-    .replace(/```[a-z]*\n([\s\S]*?)```/g, (_match, code) => {
-      return `{code}\n${code.trim()}\n{code}`;
-    })
+    // Loop through the sub-keys (did_right, did_wrong, ambiguous)
+    for (let subKey in json[key]) {
+      const formattedSubKey = formatKey(subKey);
+      const emojiMap: { [key: string]: string } = {
+        'DID RIGHT': '✅',
+        'DID WRONG': '❌',
+        'AMBIGUOUS': '❓'
+      };
+      const emoji = emojiMap[formattedSubKey] || '';
 
-    // Convert links [text](url)
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '[$1|$2]')
+      // Add sub-key items with space and emojis, with a new line between each
+      comment += `${emoji} ${capitalizeWords(formattedSubKey)}: ${json[key][subKey]}\n\n`;
+    }
 
-    // Convert headings: ## -> h2., # -> h1.
-    .replace(/^### (.*)$/gm, 'h3. $1')
-    .replace(/^## (.*)$/gm, 'h2. $1')
-    .replace(/^# (.*)$/gm, 'h1. $1')
+    // Add extra space for separation between sections
+    comment += '\n';
+  }
 
-    // Convert bullet points: - -> *
-    .replace(/^\s*-\s+/gm, '* ')
+  return comment;
+}
 
-    // Convert numbered lists: 1. -> #
-    .replace(/^\s*\d+\.\s+/gm, '# ');
+export function convertMarkdownToPlainText(markdown: string): string {
+  // Remove Markdown code blocks (e.g., ```markdown ... ```)
+  let plainText = markdown.replace(/```[^\n]*\n([\s\S]*?)\n```/g, '$1'); // Remove code blocks
+
+  // Remove Markdown headers (e.g., ## Heading -> Heading)
+  plainText = plainText.replace(/^#+\s*(.*)$/gm, (_, content) => content);
+
+  // Remove bold and italic formatting (e.g., **bold** -> bold, *italic* -> italic)
+  plainText = plainText.replace(/\*\*([^\*]+)\*\*/g, '$1');  // Remove bold
+  plainText = plainText.replace(/\*([^\*]+)\*/g, '$1');  // Remove italic
+
+  // Remove links (e.g., [text](url) -> text)
+  plainText = plainText.replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1');
+
+  // Replace markdown-style lists (e.g., - item -> item)
+  plainText = plainText.replace(/^-\s*(.*)$/gm, '$1');
+
+  // Normalize multiple new lines to a single one and ensure proper spacing
+  plainText = plainText.replace(/\n+/g, '\n');
+
+  return plainText.trim();
 }
