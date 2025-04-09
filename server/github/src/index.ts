@@ -11,7 +11,7 @@ import {
   formatJsonForGithubComment,
   issuesToMarkdown,
   convertToSimpleJiraFormat,
-  convertMarkdownToPlainText
+  // convertMarkdownToPlainText
 } from "./utils/octokit_tools.js"
 
 /**
@@ -259,11 +259,10 @@ export class AppService {
       const commentPrefix = action === 'opened'
         ? ` **PR Opened**: Pull request #${pr.number} has been opened.\n\n`
         : ` **PR ${pr.merged ? 'Merged' : 'Closed'}**: Pull request #${pr.number} has been ${pr.merged ? 'merged' : 'closed'}.\n\n`;
-      
-      const commentText = convertMarkdownToPlainText(
-          // `${commentPrefix}**Summary:**\n${summaryText}\n\n**PR Link:** ${pr.html_url}`
-          `${commentPrefix}\n[PR Link](${pr.html_url})`
-      );
+
+      // TODO: Figure out Jira formatting for MD or paste links to formatted responses on another site.
+      // const commentText = `${commentPrefix}**Summary:**\n${summaryText}\n\n**PR Link:** ${pr.html_url}`;
+      const commentText = `${commentPrefix}**PR Link:** ${pr.html_url}`;
 
       // Add comment to ticket - pass the user ID (using GitHub user ID as a fallback)
       await this.ticketService.addComment(
@@ -286,8 +285,8 @@ export class AppService {
         sha: pr.head.sha,
         ticketKey: relevantIssue.key,
       });
-      return;
-      this.logger.info("Fetching raw files from PR for analysis.")
+
+      this.logger.info("Fetching raw files from PR for analysis.");
       const PRFilesAsRawCode: string = JSON.stringify(await getPRFilesAsRawCode(context, this.logger));
 
       this.logger.info("Synthesizing");
