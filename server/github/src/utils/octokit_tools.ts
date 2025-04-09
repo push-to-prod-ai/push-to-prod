@@ -100,3 +100,34 @@ export function issuesToMarkdown(issues: BlastRadiusIssue[]): string {
         })
         .join('\n---\n\n');
 }
+
+export function markdownToJira(text: string): string {
+  return text
+    // Convert bold (**text**)
+    .replace(/\*\*(.*?)\*\*/g, '*$1*')
+
+    // Convert italic (_text_)
+    .replace(/_(.*?)_/g, '_$1_')
+
+    // Convert inline code (`code`)
+    .replace(/`([^`]+)`/g, '{{$1}}')
+
+    // Convert fenced code blocks (```lang\ncode\n```)
+    .replace(/```[a-z]*\n([\s\S]*?)```/g, (_match, code) => {
+      return `{code}\n${code.trim()}\n{code}`;
+    })
+
+    // Convert links [text](url)
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '[$1|$2]')
+
+    // Convert headings: ## -> h2., # -> h1.
+    .replace(/^### (.*)$/gm, 'h3. $1')
+    .replace(/^## (.*)$/gm, 'h2. $1')
+    .replace(/^# (.*)$/gm, 'h1. $1')
+
+    // Convert bullet points: - -> *
+    .replace(/^\s*-\s+/gm, '* ')
+
+    // Convert numbered lists: 1. -> #
+    .replace(/^\s*\d+\.\s+/gm, '# ');
+}

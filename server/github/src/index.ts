@@ -9,7 +9,8 @@ import {SyntropyService} from "./services/syntropy.js";
 import {
   getPRFilesAsRawCode,
   formatJsonForGithubComment,
-  issuesToMarkdown
+  issuesToMarkdown,
+  markdownToJira
 } from "./utils/octokit_tools.js"
 
 /**
@@ -244,9 +245,8 @@ export class AppService {
         return;
       }
 
+      this.logger.info("Adding Blast Radius comment to PR.")
       const comment_body: string = issuesToMarkdown(blastRadiusResponse.relevant_issues)
-      // const comment_body: string = "Here is the calculated blast radius of this Pull Request! 🚀\n\n" + "```json\n" + JSON.stringify(blastRadiusResponse.relevant_issues, null, 2) + "\n```"
-
       await context.octokit.issues.createComment(
           {
             ...context.repo(),
@@ -263,7 +263,9 @@ export class AppService {
         ? `🔄 **PR Opened**: Pull request #${pr.number} has been opened.\n\n` 
         : `✅ **PR ${pr.merged ? 'Merged' : 'Closed'}**: Pull request #${pr.number} has been ${pr.merged ? 'merged' : 'closed'}.\n\n`;
       
-      const commentText = `${commentPrefix}**Summary:**\n${summaryText}\n\n**PR Link:** ${pr.html_url}`;
+      const commentText = markdownToJira(
+          `${commentPrefix}**Summary:**\n${summaryText}\n\n**PR Link:** ${pr.html_url}`
+      );
 
       // Add comment to ticket - pass the user ID (using GitHub user ID as a fallback)
       await this.ticketService.addComment(
@@ -299,7 +301,7 @@ export class AppService {
 
       await this.ticketService.addComment(
         relevantIssue.key,
-        { text: JSON.stringify(synthesisSummary) },
+        { text: markdownToJira(formatJsonForGithubComment(synthesisSummary)) },
         userId
       );
 
