@@ -24,8 +24,8 @@ export class BlastRadiusService {
   async calculateBlastRadius(summary: string): ServiceResponse<BlastRadiusResult> {
     const client = await this.getAuthenticatedClient();
     const response = await client.post(
-      // `${config.urls.blastRadius}/blast-radius/calculation`,
-        "http://localhost:8081/blast-radius/calculation",
+      `${config.urls.blastRadius}/blast-radius/calculation`,
+      //  "http://localhost:8081/blast-radius/calculation",
       {
         summary,
         max_items: 3,

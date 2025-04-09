@@ -30,8 +30,8 @@ export class SyntropyService {
   async summarizeCode(toAnalyze: string): ServiceResponse<SyntropyCodeSummary> {
     const client = await this.getAuthenticatedClient();
     const response = await client.post(
-      //`${config.urls.syntropy}/syntropy/code/summarize`,
-        "http://localhost:8083/syntropy/code/summarize",
+      `${config.urls.syntropy}/syntropy/code/summarize`,
+      //  "http://localhost:8083/syntropy/code/summarize",
       {
         diffs: toAnalyze,
       }
@@ -42,8 +42,8 @@ export class SyntropyService {
   async summarizeRequirements(requirements: string): ServiceResponse<SyntropyRequirementsSummary> {
     const client = await this.getAuthenticatedClient();
     const response = await client.post(
-      // `${config.urls.syntropy}/syntropy/requirements/summarize`,
-        "http://localhost:8083/syntropy/requirements/summarize",
+      `${config.urls.syntropy}/syntropy/requirements/summarize`,
+      //  "http://localhost:8083/syntropy/requirements/summarize",
       {
         requirements: requirements,
       }
@@ -57,8 +57,8 @@ export class SyntropyService {
   ): ServiceResponse<ComparisonSummary> {
     const client = await this.getAuthenticatedClient();
     const response = await client.post(
-      // `${config.urls.syntropy}/syntropy/comparison/summarize`,
-        "http://localhost:8083/syntropy/comparison/summarize",
+      `${config.urls.syntropy}/syntropy/comparison/summarize`,
+      //  "http://localhost:8083/syntropy/comparison/summarize",
       {
         code_summary: codeSummary,
         requirements_summary: requirementsSummary
