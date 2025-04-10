@@ -54,11 +54,8 @@ export class TicketService {
         ],
       },
     };
-    if (!/^https?:\/\//i.test(system.baseUrl)) {
-      system.baseUrl = `https://${system.baseUrl}`;
-    }
     await axios.post(
-      `${system.baseUrl}/issue/${ticketId}/comment`,
+      `https://${system.baseUrl}/issue/${ticketId}/comment`,
       payload,
       { headers: system.headers }
     );
