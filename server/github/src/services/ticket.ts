@@ -54,6 +54,7 @@ export class TicketService {
         ],
       },
     };
+
     await axios.post(
       `https://${system.baseUrl}/issue/${ticketId}/comment`,
       payload,

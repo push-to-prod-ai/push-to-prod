@@ -13,6 +13,7 @@ import {
   convertToSimpleJiraFormat,
   // convertMarkdownToPlainText
 } from "./utils/octokit_tools.js"
+import { ComparisonSummary } from "./types/index.js";
 
 /**
  * AppService class that handles all GitHub app functionality
@@ -182,8 +183,6 @@ export class AppService {
     // Jira ticket integration - check feature flag at runtime with user ID
     app.on(["pull_request.opened", "pull_request.closed", "pull_request.reopened"], async (context) => {
       const userId = context.payload.sender?.id?.toString() || 'default';
-      this.logger.info("USER ID FETCHED", {uid : userId})
-
       const featureFlags = await this.databaseService.getFeatureFlags(userId);
       this.logger.info("featureFlags", {featureFlags : featureFlags})
 
@@ -287,10 +286,10 @@ export class AppService {
       });
 
       this.logger.info("Fetching raw files from PR for analysis.");
-      const PRFilesAsRawCode: string = JSON.stringify(await getPRFilesAsRawCode(context, this.logger));
+      const PRFilesAsRawCode  = JSON.stringify(await getPRFilesAsRawCode(context, this.logger));
 
       this.logger.info("Synthesizing");
-      const synthesisSummary: Record<string, Record<string, string>> = await this.syntropyService.generateSynthesisSummary(
+      const synthesisSummary: ComparisonSummary = await this.syntropyService.generateSynthesisSummary(
             PRFilesAsRawCode,
             JSON.stringify(blastRadiusResponse)
       );

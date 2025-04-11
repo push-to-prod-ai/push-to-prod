@@ -1,7 +1,7 @@
-import {BlastRadiusIssue} from "../types/index.js"
+import { BlastRadiusIssue } from "../types/index.js"
 import { Logger } from "./logger.js";
 
-export async function getPRFilesAsRawCode(context: any, logger: Logger): Promise<Record<string, string>> {
+export async function getPRFilesAsRawCode(context: any, logger: Logger) {
   const fileMap: Record<string, string> = {};
 
   // Validate and extract pull request data from the context.
@@ -52,18 +52,18 @@ export async function getPRFilesAsRawCode(context: any, logger: Logger): Promise
     return fileMap;
   } catch (error) {
     logger.error("Error fetching PR files:", error)
-    throw error;
+    return {}
   }
 }
 
-function capitalizeWords(str: string): string {
+function capitalizeWords(str: string) {
   return str
     .split(' ')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ');
 }
 
-export function formatJsonForGithubComment(json: any): string {
+export function formatJsonForGithubComment(json: any) {
   const formatKey = (key: string) => key.replace(/_/g, ' ').toUpperCase();
 
   let comment = '';
@@ -90,7 +90,7 @@ export function formatJsonForGithubComment(json: any): string {
   return comment;
 }
 
-export function issuesToMarkdown(issues: BlastRadiusIssue[]): string {
+export function issuesToMarkdown(issues: BlastRadiusIssue[]) {
     const title = `## 💥 Blast Radius 💥\n\n`;
     return title + issues
         .map((issue) => {
@@ -101,7 +101,7 @@ export function issuesToMarkdown(issues: BlastRadiusIssue[]): string {
         .join('\n---\n\n');
 }
 
-export function convertToSimpleJiraFormat(json: any): string {
+export function convertToSimpleJiraFormat(json: any) {
   const formatKey = (key: string) => key.replace(/_/g, ' ').toUpperCase();
 
   let comment = '';
@@ -132,7 +132,7 @@ export function convertToSimpleJiraFormat(json: any): string {
   return comment;
 }
 
-export function convertMarkdownToPlainText(markdown: string): string {
+export function convertMarkdownToPlainText(markdown: string) {
   // Remove Markdown code blocks (e.g., ```markdown ... ```)
   let plainText = markdown.replace(/```[^\n]*\n([\s\S]*?)\n```/g, '$1'); // Remove code blocks
 

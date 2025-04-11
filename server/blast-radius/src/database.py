@@ -61,15 +61,6 @@ class DatabaseService:
 
     async def get_jira_credentials(self, user_id: str=None) -> Dict:
 
-        # TODO: remove for prod:
-        if user_id is None:
-            return {
-                'exists': False,
-                'jira_email': '',
-                'jira_domain': '',
-                'jira_api_token': ''
-            }
-
         doc_ref = self.db.collection(Config.FIREBASE_COLLECTIONS['settings']).document(user_id)
         settings_doc = doc_ref.get()
 
