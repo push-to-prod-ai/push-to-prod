@@ -62,10 +62,10 @@ export function PromptTemplatesPreview() {
   return (
     <div className="space-y-4">
       <div className="mb-4">
-        <h3 className="text-xl font-semibold mb-2">Control Your Documentation</h3>
+        <h3 className="text-xl font-semibold mb-2">Own Your Documentation</h3>
         <p className="text-sm text-muted-foreground">
           <a href="https://github.com/apps/pushtoprod-ai" className="text-primary hover:underline">Install the app</a> and visit the{' '}
-          <Link href="/settings" className="text-primary hover:underline">settings page</Link> to control how the AI generates your documentation.
+          <Link href="/settings" className="text-primary hover:underline">settings page</Link> to control how Gemini summarizes your code.
         </p>
       </div>
       

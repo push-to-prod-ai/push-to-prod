@@ -16,8 +16,8 @@ export default function Home() {
       {/* <LogoCloud /> */}
       <FeatureSection />
       {/* <SocialProof /> */}
-      <CTA />
       <FAQ />
+      <CTA />
       <PricingSection />
       <Footer />
     </>
