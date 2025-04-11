@@ -85,24 +85,14 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const user = await getCurrentUser();
-    
-    if (!user || !user.id) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-    
-    const userId = user.id;
-    const db = getFirestoreDb();
-
     // Check if we're requesting default templates or feature flags
     const { searchParams } = new URL(request.url);
     const getDefaults = searchParams.get('defaults') === 'true';
     const getFeatureFlags = searchParams.get('featureFlags') === 'true';
 
+    // For default templates, we don't require authentication
     if (getDefaults) {
+      const db = getFirestoreDb();
       const defaultTemplatesDoc = await db
         .collection('config')
         .doc('default_templates')
@@ -122,6 +112,19 @@ export async function GET(request: NextRequest) {
         prAnalysisPrompt: data?.prAnalysisPrompt
       });
     }
+
+    // For everything else, require authentication
+    const user = await getCurrentUser();
+    
+    if (!user || !user.id) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+    
+    const userId = user.id;
+    const db = getFirestoreDb();
 
     if (getFeatureFlags) {
       const defaultFlagsDoc = await db

@@ -23,7 +23,7 @@ const plans = [
     name: "Team",
     id: "plan-team",
     href: "https://github.com/apps/pushtoprod-ai",
-    price: { monthly: "$29", annually: "$290" },
+    price: { monthly: "$0", annually: "$0" },
     description: "Ideal for development teams working together.",
     actionTitle: "Get started",
     features: [
@@ -40,7 +40,7 @@ const plans = [
     name: "Enterprise",
     id: "plan-enterprise",
     href: "https://github.com/push-to-prod-ai/push-to-prod/discussions",
-    price: { monthly: "Custom", annually: "Custom" },
+    price: { monthly: "$Custom", annually: "Custom" },
     description: "For large organizations with advanced needs.",
     actionTitle: "Contact us",
     features: [
