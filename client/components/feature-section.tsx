@@ -63,10 +63,10 @@ const DEFAULT_ITEMS: FeatureItemProps[] = [
     isImageLeft: true,
   },
   {
-    title: "Intelligent Code Analysis",
+    title: "Project Management Integration",
     description:
-      "Our tool analyzes your code changes and provides context-aware summaries, helping reviewers quickly understand the purpose and impact of your changes.",
-    imageUrl: "https://ui.convertfa.st/images/convertfast-ui-cli.png",
+      "Integrate with Jira to automatically identify existing tickets and update them, without ever leaving GitHub.",
+    imageUrl: "/jira.png",
     isImageLeft: false,
   },
   {

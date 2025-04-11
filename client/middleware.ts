@@ -3,6 +3,12 @@ import type { NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 
 export async function middleware(request: NextRequest) {
+  // Check if this is a request to get default templates
+  if (request.nextUrl.pathname === '/api/settings' && request.nextUrl.searchParams.get('defaults') === 'true') {
+    // Allow unauthenticated access to default templates
+    return NextResponse.next();
+  }
+
   // Get the token using the next-auth JWT helper
   const token = await getToken({ 
     req: request,

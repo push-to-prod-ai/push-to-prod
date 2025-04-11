@@ -1,8 +1,9 @@
 // import { BGShapeCircle } from "@/components/bg-shape-circle";
 import { Button } from "@/components/ui/button";
 import { FC } from "react";
-import Image from "next/image";
 import Link from "next/link";
+import { Card, CardContent } from "@/components/ui/card";
+import { PromptTemplatesPreview } from "@/components/prompt-templates-preview";
 
 export const HeroSection: FC = () => {
   return (
@@ -11,7 +12,7 @@ export const HeroSection: FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-24 lg:py-32 relative z-10">
         <div className="max-w-3xl">
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-primary mb-6 drop-shadow-md">
-            Accelerate your workflow with PushToProd.ai
+            Accelerate your workflow with PushToProd.ai 
           </h1>
           <p className="text-xl sm:text-2xl text-muted-foreground mb-8">
             A documentation engine and workflow accelerator built for developers
@@ -40,27 +41,12 @@ export const HeroSection: FC = () => {
           <p className="mt-4 text-sm text-gray-500">Free and open-source. No credit card required.</p>
         </div>
 
-        <div className="mt-8 sm:mt-12 relative block dark:hidden">
-          <Image
-            alt="app screenshot"
-            src="https://ui.convertfa.st/images/graphic-walker-light-2.png"
-            width={2432}
-            height={1442}
-            quality={90}
-            priority
-            className="rounded-md shadow-2xl border"
-          />
-        </div>
-        <div className="mt-8 sm:mt-12 relative hidden dark:block">
-          <Image
-            alt="app screenshot"
-            src="https://ui.convertfa.st/images/graphic-walker-dark-2.png"
-            width={2432}
-            height={1442}
-            quality={90}
-            priority
-            className="rounded-md shadow-2xl border"
-          />
+        <div className="mt-8 sm:mt-12 relative">
+          <Card className="shadow-2xl border">
+            <CardContent className="p-6">
+              <PromptTemplatesPreview />
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
