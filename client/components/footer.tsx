@@ -1,9 +1,57 @@
+'use client';
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Github, Twitter, Mail } from "lucide-react";
+import { Github, Twitter, Mail, Loader2, Check, AlertCircle } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export function Footer() {
+  const [email, setEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubscribe = async () => {
+    if (!email) {
+      setError('Please enter your email address');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to subscribe');
+      }
+
+      setIsSubscribed(true);
+      setEmail('');
+      toast.success("Subscription successful", {
+        description: "Thank you for subscribing to our newsletter!"
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+      toast.error("Subscription failed", {
+        description: err instanceof Error ? err.message : 'Failed to subscribe to newsletter'
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <footer className="bg-background border-t">
       <div className="max-w-7xl mx-auto px-6 py-8">
@@ -78,8 +126,40 @@ export function Footer() {
           <div className="w-full md:w-1/4 text-center md:text-left">
             <h5 className="uppercase mb-6 font-bold">Stay connected</h5>
             <div className="flex flex-col">
-              <Input type="email" placeholder="Enter your email" className="mb-2" />
-              <Button>Subscribe</Button>
+              <Input 
+                type="email" 
+                placeholder="Enter your email" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="mb-2" 
+                disabled={isLoading || isSubscribed}
+                aria-invalid={error ? 'true' : 'false'}
+              />
+              {error && (
+                <p className="text-destructive text-sm flex items-center mb-2">
+                  <AlertCircle className="h-4 w-4 mr-1" /> {error}
+                </p>
+              )}
+              <Button 
+                onClick={handleSubscribe} 
+                disabled={isLoading || isSubscribed}
+                variant={isSubscribed ? "secondary" : "default"}
+                size="lg"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Subscribing...
+                  </>
+                ) : isSubscribed ? (
+                  <>
+                    <Check className="mr-2 h-4 w-4" />
+                    Subscribed
+                  </>
+                ) : (
+                  "Subscribe"
+                )}
+              </Button>
             </div>
           </div>
         </div>
