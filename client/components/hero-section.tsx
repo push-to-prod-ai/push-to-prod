@@ -1,4 +1,3 @@
-// import { BGShapeCircle } from "@/components/bg-shape-circle";
 import { Button } from "@/components/ui/button";
 import { FC } from "react";
 import Link from "next/link";
@@ -7,8 +6,8 @@ import { PromptTemplatesPreview } from "@/components/prompt-templates-preview";
 
 export const HeroSection: FC = () => {
   return (
-    <div className="bg-gradient-to-t from-zinc-50 to-white dark:from-zinc-950 to-black relative">
-      <div className="absolute bg-[url('/_convertfast/gradient-bg-0.svg')] bg-auto bg-no-repeat z-0 inset-0 top-0 bottom-0 left-0 right-0 grayscale"></div>
+    <div className="bg-gradient-to-t from-zinc-50 to-white dark:from-zinc-900 dark:to-black relative">
+      <div className="absolute bg-[url('/_convertfast/gradient-bg-0.svg')] bg-auto bg-no-repeat z-0 inset-0 top-0 bottom-0 left-0 right-0 grayscale dark:opacity-30 dark:invert-[0.25]"></div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-24 lg:py-32 relative z-10">
         <div className="max-w-3xl">
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-primary mb-6 drop-shadow-md">

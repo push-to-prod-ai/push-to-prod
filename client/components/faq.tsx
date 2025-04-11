@@ -42,7 +42,7 @@ const DEFAULT_ITEMS: FAQItem[] = [
 export const FAQ: FC<{items?: FAQItem[]}> = (props) => {
   const { items = DEFAULT_ITEMS } = props;
   return (
-    <section className="bg-gradient-to-t from-zinc-50 to-white dark:from-zinc-950 to-black">
+    <section className="bg-gradient-to-t from-zinc-50 to-white dark:from-zinc-900 dark:to-black">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
         <div className="mx-auto max-w-4xl">
           <h2 className="text-3xl font-bold tracking-tight text-primary sm:text-4xl text-center mb-8">
@@ -58,7 +58,7 @@ export const FAQ: FC<{items?: FAQItem[]}> = (props) => {
                 <AccordionTrigger className="px-4 py-4">
                   <span className="text-left font-medium">{faq.question}</span>
                 </AccordionTrigger>
-                <AccordionContent className="px-4 pb-4 pt-2 text-gray-600">
+                <AccordionContent className="px-4 pb-4 pt-2 text-gray-600 dark:text-gray-300">
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>

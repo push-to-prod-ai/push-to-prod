@@ -41,7 +41,7 @@ export function Navbar() {
             alt="Logo" 
             width={32} 
             height={32} 
-            className="h-8 w-8"
+            className="h-8 w-8 dark:invert"
           />
           <span className="hidden font-bold sm:inline-block">PushToProd.ai</span>
         </Link>
@@ -90,7 +90,7 @@ export function Navbar() {
             <Link href="/#pricing" className="hover:bg-secondary rounded-md p-2">Pricing</Link>
             <Link href="/settings" className="flex items-center space-x-1 hover:bg-secondary rounded-md p-2">
               <span className="">Settings</span>
-              <span className="bg-primary text-white px-1 rounded-lg transition hidden lg:inline">
+              <span className="bg-primary text-primary-foreground px-1 rounded-lg transition hidden lg:inline dark:bg-accent dark:text-accent-foreground">
                 Get Started
               </span>
             </Link>

@@ -1,7 +1,6 @@
 import { FC } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-// import { BGShapeCircle } from "@/components/bg-shape-circle";
 
 interface CTAData {
   title?: string;
@@ -14,8 +13,7 @@ export const CTA: FC<CTAData> = (props) => {
     description = "PushToProd.ai automatically generates detailed PR descriptions by analyzing your code changes, saving time and improving code review quality. Get started in minutes with our GitHub App.",
   } = props;
   return (
-    <section className="bg-gradient-to-t from-zinc-50 to-white dark:from-zinc-950 to-black relative">
-      <div className="absolute bg-[url('/_convertfast/gradient-bg-0.svg')] bg-auto bg-no-repeat inset-0 top-0 bottom-0 left-0 right-0 grayscale bg-center"></div>
+    <section className="bg-gradient-to-t from-zinc-50 to-white dark:from-zinc-900 dark:to-black relative">
       <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 sm:py-24 lg:px-8 lg:py-32 relative z-10">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl">{title}</h2>
