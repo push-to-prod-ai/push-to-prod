@@ -88,7 +88,7 @@ interface FeatureSectionProps {
 export const FeatureSection: FC<FeatureSectionProps> = (props) => {
   const {
     items = DEFAULT_ITEMS,
-    brand = "PushToProd.ai",
+    brand = "",
     title = "Streamline your documentation workflow",
     description = "PushToProd.ai is a powerful GitHub App that automatically generates intelligent PR descriptions by analyzing your code changes, improving team communication and speeding up code reviews.",
   } = props;

@@ -43,7 +43,7 @@ export const HeroSection: FC = () => {
 
         <div className="mt-8 sm:mt-12 relative">
           <Card className="shadow-2xl border">
-            <CardContent className="p-6">
+            <CardContent>
               <PromptTemplatesPreview />
             </CardContent>
           </Card>

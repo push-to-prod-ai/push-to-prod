@@ -26,4 +26,5 @@ export const collections = {
   organizations: 'organizations',
   settings: 'settings',
   users: 'users',
+  newsletter: 'newsletter_subscribers',
 }; 
