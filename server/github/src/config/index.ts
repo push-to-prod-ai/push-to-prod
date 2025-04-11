@@ -1,9 +1,10 @@
 export const config = {
   urls: {
-    blastRadius: "https://blast-radius-620323149335.us-central1.run.app"
+    blastRadius: "https://blast-radius-620323149335.us-central1.run.app",
+    syntropy: "https://syntropy-620323149335.us-central1.run.app"
   },
   ai: {
-    model: "gemini-2.0-flash-thinking-exp"
+    model: "gemini-2.0-flash"
   },
   firebase: {
     projectId: process.env.FIREBASE_PROJECT_ID,

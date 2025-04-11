@@ -5,6 +5,15 @@ import { BlastRadiusService } from "./services/blast-radius.js";
 import { TicketService } from "./services/ticket.js";
 import { DatabaseService } from "./services/database.js";
 import { Logger } from "./utils/logger.js";
+import {SyntropyService} from "./services/syntropy.js";
+import {
+  getPRFilesAsRawCode,
+  formatJsonForGithubComment,
+  issuesToMarkdown,
+  convertToSimpleJiraFormat,
+  // convertMarkdownToPlainText
+} from "./utils/octokit_tools.js"
+import { ComparisonSummary } from "./types/index.js";
 
 /**
  * AppService class that handles all GitHub app functionality
@@ -15,6 +24,7 @@ export class AppService {
   private blastRadiusService: BlastRadiusService;
   private ticketService: TicketService;
   private databaseService: DatabaseService;
+  private syntropyService: SyntropyService
   
   constructor() {
     this.logger = new Logger();
@@ -22,6 +32,7 @@ export class AppService {
     this.blastRadiusService = new BlastRadiusService();
     this.ticketService = new TicketService();
     this.databaseService = new DatabaseService();
+    this.syntropyService = new SyntropyService();
   }
 
   /**
@@ -170,10 +181,11 @@ export class AppService {
     });
 
     // Jira ticket integration - check feature flag at runtime with user ID
-    app.on(["pull_request.opened", "pull_request.closed"], async (context) => {
+    app.on(["pull_request.opened", "pull_request.closed", "pull_request.reopened"], async (context) => {
       const userId = context.payload.sender?.id?.toString() || 'default';
       const featureFlags = await this.databaseService.getFeatureFlags(userId);
-      
+      this.logger.info("featureFlags", {featureFlags : featureFlags})
+
       if (!featureFlags.jiraTicketEnabled) {
         return;
       }
@@ -209,7 +221,7 @@ export class AppService {
       const prompt = `Analyze these code changes from a ${actionText} pull request and provide a concise summary for a Jira ticket:\n\n${diffs}`;
       
       // Pass userId to generateContent for custom system instructions
-      const summaryText = await this.aiService.generateContent(prompt, userId);
+      const summaryText: string = await this.aiService.generateContent(prompt, userId);
       this.logger.info("Generated AI summary for Jira", { summaryLength: summaryText.length });
 
       // Get blast radius calculation to find relevant Jira tickets
@@ -220,18 +232,36 @@ export class AppService {
 
       if (!blastRadiusResponse.relevant_issues.length) {
         this.logger.info("No relevant tickets found for this PR");
+        await context.octokit.issues.createComment(
+          {
+            ...context.repo(),
+            issue_number: pr.number,
+            body: "There don't seem to be any relevant tickets for this PR."
+          });
         return;
       }
-      
+
+      this.logger.info("Adding Blast Radius comment to PR.")
+      const comment_body: string = issuesToMarkdown(blastRadiusResponse.relevant_issues)
+      await context.octokit.issues.createComment(
+          {
+            ...context.repo(),
+            issue_number: pr.number,
+            body: comment_body
+          });
+
+      // TODO: determine if it makes sense to add the comment to each and every "relevant" issue found?
       const relevantIssue = blastRadiusResponse.relevant_issues[0];
       this.logger.info("Selected relevant ticket", { ticketKey: relevantIssue.key });
 
       // Create different comment content based on PR action
-      const commentPrefix = action === 'opened' 
-        ? `🔄 **PR Opened**: Pull request #${pr.number} has been opened.\n\n` 
-        : `✅ **PR ${pr.merged ? 'Merged' : 'Closed'}**: Pull request #${pr.number} has been ${pr.merged ? 'merged' : 'closed'}.\n\n`;
-      
-      const commentText = `${commentPrefix}**Summary:**\n${summaryText}\n\n**PR Link:** ${pr.html_url}`;
+      const commentPrefix = action === 'opened'
+        ? ` **PR Opened**: Pull request #${pr.number} has been opened.\n\n`
+        : ` **PR ${pr.merged ? 'Merged' : 'Closed'}**: Pull request #${pr.number} has been ${pr.merged ? 'merged' : 'closed'}.\n\n`;
+
+      // TODO: Figure out Jira formatting for MD or paste links to formatted responses on another site.
+      // const commentText = `${commentPrefix}**Summary:**\n${summaryText}\n\n**PR Link:** ${pr.html_url}`;
+      const commentText = `${commentPrefix}**PR Link:** ${pr.html_url}`;
 
       // Add comment to ticket - pass the user ID (using GitHub user ID as a fallback)
       await this.ticketService.addComment(
@@ -254,6 +284,28 @@ export class AppService {
         sha: pr.head.sha,
         ticketKey: relevantIssue.key,
       });
+
+      this.logger.info("Fetching raw files from PR for analysis.");
+      const PRFilesAsRawCode  = JSON.stringify(await getPRFilesAsRawCode(context, this.logger));
+
+      this.logger.info("Synthesizing");
+      const synthesisSummary: ComparisonSummary = await this.syntropyService.generateSynthesisSummary(
+            PRFilesAsRawCode,
+            JSON.stringify(blastRadiusResponse)
+      );
+
+      await this.ticketService.addComment(
+        relevantIssue.key,
+        { text: convertToSimpleJiraFormat(synthesisSummary) },
+        userId
+      );
+
+      await context.octokit.issues.createComment(
+        {
+          ...context.repo(),
+          issue_number: pr.number,
+          body: formatJsonForGithubComment(synthesisSummary)
+        });
     });
   }
 }

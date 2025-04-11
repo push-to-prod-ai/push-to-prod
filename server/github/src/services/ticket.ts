@@ -56,7 +56,7 @@ export class TicketService {
     };
 
     await axios.post(
-      `${system.baseUrl}/issue/${ticketId}/comment`,
+      `https://${system.baseUrl}/issue/${ticketId}/comment`,
       payload,
       { headers: system.headers }
     );
