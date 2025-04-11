@@ -18,7 +18,6 @@ class Config:
         'settings': 'settings',
         'users': 'users'
     }
-    GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 
 
 # Feature Flags
@@ -146,7 +145,7 @@ class DatabaseService:
 
 
 # Validate required environment variables
-required_env_vars = ['GEMINI_API_KEY', 'FIREBASE_PROJECT_ID']
+required_env_vars = ['FIREBASE_PROJECT_ID']
 
 for env_var in required_env_vars:
     if not os.getenv(env_var):
