@@ -87,7 +87,6 @@ export function Navbar() {
           </DropdownMenu>
         <div className="mr-4 space-x-1 hidden lg:flex">   
           <nav className="flex items-center space-x-1 text-sm">
-            <Link href="/#pricing" className="hover:bg-secondary rounded-md p-2">Pricing</Link>
             <Link href="/settings" className="flex items-center space-x-1 hover:bg-secondary rounded-md p-2">
               <span className="">Settings</span>
               <span className="bg-primary text-primary-foreground px-1 rounded-lg transition hidden lg:inline dark:bg-accent dark:text-accent-foreground">
@@ -97,6 +96,7 @@ export function Navbar() {
             <Link href="https://github.com/push-to-prod-ai/push-to-prod/discussions" target="_blank" rel="noopener noreferrer" className="hover:bg-secondary rounded-md p-2">Contact</Link>
             {/* <Link href="/#features" className="hover:bg-secondary rounded-md p-2">Explore</Link> */}
             <Link href="/#features" className="hover:bg-secondary rounded-md p-2">Features</Link>
+            <Link href="/#pricing" className="hover:bg-secondary rounded-md p-2">Pricing</Link>
           </nav>
         </div>
         <div className="flex flex-1 items-center space-x-1 justify-end">

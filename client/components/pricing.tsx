@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 const plans = [
   {
-    name: "Free",
+    name: "Personal",
     id: "plan-free",
     href: "https://github.com/apps/pushtoprod-ai",
     price: { monthly: "$0", annually: "$0" },
@@ -58,7 +58,7 @@ const plans = [
 
 export function PricingSection() {
   return (
-    <div className="py-24 sm:py-32">
+    <div id="pricing" className="py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-4xl sm:text-center">
           <h2 className="text-base font-semibold leading-7 text-muted-foreground">Pricing</h2>
