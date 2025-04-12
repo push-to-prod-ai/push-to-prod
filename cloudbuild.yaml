@@ -14,10 +14,10 @@ steps:
     args: ['build', '-t', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/syntropy:$COMMIT_SHA', './server/syntropy']
     waitFor: ['-'] # Start immediately
 
-  - id: 'build-pushtoprod'
-    name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/pushtoprod:$COMMIT_SHA', './client']
-    waitFor: ['-'] # Start immediately
+  # - id: 'build-pushtoprod'
+  #   name: 'gcr.io/cloud-builders/docker'
+  #   args: ['build', '-t', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/pushtoprod:$COMMIT_SHA', './client']
+  #   waitFor: ['-'] # Start immediately
 
   # Push images after their respective builds complete
   - id: 'push-github'
@@ -35,10 +35,10 @@ steps:
     args: ['push', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/syntropy:$COMMIT_SHA']
     waitFor: ['build-syntropy']
 
-  - id: 'push-pushtoprod'
-    name: 'gcr.io/cloud-builders/docker'
-    args: ['push', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/pushtoprod:$COMMIT_SHA']
-    waitFor: ['build-pushtoprod']
+  # - id: 'push-pushtoprod'
+  #   name: 'gcr.io/cloud-builders/docker'
+  #   args: ['push', '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/pushtoprod:$COMMIT_SHA']
+  #   waitFor: ['build-pushtoprod']
 
   # Deploy all services in parallel after their respective images are pushed
   - id: 'deploy-github'
@@ -95,31 +95,31 @@ steps:
       - 'GEMINI_API_KEY=push-to-prod-gemini-key:latest'
     waitFor: ['push-syntropy']
 
-  - id: 'deploy-pushtoprod'
-    name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: gcloud
-    args:
-      - 'run'
-      - 'deploy'
-      - 'pushtoprod'
-      - '--image'
-      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/pushtoprod:$COMMIT_SHA'
-      - '--region'
-      - '${_REGION}'
-      - '--set-secrets'
-      - 'NEXTAUTH_SECRET=frontend-nextauth-secret:latest,GITHUB_ID=github-oauth-client-id:latest,GITHUB_SECRET=github-oauth-client-secret:latest,SESSION_SECRET=frontend-session-secret:latest,FIREBASE_PROJECT_ID=frontend-firebase-project-id:latest'
-      - '--set-env-vars'
-      - 'NEXTAUTH_URL=https://pushtoprod.me,NODE_ENV=production'
-      - '--allow-unauthenticated'
-      - '--service-account=frontend-service-account@$PROJECT_ID.iam.gserviceaccount.com'
-      - 'FIREBASE_CLIENT_EMAIL=frontend-firebase-client-email:latest,FIREBASE_PRIVATE_KEY=frontend-firebase-private-key:latest,FIREBASE_PROJECT_ID=frontend-firebase-project-id:latest'
-    waitFor: ['push-pushtoprod']
+  # - id: 'deploy-pushtoprod'
+  #   name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  #   entrypoint: gcloud
+  #   args:
+  #     - 'run'
+  #     - 'deploy'
+  #     - 'pushtoprod'
+  #     - '--image'
+  #     - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/pushtoprod:$COMMIT_SHA'
+  #     - '--region'
+  #     - '${_REGION}'
+  #     - '--set-secrets'
+  #     - 'NEXTAUTH_SECRET=frontend-nextauth-secret:latest,GITHUB_ID=github-oauth-client-id:latest,GITHUB_SECRET=github-oauth-client-secret:latest,SESSION_SECRET=frontend-session-secret:latest,FIREBASE_PROJECT_ID=frontend-firebase-project-id:latest'
+  #     - '--set-env-vars'
+  #     - 'NEXTAUTH_URL=https://pushtoprod.me,NODE_ENV=production'
+  #     - '--allow-unauthenticated'
+  #     - '--service-account=frontend-service-account@$PROJECT_ID.iam.gserviceaccount.com'
+  #     - 'FIREBASE_CLIENT_EMAIL=frontend-firebase-client-email:latest,FIREBASE_PRIVATE_KEY=frontend-firebase-private-key:latest,FIREBASE_PROJECT_ID=frontend-firebase-project-id:latest'
+  #   waitFor: ['push-pushtoprod']
 
 images:
   - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/github:$COMMIT_SHA'
   - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/blast-radius:$COMMIT_SHA'
   - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/syntropy:$COMMIT_SHA'
-  - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/pushtoprod:$COMMIT_SHA'
+  # - '${_REGION}-docker.pkg.dev/$PROJECT_ID/push-to-prod-builds/pushtoprod:$COMMIT_SHA'
   
 options:
   logging: CLOUD_LOGGING_ONLY
