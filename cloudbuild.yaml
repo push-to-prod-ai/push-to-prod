@@ -112,6 +112,7 @@ steps:
       - 'NEXTAUTH_URL=https://pushtoprod.me,NODE_ENV=production'
       - '--allow-unauthenticated'
       - '--service-account=frontend-service-account@$PROJECT_ID.iam.gserviceaccount.com'
+      - 'FIREBASE_CLIENT_EMAIL=frontend-firebase-client-email:latest,FIREBASE_PRIVATE_KEY=frontend-firebase-private-key:latest,FIREBASE_PROJECT_ID=frontend-firebase-project-id:latest'
     waitFor: ['push-pushtoprod']
 
 images:
