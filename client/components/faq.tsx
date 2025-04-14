@@ -15,12 +15,12 @@ const DEFAULT_ITEMS: FAQItem[] = [
   {
     question: "What does PushToProd.ai do?",
     answer:
-      "PushToProd.ai is a GitHub App that automatically generates detailed pull request descriptions by analyzing your code changes. It creates context-aware summaries with proper code references and permalinks, helping reviewers quickly understand the purpose and impact of your changes.",
+      "PushtoProd.ai is an LLM-based documentation tool designed to streamline your project management process. It automatically generates Pull Request descriptions, identifies relevent tickets in your project management software, and provides a summary of alignment between the PR and the ticket.",
   },
   {
     question: "How do I get started with PushToProd.ai?",
     answer:
-      "Getting started is simple. Just install our GitHub App at github.com/apps/pushtoprodbot, open a pull request, and our bot will automatically analyze your changes and generate a description. No configuration required - you'll see results immediately.",
+      "Getting started is simple. Just install our GitHub App, open a pull request, and our bot will automatically analyze your changes and generate a description. Optionally, you can configure the bot to use your own project management software and tweak the LLM prompts to better fit your needs.",
   },
   {
     question: "How does PushToProd.ai compare to manual PR descriptions?",
